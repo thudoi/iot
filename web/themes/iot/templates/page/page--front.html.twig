@@ -1,0 +1,78 @@
+
+<!--menu mobile-->
+{% if page.menumobile %}
+  {% block menumobile %}
+    {{ page.menumobile }}
+  {% endblock %}
+{% endif %}
+<!--header-->
+{% include '@iot/include/header.html.twig' %}
+<div class="page">
+    <!--menu-->
+  {% if page.menubar %}
+      <nav class="menu hidden-sm hidden-xs">
+          <div class="container">
+            {% block menubar %}
+              {{ page.menubar }}
+            {% endblock %}
+          </div>
+      </nav>
+  {% endif %}
+    {# Highlighted #}
+    {% if page.hero %}
+        {% block hero %}
+            <div class="home-hero">{{ page.hero }}</div>
+        {% endblock %}
+    {% endif %}
+
+    <!--section-->
+    {% if page.content_top %}
+        {% block content_top %}
+            <section class="section">
+                <div class="container">{{ page.content_top }}</div>
+            </section>
+        {% endblock %}
+    {% endif %}
+
+    {% if page.content_middle %}
+        {% block content_middle %}
+            <section class="section section-bg">
+                <div class="container">{{ page.content_middle }}</div>
+            </section>
+        {% endblock %}
+    {% endif %}
+
+    <!--section-->
+    {#Help #}
+
+    {#Content #}
+    {% block content %}
+        <a id="main-content"></a>
+        {{ page.content }}
+    {% endblock %}
+
+
+    {% if page.content_bottom %}
+        {% block content_bottom %}
+            <section class="section">
+                <div class="container">{{ page.content_bottom }}</div>
+            </section>
+        {% endblock %}
+    {% endif %}
+
+    <!--footer-->
+    {% if page.footer %}
+        {% block footer %}
+            <footer class="footer {{ container }}" role="contentinfo">
+                {{ page.footer }}
+            </footer>
+        {% endblock %}
+    {% endif %}
+</div>
+
+
+{% if page.footer_hidden%}
+  {% block footer_hidden %}
+    {{ page.footer_hidden }}
+  {% endblock %}
+{% endif %}

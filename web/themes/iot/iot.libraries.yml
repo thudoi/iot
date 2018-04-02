@@ -1,0 +1,44 @@
+global-styling:
+  css:
+    base:
+      css/font-awesome.css: {}
+      css/fonts.css: {}
+    theme:
+      css/main.css: {}
+      css/pie.css: {}
+      css/animate.css: {}
+      css/circle.css: {}
+      css/font-awesome.css: {}
+      css/ionicons.css: {}
+      css/owl.carousel.css: {}
+      css/slick.css: {}
+      css/carousel.css: {}
+      css/bootstrap-datetimepicker.css: {}
+      css/custom.css: {}
+  js:
+    js/bootstrap-slider.js: {}
+    js/isotope.pkgd.min.js: {}
+    js/jquery.fancybox.js: {}
+    js/jquery.matchHeight.js: {}
+    js/jquery.nicescroll.js: {}
+    js/owl.carousel.js: {}
+    js/slick.js: {}
+    js/split.js: {}
+    js/swiper.es5.js: {}
+    js/swiper.js: {}
+    js/affix.js: {}
+    js/moment.js: {}
+    js/bootstrap-datetimepicker.min.js: {}
+    js/jquery.mousewheel.min.js: {}
+    js/jquery.carousel-1.1.js: {}
+    js/main.js: {}
+
+  dependencies:
+    - core/jquery
+    - core/drupal.ajax
+form-validate:
+  js:
+    js/jquery.validate.min.js: {}
+question-front:
+  js:
+    js/main.js: {}

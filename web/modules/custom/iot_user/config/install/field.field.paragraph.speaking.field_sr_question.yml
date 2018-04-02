@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_sr_question
+    - paragraphs.paragraphs_type.speaking
+  module:
+    - text
+id: paragraph.speaking.field_sr_question
+field_name: field_sr_question
+entity_type: paragraph
+bundle: speaking
+label: Question
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

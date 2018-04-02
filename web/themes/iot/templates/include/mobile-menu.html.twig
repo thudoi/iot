@@ -1,0 +1,50 @@
+
+<nav class="menu-res hidden-lg hidden-md">
+  <div class="menu-res-inner">
+    <ul>
+      <li class="has-child">
+        <a href="#">My IELTS <span></span> </a>
+        <ul class="sub-menu">
+            {% if user %}
+              <li><a href="/account/analytics"><em class="menu-icon icon-analytics"></em>IELTS Analytics </a>
+              </li>
+              <li><a href="/account/history"><em class="menu-icon icon-history"></em> History</a>
+              </li>
+              <li><a href="/account/profile"><em class="menu-icon icon-profile"></em> User Profile </a>
+              </li>
+            {% else %}
+              <li><a href="/account/login?destination=/account/analytics"><em class="menu-icon icon-analytics"></em>IELTS Analytics </a>
+              </li>
+              <li><a href="/account/login?destination=/account/history"><em class="menu-icon icon-history"></em> History</a>
+              </li>
+              <li><a href="/account/login?destination=/account/profile"><em class="menu-icon icon-profile"></em> User Profile </a>
+              </li>
+            {% endif %}
+        </ul>
+      </li>
+      <li><a href="/ielts-exam-library#academic">Academic Tests </a>
+      </li>
+      <li><a href="/ielts-exam-library#general-training">General Training Tests </a></li>
+      <li class="has-child"><a href="/ielts-tips">IELTS Tips <span></span></a>
+        <ul class="sub-menu">
+          <li><a href="#">IELTS Tips 1</a></li>
+          <li class="has-child"><a href="#">IELTS Tips 2 </a>
+            <ul class="sub-menu">
+              <li><a href="#">IELTS Tips 1 </a></li>
+              <li><a href="#">IELTS Tips 2</a></li>
+              <li><a href="#">IELTS Tips 3</a></li>
+              <li><a href="#">IELTS Tips 4</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+        {% if user %}
+          <li class="li-login"><a href="/account/profile">Welcome! {{ user.name.value }} </a></li>
+          <li class="li-login"><a href="/user/logout">Logout </a></li>
+        {% else %}
+          <li class="li-login"><a href="/account/login?destination=/{{ q }}">Login </a></li>
+          <li class="li-login"><a href="/account/register?destination=/{{ q }}">Register </a></li>
+        {% endif %}
+    </ul>
+  </div>
+</nav>

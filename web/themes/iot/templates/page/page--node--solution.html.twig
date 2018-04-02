@@ -1,0 +1,41 @@
+<!--menu mobile-->
+{% if page.menumobile %}
+  {% block menumobile %}
+    {{ page.menumobile }}
+  {% endblock %}
+{% endif %}
+<!--header-->
+{% include '@iot/include/header.html.twig' %}
+<div class="page">
+  <!--menu-->
+  {% if page.menubar %}
+    <nav class="menu hidden-sm hidden-xs">
+      <div class="container">
+        {% block menubar %}
+          {{ page.menubar }}
+        {% endblock %}
+      </div>
+    </nav>
+  {% endif %}
+    {{ page.breadcrumb }}
+    {# Content #}
+    {% block content %}
+        {{ page.content }}
+    {% endblock %}
+    {# Help #}
+
+</div>
+<!--footer-->
+{% if page.footer %}
+    {% block footer %}
+      <footer class="footer {{ container }}" role="contentinfo">
+          {{ page.footer }}
+      </footer>
+    {% endblock %}
+{% endif %}
+
+{% if page.footer_hidden%}
+  {% block footer_hidden %}
+    {{ page.footer_hidden }}
+  {% endblock %}
+{% endif %}

@@ -1,0 +1,23 @@
+<header class="header">
+    <div class="container">
+        <a href="/" class="logo">
+            <img alt="" src="/themes/iot/images/logo.svg">
+        </a>
+        {% if page.header_top_ads %}
+            <div class="header-banner hidden-sm hidden-xs">
+                {% block header_top_ads %}
+                    {{ page.header_top_ads }}
+                {% endblock %}
+            </div>
+        {% endif %}
+        <div class="nav-icon hidden-lg hidden-md">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</header>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/libraries/templates/iot.js"></script>
+</head>
+<body>
+
+<form class="token-answer">
+    <div class="form-group">
+        <divn style="width: 40%; float: left; margin-bottom: 10px;" class="col-md-6">
+            <label for="qnumber">Question Number:</label>
+            <input size="30" type="number" class="form-control" id="qnumber">
+        </divn>
+        <div style="width: 40%; float:left; margin-bottom: 10px" class="col-md-6">
+            <label for="prefix">Prefix:</label>
+            <input size="30" type="text" class="form-control" id="prefix">
+        </div>
+    </div>
+    <div class="clearfix" style="clear: both;"></div>
+    <div class="form-group">
+        <label for="alias">Answer Alias:</label>
+        <input type="text" class="form-control" id="alias">
+    </div>
+    <div class="checkbox">
+        <label><input id="cas" value="1" type="checkbox"> Answer Cashing Sensitive</label>
+    </div>
+    <div class="answer-warapper">
+        <div data="1" class="answer answer-1 form-group">
+            <label for="answer-1">Answer 1</label>
+            <input id="answer-1" class="form-control answer-form" value="" type="text"/>
+        </div>
+    </div>
+    <button type="button" class="btn add-more btn-success">Add more Answer</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+core: 8.x
+type: theme
+base theme: bootstrap
+
+name: 'IOT'
+description: 'Sub theme IOT base on bootstrap theme.'
+package: Core
+
+regions:
+  navigation: 'Navigation'
+  menubar: 'MenuBar'
+  menumobile: 'Menu Mobile'
+  navigation_collapsible: 'Navigation (Collapsible)'
+  header: 'Top Bar'
+  header_top_ads: 'Header Top Ads'
+  highlighted: 'Highlighted'
+  help: 'Help'
+  content: 'Content'
+  sidebar_left: 'Sidebar Left'
+  sidebar_right: 'Sidebar Right'
+  footer: 'Footer'
+  footer_hidden: 'Footer Hidden'
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+  content_middle: 'Content middle'
+  content_top: 'Content top'
+  content_bottom: 'Content bottom'
+  header_question: 'Header question'
+  breadcrumb: Breadcrumb
+  hero: 'Hero'
+
+libraries:
+  - 'iot/global-styling'

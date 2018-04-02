@@ -1,0 +1,113 @@
+{
+    "name": "drupal-composer/drupal-project",
+    "description": "Project template for Drupal 8 projects with composer",
+    "type": "project",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "",
+            "role": ""
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+
+    "require": {
+        "composer/installers": "^1.2",
+        "cweagans/composer-patches": "^1.6",
+        "drupal-composer/drupal-scaffold": "^2.2",
+        "drupal/admin_toolbar": "^1.20",
+        "drupal/backup_migrate": "^4.0@beta",
+        "drupal/bootstrap": "^3.6",
+        "drupal/ckeditor_font": "^1.0",
+        "drupal/console": "^1.0.1",
+        "drupal/core": "~8.0",
+        "drupal/ctools": "^3.0",
+        "drupal/devel": "^1.2",
+        "drupal/email_registration": "^1.0@RC",
+        "drupal/entity_browser": "^1.3",
+        "drupal/entity_reference_revisions": "^1.3",
+        "drupal/features": "^3.5",
+        "drupal/google_analytics": "^2.2",
+        "drupal/imce": "^1.6",
+        "drupal/ip2country": "^1.8",
+        "drupal/media_entity": "^1.6",
+        "drupal/media_entity_audio": "^1.0@beta",
+        "drupal/media_entity_image": "^1.2",
+        "drupal/minifyhtml": "^1.1",
+        "drupal/ologin": "^1.2",
+        "drupal/paragraphs": "^1.2",
+        "drupal/plugin": "^2.5",
+        "drupal/private_message": "^1.0@beta",
+        "drupal/redis": "^1.0@RC",
+        "drupal/restui": "^1.15",
+        "drupal/rules": "^3.0@alpha",
+        "drupal/sitemap": "^1.3",
+        "drupal/smtp": "^1.0@beta",
+        "drupal/social_api": "^1.1",
+        "drupal/social_auth_facebook": "^1.0",
+        "drupal/social_auth_google": "^1.0",
+        "drupal/social_auth_twitter": "^1.0@beta",
+        "drupal/taxonomy_menu": "^3.3",
+        "drupal/token": "^1.0",
+        "drupal/twig_tweak": "^1.9",
+        "drupal/ultimate_cron": "^2.0@alpha",
+        "drush/drush": "~8.0|^9.0.0-beta7",
+        "facebook/graph-sdk": "^5.6",
+        "mikehaertl/phpwkhtmltopdf": "^2.3",
+        "tecnickcom/tcpdf": "6.2.11",
+        "webflo/drupal-finder": "^1.0.0",
+        "webmozart/path-util": "^2.3"
+    },
+    "require-dev": {
+        "behat/mink": "~1.7",
+        "behat/mink-goutte-driver": "~1.2",
+        "jcalderonzumba/gastonjs": "~1.0.2",
+        "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
+        "mikey179/vfsstream": "~1.2",
+        "phpunit/phpunit": ">=4.8.28 <5",
+        "symfony/css-selector": "~2.8|~3.0"
+    },
+    "conflict": {
+        "drupal/drupal": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "classmap": [
+            "scripts/composer/ScriptHandler.php"
+        ]
+    },
+    "scripts": {
+        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+        "pre-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "pre-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "post-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ]
+    },
+    "extra": {
+        "installer-paths": {
+            "web/core": ["type:drupal-core"],
+            "web/libraries/{$name}": ["type:drupal-library"],
+            "web/modules/contrib/{$name}": ["type:drupal-module"],
+            "web/profiles/contrib/{$name}": ["type:drupal-profile"],
+            "web/themes/contrib/{$name}": ["type:drupal-theme"],
+            "drush/contrib/{$name}": ["type:drupal-drush"]
+        }
+    }
+}

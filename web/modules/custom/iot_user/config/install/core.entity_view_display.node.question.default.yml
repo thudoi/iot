@@ -1,0 +1,26 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.question.field_question
+    - node.type.question
+  module:
+    - field_collection
+    - user
+id: node.question.default
+targetEntityType: node
+bundle: question
+mode: default
+content:
+  field_question:
+    weight: 101
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: field_collection_list
+    region: content
+  links:
+    weight: 100
+    region: content
+hidden:
+  private_message_link: true

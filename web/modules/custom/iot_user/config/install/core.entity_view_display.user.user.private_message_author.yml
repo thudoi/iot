@@ -1,0 +1,52 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.user.private_message_author
+    - field.field.user.user.field_completed
+    - field.field.user.user.field_destination
+    - field.field.user.user.field_dob
+    - field.field.user.user.field_facebook_id
+    - field.field.user.user.field_first_name
+    - field.field.user.user.field_gender
+    - field.field.user.user.field_ielts
+    - field.field.user.user.field_ima
+    - field.field.user.user.field_last_name
+    - field.field.user.user.field_month_year_exam
+    - field.field.user.user.field_practicing
+    - field.field.user.user.field_previous_score
+    - field.field.user.user.field_subscribe
+    - field.field.user.user.field_target_score
+    - field.field.user.user.field_wechat_id
+    - field.field.user.user.user_picture
+  module:
+    - user
+id: user.user.private_message_author
+targetEntityType: user
+bundle: user
+mode: private_message_author
+content:
+  linked_username:
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_completed: true
+  field_destination: true
+  field_dob: true
+  field_facebook_id: true
+  field_first_name: true
+  field_gender: true
+  field_ielts: true
+  field_ima: true
+  field_last_name: true
+  field_month_year_exam: true
+  field_practicing: true
+  field_previous_score: true
+  field_subscribe: true
+  field_target_score: true
+  field_wechat_id: true
+  member_for: true
+  private_message_link: true
+  user_picture: true

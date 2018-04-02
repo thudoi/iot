@@ -1,0 +1,315 @@
+<?php
+
+use Drupal\node\Entity\Node;
+use Drupal\iot_quiz\Controller\QuizController;
+use Drupal\node\NodeInterface;
+use Drupal\user\Entity\User;
+use Drupal\taxonomy\Entity\Term;
+
+/**
+ * Implement hook_reprocess_page
+ *
+ * @param $variables
+ */
+
+
+
+function iot_preprocess_html(&$variables) {
+  $request = \Drupal::request();
+  $node = $request->get('node');
+  $title = '';
+  if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
+    $title = \Drupal::service('title_resolver')->getTitle($request, $route);
+  }
+  if(is_string($title)){
+    $title = str_replace('_',' ',$title);
+  //  $route->setDefault('_title', $title);
+    $variables['head_title']['title'] = $title;
+  }
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_args = explode('/', $current_path);
+  if(isset($node) && $node->getType()=='quiz' && isset($path_args['3']) && $path_args[3]=='solution'){
+    $variables['head_title']['title'] = 'Solution for '.str_replace('_',' ',$node->getTitle());
+    $variables['attributes']['class'][] = 'solution-page';
+  }
+  if(isset($node) && $node->getType()=='score' && !isset($path_args['3'])){
+    
+    $variables['head_title']['title'] = 'Result for '.str_replace('_',' ',$node->getTitle());
+  }
+
+}
+
+
+function iot_preprocess_page(&$variables) {
+  $request = \Drupal::request();
+  $node = $request->get('node');
+  if ($node) {
+    $current_path = \Drupal::service('path.current')->getPath();
+    $path_args = explode('/', $current_path);
+    if ($node->getType() == 'collection' && !isset($path_args[3])) {
+      $collection = $node;
+      $collection_theme = [
+        '#theme' => 'iot_collection_header',
+        '#collection' => $collection,
+        '#type' => '',
+      ];
+      $collection_header = render($collection_theme);
+      $variables['collection_header'] = $collection_header;
+      $variables['collection'] = $collection;
+    }
+    if ($node->getType() == 'quiz' && !isset($path_args[3])) {
+      $variables['node'] = $node;
+      $set = Node::load($node->get('field_set')->target_id);
+      $collection = Node::load($set->get('field_collection')->target_id);
+      $variables['collection'] = $collection;
+    }
+  }
+  if (isset($variables['node'])) {
+    $variables['title'] = $variables['node']->title->value;
+  }
+  else {
+    $variables['title'] = $variables['page']['#title'];
+  }
+  $user = \Drupal::currentUser();
+  $variables['user'] = NULL;
+  if ($user->id() > 0) {
+    $variables['user'] = User::load($user->Id());
+  }
+  $variables['q'] = '/';
+  if (isset($_GET['q']) && $_GET['q'] != NULL) {
+    $variables['q'] = '/'.$_GET['q'];
+  }
+
+
+}
+
+function iot_preprocess_page_title(&$variables) {
+  $title = '';
+  $request = \Drupal::request();
+  if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
+    $title = \Drupal::service('title_resolver')->getTitle($request, $route);
+  }
+  if(is_string($title)){
+    $title = str_replace('_',' ',$title);
+    $variables['title'] = $title;
+   // $route->setDefault('_title', $title);
+  }
+
+
+}
+
+/**
+ * Implement hook_preprocess_node
+ *
+ * @param $variables
+ */
+function iot_preprocess_node(&$variables) {
+  $node = $variables['elements']['#node'];
+  $collectionService = \Drupal::service('iot_quiz.collectionservice');
+  $questionService = \Drupal::service('iot_quiz.questionservice');
+  switch ($node->getType()) {
+    case 'quiz':
+      $variables['quiz'] = FALSE;
+      $variables['otherTest'] = FALSE;
+      $variables['otherCollection'] = FALSE;
+      if ($node->get('field_quiz_type')->value == 'listening' || $node->get('field_quiz_type')->value == 'reading') {
+        $variables['quiz'] = $questionService->getQuestionDetail($node);
+      }
+      else {
+        $variables['quiz'] = $node;
+        $variables['otherTest'] = $questionService->getOtherTestWS($node);
+        $variables['otherCollection'] = $questionService->getOtherCollectionWS($node);
+      }
+      $set = Node::load($node->get('field_set')->target_id);
+      $collection = Node::load($set->get('field_collection')->target_id);
+      $variables['collection'] = $collection;
+      $variables['#attached']['library'][] = 'iot/question-front';
+      break;
+    case 'score':
+      $quiz = Node::load($node->get('field_score_quiz')->target_id);
+      $user = User::load($node->getOwnerId());
+      $set = Node::load($quiz->get('field_set')->target_id);
+      $other = $questionService->getOtherTestResult($node);
+      $collection = Node::load($set->get('field_collection')->target_id);
+      $variables['collection'] = $collection;
+      $variables['set'] = $set;
+      $variables['quiz'] = $quiz;
+      $variables['author'] = $user;
+      $variables['score'] = $questionService->getResultQuestion($quiz, $node, $collection, $user, $set, date('d M Y', strtotime($collection->get('field_publication_date')->value)));
+      $variables['collection_date'] = date('d M Y', strtotime($collection->get('field_publication_date')->value));
+      $variables['other'] = $other;
+      $variables['#attached']['library'][] = 'iot/question-front';
+
+      break;
+    case 'collection':
+      $variables['collection_date'] = date('d M Y', strtotime($node->get('field_publication_date')->value));
+      $variables['collection'] = $collectionService->getCollectionDetail($node);
+      $variables['#attached']['library'][] = 'iot/question-front';
+      break;
+    case 'tips':
+      $vote_widget_service = \Drupal::service('rate.entity.vote_widget');
+      $vote_widget = $vote_widget_service->buildRateVotingWidget(
+        $node->id(),
+        $node->getEntityTypeId(),
+        $node->bundle()
+      );
+
+      $views = counterNode($node);
+      $term = Term::load($node->get('field_category')->target_id);
+      $tags = $node->get('field_tags')->getValue();
+      $tags = array_column($tags,'target_id');
+      if ($tags) {
+        foreach ($tags as $tag){
+          $trm = Term::load($tag);
+          $variables['tags'][] = [
+            'tag'=> $trm,
+            'tag_uri'=>taxonomy_term_uri($trm)
+          ];
+        }
+      }
+      else {
+        $variables['tags'] = FALSE;
+        $variables['tags_uri'] = FALSE;
+      }
+      if ($term) {
+        $variables['term'] = $term;
+        $variables['term_uri'] = taxonomy_term_uri($term);
+        $variables['related'] = getRelateTips($node);
+      }
+      else {
+        $variables['term'] = FALSE;
+        $variables['term_uri'] = FALSE;
+        $variables['related'] = FALSE;
+      }
+
+      $variables['views'] = $views;
+      $variables['star_rate'] = $vote_widget['votingapi_links'];
+      break;
+  }
+
+}
+
+/**
+ * Implement hook_theme_suggestions_alter(array &$suggestions, array
+ * $variables, $hook)
+ *
+ * @param array $suggestions
+ * @param array $variables
+ * @param $hook
+ */
+function iot_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+  // Add an interface-language specific suggestion to all theme hooks.
+  if (isset($suggestions[0]) && $suggestions[0] == 'page__node') {
+
+    $node = \Drupal::request()->get('node');
+    if ($node) {
+      $current_path = \Drupal::service('path.current')->getPath();
+      $path_args = explode('/', $current_path);
+      if ($node->getType() == 'quiz' && !isset($path_args[3])) {
+        if ($node->get('field_quiz_type')->value == 'listening' || $node->get('field_quiz_type')->value == 'reading') {
+          $suggestions[] = 'page__quiz__question';
+        }
+        else {
+          $suggestions[] = 'page__quiz__ws';
+        }
+
+      }
+      if ($node->getType() == 'score' && !isset($path_args[3])) {
+        $suggestions = ['page__quiz__result'];
+      }
+      if ($node->getType() == 'collection' && !isset($path_args[3])) {
+        $suggestions[] = 'page__collection__detail';
+      }
+      if ($path_args[1] == 'node' && $path_args[2] != NULL && isset($path_args[3]) && $path_args[3] == 'solution') {
+        $suggestions[] = 'page__question__solution';
+      }
+      if ($path_args[1] == 'node' && $path_args[2] != NULL && isset($path_args[3]) && $path_args[3] == 'print') {
+        $suggestions[] = 'page__question__print';
+      }
+
+    }
+
+    // $suggestions[] = $hook . '__' . \Drupal::languageManager()->getCurrentLanguage()->getId();
+  }
+
+
+}
+
+/**
+ * @param $variables
+ */
+function iot_preprocess_views_view_fields(&$variables) {
+  $view = $variables['view'];
+  $id = $view->storage->id();
+  $vote_widget_service = \Drupal::service('rate.entity.vote_widget');
+  switch ($id) {
+    case 'ielts_tips':
+    case 'tips_category':
+    case 'recent_tips':
+    case 'search_tips':
+      $rate = [];
+      $views = [];
+      $body = [];
+    $max = 150;
+    if($id=='recent_tips'){
+      $max = 40;
+    }
+    if($id=='search_tips'){
+      $max = 100;
+    }
+      foreach ($view->result as $value) {
+        $nid = $value->_entity->get('nid')->value;
+        $node = Node::load($nid);
+        $vote_widget = $vote_widget_service->buildRateVotingWidget(
+          $node->id(),
+          $node->getEntityTypeId(),
+          $node->bundle()
+        );
+
+        $views[$nid] = counterNode($node);
+        $rate[$nid] = render($vote_widget['votingapi_links']);
+        if($node->get('field_standfirst')->value){
+          $desc = shortContent($node->get('field_standfirst')->value, $max);
+        }else{
+          $desc = shortContent($node->get('body')->value, $max);
+        }
+        $body[$nid] = $desc;
+      }
+      $variables['rate'] = $rate;
+      $variables['node_views'] = $views;
+      $variables['desc'] = $body;
+      break;
+
+  }
+}
+
+/**
+ * @param $variables
+ */
+function iot_preprocess_menu(&$variables){
+  //kint('nhan');
+  $user = \Drupal::currentUser();
+  $variables['user'] = NULL;
+  if ($user->id() > 0) {
+    $variables['user'] = User::load($user->Id());
+  }
+}
+
+/**
+ * @param $variables
+ */
+function iot_preprocess_views_view_unformatted(&$variables) {
+  $view = $variables['view'];
+  $id = $view->storage->id();
+  if($id=='search_tips'){
+    if(isset($_GET['title'])){
+      $variables['get'] = $_GET['title'];
+    }else{
+      $variables['get'] = false;
+    }
+
+  }
+}
+
+
+
