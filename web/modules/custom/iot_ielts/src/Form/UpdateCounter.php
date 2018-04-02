@@ -5,9 +5,7 @@ namespace Drupal\iot_ielts\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Drupal\statistics\NodeStatisticsDatabaseStorage;
 
 class UpdateCounter extends FormBase
 {
