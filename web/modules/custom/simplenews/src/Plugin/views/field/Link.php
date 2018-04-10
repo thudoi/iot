@@ -8,56 +8,56 @@ use Drupal\views\ResultRow;
 
 /**
  * Field handler to present a link to the subscriber.
- *
  * @ingroup views_field_handlers
- *
  * @ViewsField("subscriber_link")
  */
-class Link extends FieldPluginBase {
+class Link extends FieldPluginBase
+{
 
   /**
    * {@inheritdoc}
    */
-  public function usesGroupBy() {
+  public function usesGroupBy ()
+  {
     return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function defineOptions() {
+  protected function defineOptions ()
+  {
     $options = parent::defineOptions();
-    $options['text'] = array('default' => '');
+    $options['text'] = ['default' => ''];
     return $options;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildOptionsForm(&$form, FormStateInterface $form_state) {
-    $form['text'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Text to display'),
-      '#default_value' => $this->options['text'],
-    );
+  public function buildOptionsForm (&$form, FormStateInterface $form_state)
+  {
+    $form['text'] = ['#type' => 'textfield', '#title' => $this->t('Text to display'), '#default_value' => $this->options['text'],];
     parent::buildOptionsForm($form, $form_state);
 
     // The path is set by renderLink function so don't allow to set it.
-    $form['alter']['path'] = array('#access' => FALSE);
-    $form['alter']['external'] = array('#access' => FALSE);
+    $form['alter']['path'] = ['#access' => FALSE];
+    $form['alter']['external'] = ['#access' => FALSE];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function query() {
+  public function query ()
+  {
     $this->addAdditionalFields();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function render(ResultRow $values) {
+  public function render (ResultRow $values)
+  {
     if ($entity = $this->getEntity($values)) {
       return $this->renderLink($entity, $values);
     }

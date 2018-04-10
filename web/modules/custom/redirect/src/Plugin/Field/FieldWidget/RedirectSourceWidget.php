@@ -11,10 +11,8 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * Plugin implementation of the 'link' widget for the redirect module.
- *
  * Note that this field is meant only for the source field of the redirect
  * entity as it drops validation for non existing paths.
- *
  * @FieldWidget(
  *   id = "redirect_source",
  *   label = @Translation("Redirect source"),
@@ -27,35 +25,25 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  *   }
  * )
  */
-class RedirectSourceWidget extends WidgetBase {
+class RedirectSourceWidget extends WidgetBase
+{
 
   /**
    * {@inheritdoc}
    */
-  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+  public function formElement (FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state)
+  {
     $default_url_value = $items[$delta]->path;
     if ($items[$delta]->query) {
       $default_url_value .= '?' . http_build_query($items[$delta]->query);
     }
-    $element['path'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Path'),
-      '#placeholder' => $this->getSetting('placeholder_url'),
-      '#default_value' => $default_url_value,
-      '#maxlength' => 2048,
-      '#required' => $element['#required'],
-      '#field_prefix' => Url::fromRoute('<front>', array(), array('absolute' => TRUE))->toString(),
-      '#attributes' => array('data-disable-refocus' => 'true'),
-    );
+    $element['path'] = ['#type' => 'textfield', '#title' => $this->t('Path'), '#placeholder' => $this->getSetting('placeholder_url'), '#default_value' => $default_url_value, '#maxlength' => 2048, '#required' => $element['#required'], '#field_prefix' => Url::fromRoute('<front>', [], ['absolute' => TRUE])->toString(), '#attributes' => ['data-disable-refocus' => 'true'],];
 
     // If creating new URL add checks.
     if ($items->getEntity()->isNew()) {
-      $element['status_box'] = array(
-        '#prefix' => '<div id="redirect-link-status">',
-        '#suffix' => '</div>',
-      );
+      $element['status_box'] = ['#prefix' => '<div id="redirect-link-status">', '#suffix' => '</div>',];
 
-      $source_path = $form_state->getValue(array('redirect_source', 0, 'path'));
+      $source_path = $form_state->getValue(['redirect_source', 0, 'path']);
       if ($source_path) {
         $source_path = trim($source_path);
 
@@ -63,11 +51,9 @@ class RedirectSourceWidget extends WidgetBase {
         // @todo - Hmm... exception driven logic. Find a better way how to
         //   determine if we have a valid path.
         try {
-          \Drupal::service('router')->match('/' . $form_state->getValue(array('redirect_source', 0, 'path')));
-          $element['status_box'][]['#markup'] = '<div class="messages messages--warning">' . t('The source path %path is likely a valid path. It is preferred to <a href="@url-alias">create URL aliases</a> for existing paths rather than redirects.',
-              array('%path' => $source_path, '@url-alias' => Url::fromRoute('path.admin_add')->toString())) . '</div>';
-        }
-        catch (ResourceNotFoundException $e) {
+          \Drupal::service('router')->match('/' . $form_state->getValue(['redirect_source', 0, 'path']));
+          $element['status_box'][]['#markup'] = '<div class="messages messages--warning">' . t('The source path %path is likely a valid path. It is preferred to <a href="@url-alias">create URL aliases</a> for existing paths rather than redirects.', ['%path' => $source_path, '@url-alias' => Url::fromRoute('path.admin_add')->toString()]) . '</div>';
+        } catch (ResourceNotFoundException $e) {
           // Do nothing, expected behaviour.
         }
 
@@ -80,15 +66,12 @@ class RedirectSourceWidget extends WidgetBase {
           $redirects = $repository->findBySourcePath($path);
           if (!empty($redirects)) {
             $redirect = array_shift($redirects);
-            $element['status_box'][]['#markup'] = '<div class="messages messages--warning">' . t('The base source path %source is already being redirected. Do you want to <a href="@edit-page">edit the existing redirect</a>?', array('%source' => $source_path, '@edit-page' => $redirect->url('edit-form'))) . '</div>';
+            $element['status_box'][]['#markup'] = '<div class="messages messages--warning">' . t('The base source path %source is already being redirected. Do you want to <a href="@edit-page">edit the existing redirect</a>?', ['%source' => $source_path, '@edit-page' => $redirect->url('edit-form')]) . '</div>';
           }
         }
       }
 
-      $element['path']['#ajax'] = array(
-        'callback' => 'redirect_source_link_get_status_messages',
-        'wrapper' => 'redirect-link-status',
-      );
+      $element['path']['#ajax'] = ['callback' => 'redirect_source_link_get_status_messages', 'wrapper' => 'redirect-link-status',];
     }
 
     return $element;
@@ -97,7 +80,8 @@ class RedirectSourceWidget extends WidgetBase {
   /**
    * {@inheritdoc}
    */
-  public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
+  public function massageFormValues (array $values, array $form, FormStateInterface $form_state)
+  {
     $values = parent::massageFormValues($values, $form, $form_state);
     // It is likely that the url provided for this field is not existing and
     // so the logic in the parent method did not set any defaults. Just run

@@ -7,23 +7,21 @@ use Drupal\pathauto\Entity\PathautoPattern;
 
 /**
  * Test basic pathauto functionality.
- *
  * @group pathauto
  */
-class PathautoUiTest extends WebTestBase {
+class PathautoUiTest extends WebTestBase
+{
 
   use PathautoTestHelperTrait;
 
   /**
    * Modules to enable.
-   *
    * @var array
    */
-  public static $modules = array('pathauto', 'node');
+  public static $modules = ['pathauto', 'node'];
 
   /**
    * Admin user.
-   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
@@ -31,27 +29,22 @@ class PathautoUiTest extends WebTestBase {
   /**
    * {inheritdoc}
    */
-  function setUp() {
+  function setUp ()
+  {
     parent::setUp();
 
-    $this->drupalCreateContentType(array('type' => 'page', 'name' => 'Basic page'));
-    $this->drupalCreateContentType(array('type' => 'article'));
+    $this->drupalCreateContentType(['type' => 'page', 'name' => 'Basic page']);
+    $this->drupalCreateContentType(['type' => 'article']);
 
     // Allow other modules to add additional permissions for the admin user.
-    $permissions = array(
-      'administer pathauto',
-      'administer url aliases',
-      'create url aliases',
-      'administer nodes',
-      'bypass node access',
-      'access content overview',
-    );
+    $permissions = ['administer pathauto', 'administer url aliases', 'create url aliases', 'administer nodes', 'bypass node access', 'access content overview',];
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
   }
 
-  function testSettingsValidation() {
-    $edit = array();
+  function testSettingsValidation ()
+  {
+    $edit = [];
     $edit['max_length'] = 'abc';
     $edit['max_component_length'] = 'abc';
     $this->drupalPostForm('admin/config/search/path/settings', $edit, 'Save configuration');
@@ -79,26 +72,19 @@ class PathautoUiTest extends WebTestBase {
     $this->assertText('The configuration options have been saved.');
   }
 
-  function testPatternsWorkflow() {
+  function testPatternsWorkflow ()
+  {
     // Try to save an empty pattern, should not be allowed.
     $this->drupalGet('admin/config/search/path/patterns/add');
-    $edit = array(
-      'type' => 'canonical_entities:node',
-    );
+    $edit = ['type' => 'canonical_entities:node',];
     $this->drupalPostAjaxForm(NULL, $edit, 'type');
-    $edit += array(
-      'bundles[page]' => TRUE,
-      'label' => 'Page pattern',
-      'id' => 'page_pattern',
-    );
+    $edit += ['bundles[page]' => TRUE, 'label' => 'Page pattern', 'id' => 'page_pattern',];
     $this->drupalPostForm(NULL, $edit, 'Save');
     $this->assertText('Path pattern field is required.');
     $this->assertNoText('The configuration options have been saved.');
 
     // Try to save an invalid pattern.
-    $edit += array(
-      'pattern' => '[node:title]/[user:name]/[term:name]',
-    );
+    $edit += ['pattern' => '[node:title]/[user:name]/[term:name]',];
     $this->drupalPostForm(NULL, $edit, 'Save');
     $this->assertText('Path pattern is using the following invalid tokens: [user:name], [term:name].');
     $this->assertNoText('The configuration options have been saved.');
@@ -138,7 +124,7 @@ class PathautoUiTest extends WebTestBase {
     $this->assertFieldChecked('edit-status');
     $this->assertLink(t('Delete'));
 
-    $edit = array('label' => 'Test');
+    $edit = ['label' => 'Test'];
     $this->drupalPostForm('/admin/config/search/path/patterns/page_pattern', $edit, t('Save'));
     $this->assertText('Pattern Test saved.');
     // Check that the pattern weight did not change.

@@ -5,11 +5,11 @@ namespace Drupal\pathauto;
 /**
  * Alias types that support batch updates and deletions.
  */
-interface AliasTypeBatchUpdateInterface extends AliasTypeInterface {
+interface AliasTypeBatchUpdateInterface extends AliasTypeInterface
+{
 
   /**
    * Gets called to batch update all entries.
-   *
    * @param string $action
    *   One of:
    *   - 'create' to generate a URL alias for paths having none.
@@ -18,14 +18,13 @@ interface AliasTypeBatchUpdateInterface extends AliasTypeInterface {
    * @param array $context
    *   Batch context.
    */
-  public function batchUpdate($action, &$context);
+  public function batchUpdate ($action, &$context);
 
   /**
    * Gets called to batch delete all aliases created by pathauto.
-   *
    * @param array $context
    *   Batch context.
    */
-  public function batchDelete(&$context);
+  public function batchDelete (&$context);
 
 }

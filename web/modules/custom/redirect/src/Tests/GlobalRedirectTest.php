@@ -9,26 +9,16 @@ use Drupal\language\Entity\ConfigurableLanguage;
 
 /**
  * Global redirect test cases.
- *
  * @group redirect
  */
-class GlobalRedirectTest extends WebTestBase {
+class GlobalRedirectTest extends WebTestBase
+{
 
   /**
    * Modules to enable.
-   *
    * @var array
    */
-  public static $modules = [
-    'path',
-    'node',
-    'redirect',
-    'taxonomy',
-    'forum',
-    'views',
-    'language',
-    'content_translation',
-  ];
+  public static $modules = ['path', 'node', 'redirect', 'taxonomy', 'forum', 'views', 'language', 'content_translation',];
 
   /**
    * @var \Drupal\Core\Session\AccountInterface
@@ -63,7 +53,8 @@ class GlobalRedirectTest extends WebTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp ()
+  {
     parent::setUp();
 
     $this->config = $this->config('redirect.settings');
@@ -72,57 +63,25 @@ class GlobalRedirectTest extends WebTestBase {
     $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
 
     // Create a users for testing the access.
-    $this->normalUser = $this->drupalCreateUser([
-      'access content',
-      'create page content',
-      'create url aliases',
-      'access administration pages',
-    ]);
-    $this->adminUser = $this->drupalCreateUser([
-      'administer site configuration',
-      'access administration pages',
-      'administer languages',
-      'administer content types',
-      'administer content translation',
-      'create page content',
-      'edit own page content',
-      'create content translations',
-    ]);
+    $this->normalUser = $this->drupalCreateUser(['access content', 'create page content', 'create url aliases', 'access administration pages',]);
+    $this->adminUser = $this->drupalCreateUser(['administer site configuration', 'access administration pages', 'administer languages', 'administer content types', 'administer content translation', 'create page content', 'edit own page content', 'create content translations',]);
 
     // Save the node.
-    $this->node = $this->drupalCreateNode([
-      'type' => 'page',
-      'title' => 'Test Page Node',
-      'path' => ['alias' => '/test-node'],
-      'language' => Language::LANGCODE_NOT_SPECIFIED,
-    ]);
+    $this->node = $this->drupalCreateNode(['type' => 'page', 'title' => 'Test Page Node', 'path' => ['alias' => '/test-node'], 'language' => Language::LANGCODE_NOT_SPECIFIED,]);
 
     // Create an alias for the create story path - this is used in the
     // "redirect with permissions testing" test.
     \Drupal::service('path.alias_storage')->save('/admin/config/system/site-information', '/site-info');
 
     // Create a taxonomy term for the forum.
-    $term = entity_create('taxonomy_term', [
-      'name' => 'Test Forum Term',
-      'vid' => 'forums',
-      'langcode' => Language::LANGCODE_NOT_SPECIFIED,
-    ]);
+    $term = entity_create('taxonomy_term', ['name' => 'Test Forum Term', 'vid' => 'forums', 'langcode' => Language::LANGCODE_NOT_SPECIFIED,]);
     $term->save();
     $this->forumTerm = $term;
 
     // Create another taxonomy vocabulary with a term.
-    $vocab = entity_create('taxonomy_vocabulary', [
-      'name' => 'test vocab',
-      'vid' => 'test-vocab',
-      'langcode' => Language::LANGCODE_NOT_SPECIFIED,
-    ]);
+    $vocab = entity_create('taxonomy_vocabulary', ['name' => 'test vocab', 'vid' => 'test-vocab', 'langcode' => Language::LANGCODE_NOT_SPECIFIED,]);
     $vocab->save();
-    $term = entity_create('taxonomy_term', [
-      'name' => 'Test Term',
-      'vid' => $vocab->id(),
-      'langcode' => Language::LANGCODE_NOT_SPECIFIED,
-      'path' => ['alias' => '/test-term'],
-    ]);
+    $term = entity_create('taxonomy_term', ['name' => 'Test Term', 'vid' => $vocab->id(), 'langcode' => Language::LANGCODE_NOT_SPECIFIED, 'path' => ['alias' => '/test-term'],]);
     $term->save();
 
     $this->term = $term;
@@ -131,7 +90,8 @@ class GlobalRedirectTest extends WebTestBase {
   /**
    * Will test the redirects.
    */
-  public function testRedirects() {
+  public function testRedirects ()
+  {
 
     // First test that the good stuff can be switched off.
     $this->config->set('route_normalizer_enabled', FALSE)->save();
@@ -162,7 +122,7 @@ class GlobalRedirectTest extends WebTestBase {
     $this->assertRedirect('node-alias', '<front>');
 
     // Test post request.
-    $this->drupalPost('Test-node', 'application/json', array());
+    $this->drupalPost('Test-node', 'application/json', []);
     // Does not do a redirect, stays in the same path.
     $this->assertEqual(basename($this->getUrl()), 'Test-node');
 
@@ -206,31 +166,23 @@ class GlobalRedirectTest extends WebTestBase {
   /**
    * Test that redirects work properly with content_translation enabled.
    */
-  public function testLanguageRedirects() {
+  public function testLanguageRedirects ()
+  {
     $this->drupalLogin($this->adminUser);
 
     // Add a new language.
-    ConfigurableLanguage::createFromLangcode('es')
-      ->save();
+    ConfigurableLanguage::createFromLangcode('es')->save();
 
     // Enable URL language detection and selection.
     $edit = ['language_interface[enabled][language-url]' => '1'];
     $this->drupalPostForm('admin/config/regional/language/detection', $edit, t('Save settings'));
 
     // Set page content type to use multilingual support.
-    $edit = [
-      'language_configuration[language_alterable]' => TRUE,
-      'language_configuration[content_translation]' => TRUE,
-    ];
+    $edit = ['language_configuration[language_alterable]' => TRUE, 'language_configuration[content_translation]' => TRUE,];
     $this->drupalPostForm('admin/structure/types/manage/page', $edit, t('Save content type'));
-    $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Page')), 'Basic page content type has been updated.');
+    $this->assertRaw(t('The content type %type has been updated.', ['%type' => 'Page']), 'Basic page content type has been updated.');
 
-    $spanish_node = $this->drupalCreateNode([
-      'type' => 'page',
-      'title' => 'Spanish Test Page Node',
-      'path' => ['alias' => '/spanish-test-node'],
-      'langcode' => 'es',
-    ]);
+    $spanish_node = $this->drupalCreateNode(['type' => 'page', 'title' => 'Spanish Test Page Node', 'path' => ['alias' => '/spanish-test-node'], 'langcode' => 'es',]);
 
     // Test multilingual redirect.
     $this->assertRedirect('es/node/' . $spanish_node->id(), 'es/spanish-test-node');
@@ -238,7 +190,6 @@ class GlobalRedirectTest extends WebTestBase {
 
   /**
    * Asserts the redirect from $path to the $expected_ending_url.
-   *
    * @param string $path
    *   The request path.
    * @param $expected_ending_url
@@ -247,25 +198,20 @@ class GlobalRedirectTest extends WebTestBase {
    * @param string $expected_ending_status
    *   The status we expect to get with the first request.
    */
-  public function assertRedirect($path, $expected_ending_url, $expected_ending_status = 'HTTP/1.1 301 Moved Permanently') {
+  public function assertRedirect ($path, $expected_ending_url, $expected_ending_status = 'HTTP/1.1 301 Moved Permanently')
+  {
     $this->drupalHead($GLOBALS['base_url'] . '/' . $path);
     $headers = $this->drupalGetHeaders(TRUE);
 
     $ending_url = isset($headers[0]['location']) ? $headers[0]['location'] : NULL;
-    $message = SafeMarkup::format('Testing redirect from %from to %to. Ending url: %url', array(
-      '%from' => $path,
-      '%to' => $expected_ending_url,
-      '%url' => $ending_url,
-    ));
+    $message = SafeMarkup::format('Testing redirect from %from to %to. Ending url: %url', ['%from' => $path, '%to' => $expected_ending_url, '%url' => $ending_url,]);
 
 
     if ($expected_ending_url == '<front>') {
       $expected_ending_url = $GLOBALS['base_url'] . '/';
-    }
-    elseif (!empty($expected_ending_url)) {
+    } elseif (!empty($expected_ending_url)) {
       $expected_ending_url = $GLOBALS['base_url'] . '/' . $expected_ending_url;
-    }
-    else {
+    } else {
       $expected_ending_url = NULL;
     }
 

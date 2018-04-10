@@ -12,54 +12,48 @@ use GuzzleHttp\Exception\RequestException;
 /**
  * The rate.bot_detector service.
  */
-class RateBotDetector {
+class RateBotDetector
+{
   use StringTranslationTrait;
 
   /**
    * Client IP.
-   *
    * @var string
    */
   protected $ip;
 
   /**
    * HTTP User agent.
-   *
    * @var string
    */
   protected $agent;
 
   /**
    * The config factory wrapper to fetch settings.
-   *
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $config;
 
   /**
    * Database connection object.
-   *
    * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
   /**
    * The Http Client object.
-   *
    * @var \GuzzleHttp\Client
    */
   protected $httpClient;
 
   /**
    * The request stack.
-   *
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
   protected $requestStack;
 
   /**
    * RateBotDetector constructor.
-   *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory.
    * @param \Drupal\Core\Database\Connection $database
@@ -69,7 +63,8 @@ class RateBotDetector {
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   Database connection object.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, Connection $database, Client $http_client, RequestStack $request_stack) {
+  public function __construct (ConfigFactoryInterface $config_factory, Connection $database, Client $http_client, RequestStack $request_stack)
+  {
     $this->config = $config_factory->get('rate.settings');
     $this->database = $database;
     $this->httpClient = $http_client;
@@ -79,11 +74,11 @@ class RateBotDetector {
 
   /**
    * Check if the given IP is a local IP-address.
-   *
    * @return bool
    *   True if local IP; false otherwise.
    */
-  private function isLocal() {
+  private function isLocal ()
+  {
     if (preg_match('/^([012]?[0-9]{2})\\./', $this->ip, $match)) {
       switch ($match[1]) {
         case 10:
@@ -99,57 +94,52 @@ class RateBotDetector {
   /**
    * Save IP address as a bot.
    */
-  private function registerBot() {
-    $this->database->insert('rate_bot_ip')->fields(array('ip' => $this->ip))->execute();
+  private function registerBot ()
+  {
+    $this->database->insert('rate_bot_ip')->fields(['ip' => $this->ip])->execute();
   }
 
   /**
    * Check if the IP-address exists in the local bot database.
-   *
    * @return bool
    *   TRUE if IP is in database; false otherwise.
    */
-  protected function checkIp() {
-    return (bool) $this->database->select('rate_bot_ip', 'rbi')
-      ->fields('rbi', array('id'))
-      ->condition('rbi.ip', $this->ip)
-      ->range(0, 1)
-      ->execute()
-      ->fetchField();
+  protected function checkIp ()
+  {
+    return (bool)$this->database->select('rate_bot_ip', 'rbi')->fields('rbi', ['id'])->condition('rbi.ip', $this->ip)->range(0, 1)->execute()->fetchField();
   }
 
   /**
    * Check if the given user agent matches the local bot database.
-   *
    * @return bool
    *   True if match found; false otherwise.
    */
-  protected function checkAgent() {
+  protected function checkAgent ()
+  {
     $sql = 'SELECT 1 FROM {rate_bot_agent} WHERE :agent LIKE pattern LIMIT 1';
-    return (bool) $this->database->query($sql, array(':agent' => $this->agent))->fetchField();
+    return (bool)$this->database->query($sql, [':agent' => $this->agent])->fetchField();
   }
 
   /**
    * Check the number of votes between now and $interval seconds ago.
-   *
    * @param int $interval
    *   Interval in seconds.
-   *
    * @return int
    *   Number of votes between not and internval.
    */
-  protected function checkThreshold($interval) {
+  protected function checkThreshold ($interval)
+  {
     $sql = 'SELECT COUNT(*) FROM {votingapi_vote} WHERE vote_source = :ip AND timestamp > :time';
-    return $this->database->query($sql, array(':ip' => $this->ip, ':time' => REQUEST_TIME - $interval))->fetchField();
+    return $this->database->query($sql, [':ip' => $this->ip, ':time' => REQUEST_TIME - $interval])->fetchField();
   }
 
   /**
    * Check if botscout thinks the IP is a bot.
-   *
    * @return bool
    *   True if botscout returns a positive; false otherwise.
    */
-  protected function checkBotscout() {
+  protected function checkBotscout ()
+  {
     $key = $this->config->get('botscout_key');
 
     if ($key) {
@@ -157,16 +147,15 @@ class RateBotDetector {
       $uri = "http://botscout.com/test/?ip=$this->ip&key=$key";
 
       try {
-        $response = $this->httpClient->get($uri, array('headers' => array('Accept' => 'text/plain')));
-        $data = (string) $response->getBody();
+        $response = $this->httpClient->get($uri, ['headers' => ['Accept' => 'text/plain']]);
+        $data = (string)$response->getBody();
         $status_code = $response->getStatusCode();
         if (!empty($data) && $status_code == 200) {
           if ($data{0} == 'Y') {
             return TRUE;
           }
         }
-      }
-      catch (RequestException $e) {
+      } catch (RequestException $e) {
         drupal_set_message($this->t('An error occurred contacting BotScout.'), 'warning');
         watchdog_exception('rate', $e);
       }
@@ -177,14 +166,13 @@ class RateBotDetector {
 
   /**
    * Check if the current user is blocked.
-   *
    * This function will first check if the user is already known to be a bot.
    * If not, it will check if we have valid reasons to assume the user is a bot.
-   *
    * @return bool
    *   True if bot detected; false otherwise.
    */
-  public function checkIsBot() {
+  public function checkIsBot ()
+  {
     if ($this->isLocal()) {
       // The IP-address is a local IP-address. This is probably because of
       // misconfigured proxy servers. Do only the user agent check.

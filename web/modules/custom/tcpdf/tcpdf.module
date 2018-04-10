@@ -7,7 +7,6 @@
 /**
  * Gets an instance of TCPDFDrupal. Always use this function to get a fresh
  * instance of the class.
- *
  * @param array $params
  *   Associative array of parameters for the TCPDF constructor. Check out the
  *   documentation of TCPDF.
@@ -24,34 +23,20 @@
  *     'filetype' => Config file's type.
  *     'filename' => Config file's name.
  *     'module' => Module where the config file is.
- *
  * @return mixed FALSE\TCPDFDrupal object
  */
-function tcpdf_get_instance($params = array(), $class = array(), $config = array()) {
-  $default_params = array(
-    'orientation' => 'P',
-    'unit' => 'mm',
-    'format' => 'A4',
-    'unicode' => TRUE,
-    'encoding' => 'UTF-8',
-    'diskcache' => FALSE,
-    'pdfa' => FALSE,
-  );
+function tcpdf_get_instance ($params = [], $class = [], $config = [])
+{
+  $default_params = ['orientation' => 'P', 'unit' => 'mm', 'format' => 'A4', 'unicode' => TRUE, 'encoding' => 'UTF-8', 'diskcache' => FALSE, 'pdfa' => FALSE,];
 
   $params = array_merge($default_params, $params);
 
   if (!isset($class['class'])) {
-    $class = array(
-      'class' => 'Drupal\tcpdf\TCPDFDrupal',
-    );
+    $class = ['class' => 'Drupal\tcpdf\TCPDFDrupal',];
   }
 
-    if (!isset($config['filename'])) {
-    $config = array(
-      'filetype' => 'inc',
-      'filename' =>  'tcpdf.config',
-      'module' => 'tcpdf',
-    );
+  if (!isset($config['filename'])) {
+    $config = ['filetype' => 'inc', 'filename' => 'tcpdf.config', 'module' => 'tcpdf',];
   }
 
   if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {

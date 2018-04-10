@@ -7,44 +7,39 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Mass delete functionality tests.
- *
  * @group pathauto
  */
-class PathautoMassDeleteTest extends WebTestBase {
+class PathautoMassDeleteTest extends WebTestBase
+{
 
   use PathautoTestHelperTrait;
 
   /**
    * Modules to enable.
-   *
    * @var array
    */
-  public static $modules = array('node', 'taxonomy', 'pathauto');
+  public static $modules = ['node', 'taxonomy', 'pathauto'];
 
   /**
    * Admin user.
-   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
 
   /**
    * The test nodes.
-   *
    * @var \Drupal\node\NodeInterface
    */
   protected $nodes;
 
   /**
    * The test accounts.
-   *
    * @var \Drupal\user\UserInterface
    */
   protected $accounts;
 
   /**
    * The test terms.
-   *
    * @var \Drupal\taxonomy\TermInterface
    */
   protected $terms;
@@ -53,14 +48,11 @@ class PathautoMassDeleteTest extends WebTestBase {
   /**
    * {inheritdoc}
    */
-  function setUp() {
+  function setUp ()
+  {
     parent::setUp();
 
-    $permissions = array(
-      'administer pathauto',
-      'administer url aliases',
-      'create url aliases',
-    );
+    $permissions = ['administer pathauto', 'administer url aliases', 'create url aliases',];
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
 
@@ -72,33 +64,28 @@ class PathautoMassDeleteTest extends WebTestBase {
   /**
    * Tests the deletion of all the aliases.
    */
-  function testDeleteAll() {
+  function testDeleteAll ()
+  {
     // 1. Test that deleting all the aliases, of any type, works.
     $this->generateAliases();
-    $edit = array(
-      'delete[all_aliases]' => TRUE,
-      'options[keep_custom_aliases]' => FALSE,
-    );
+    $edit = ['delete[all_aliases]' => TRUE, 'options[keep_custom_aliases]' => FALSE,];
     $this->drupalPostForm('admin/config/search/path/delete_bulk', $edit, t('Delete aliases now!'));
     $this->assertText(t('All of your path aliases have been deleted.'));
     $this->assertUrl('admin/config/search/path/delete_bulk');
 
     // Make sure that all of them are actually deleted.
-    $aliases = \Drupal::database()->select('url_alias', 'ua')->fields('ua', array())->execute()->fetchAll();
-    $this->assertEqual($aliases, array(), "All the aliases have been deleted.");
+    $aliases = \Drupal::database()->select('url_alias', 'ua')->fields('ua', [])->execute()->fetchAll();
+    $this->assertEqual($aliases, [], "All the aliases have been deleted.");
 
     // 2. Test deleting only specific (entity type) aliases.
     $manager = $this->container->get('plugin.manager.alias_type');
-    $pathauto_plugins = array('canonical_entities:node' => 'nodes', 'canonical_entities:taxonomy_term' => 'terms', 'canonical_entities:user' => 'accounts');
+    $pathauto_plugins = ['canonical_entities:node' => 'nodes', 'canonical_entities:taxonomy_term' => 'terms', 'canonical_entities:user' => 'accounts'];
     foreach ($pathauto_plugins as $pathauto_plugin => $attribute) {
       $this->generateAliases();
-      $edit = array(
-        'delete[plugins][' . $pathauto_plugin . ']' => TRUE,
-        'options[keep_custom_aliases]' => FALSE,
-      );
+      $edit = ['delete[plugins][' . $pathauto_plugin . ']' => TRUE, 'options[keep_custom_aliases]' => FALSE,];
       $this->drupalPostForm('admin/config/search/path/delete_bulk', $edit, t('Delete aliases now!'));
       $alias_type = $manager->createInstance($pathauto_plugin);
-      $this->assertRaw(t('All of your %label path aliases have been deleted.', array('%label' => $alias_type->getLabel())));
+      $this->assertRaw(t('All of your %label path aliases have been deleted.', ['%label' => $alias_type->getLabel()]));
       // Check that the aliases were actually deleted.
       foreach ($this->{$attribute} as $entity) {
         $this->assertNoEntityAlias($entity);
@@ -118,10 +105,7 @@ class PathautoMassDeleteTest extends WebTestBase {
 
     // 3. Test deleting automatically generated aliases only.
     $this->generateAliases();
-    $edit = array(
-      'delete[all_aliases]' => TRUE,
-      'options[keep_custom_aliases]' => TRUE,
-    );
+    $edit = ['delete[all_aliases]' => TRUE, 'options[keep_custom_aliases]' => TRUE,];
     $this->drupalPostForm('admin/config/search/path/delete_bulk', $edit, t('Delete aliases now!'));
     $this->assertText(t('All of your automatically generated path aliases have been deleted.'));
     $this->assertUrl('admin/config/search/path/delete_bulk');
@@ -135,7 +119,8 @@ class PathautoMassDeleteTest extends WebTestBase {
   /**
    * Helper function to generate aliases.
    */
-  function generateAliases() {
+  function generateAliases ()
+  {
     // Delete all aliases to avoid duplicated aliases. They will be recreated below.
     $this->deleteAllAliases();
 
@@ -150,8 +135,7 @@ class PathautoMassDeleteTest extends WebTestBase {
         $node = $this->drupalCreateNode($settings);
         $this->nodes[$node->id()] = $node;
       }
-    }
-    else {
+    } else {
       foreach ($this->nodes as $node) {
         if ($node->id() > 103) {
           // The alias is set manually.
@@ -169,28 +153,26 @@ class PathautoMassDeleteTest extends WebTestBase {
         $account = $this->drupalCreateUser();
         $this->accounts[$account->id()] = $account;
       }
-    }
-    else {
+    } else {
       foreach ($this->accounts as $id => $account) {
         $account->save();
       }
     }
 
     if (empty($this->terms)) {
-      $vocabulary = $this->addVocabulary(array('name' => 'test vocabulary', 'vid' => 'test_vocabulary'));
+      $vocabulary = $this->addVocabulary(['name' => 'test vocabulary', 'vid' => 'test_vocabulary']);
       for ($i = 1; $i <= 5; $i++) {
         $term = $this->addTerm($vocabulary);
         $this->terms[$term->id()] = $term;
       }
-    }
-    else {
+    } else {
       foreach ($this->terms as $term) {
         $term->save();
       }
     }
 
     // Check that we have aliases for the entities.
-    foreach (array('nodes', 'accounts', 'terms') as $attribute) {
+    foreach (['nodes', 'accounts', 'terms'] as $attribute) {
       foreach ($this->{$attribute} as $entity) {
         $this->assertEntityAliasExists($entity);
       }

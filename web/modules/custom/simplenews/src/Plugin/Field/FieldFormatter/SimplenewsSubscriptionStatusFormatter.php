@@ -7,7 +7,6 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 
 /**
  * Formatter that displays a newsletter subscription with the status.
- *
  * @FieldFormatter(
  *   id = "simplenews_subscription_status",
  *   label = @Translation("Subscriptions Status"),
@@ -16,13 +15,15 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
  *   }
  * )
  */
-class SimplenewsSubscriptionStatusFormatter extends EntityReferenceFormatterBase {
+class SimplenewsSubscriptionStatusFormatter extends EntityReferenceFormatterBase
+{
 
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    $elements = array();
+  public function viewElements (FieldItemListInterface $items, $langcode)
+  {
+    $elements = [];
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
       $label = $entity->label();
@@ -32,12 +33,12 @@ class SimplenewsSubscriptionStatusFormatter extends EntityReferenceFormatterBase
 
       // Add status label for the unconfirmed subscriptions.
       if ($items[$delta]->status == SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED) {
-        $output = $this->t('@label (Unconfirmed)', array('@label' => $label));
+        $output = $this->t('@label (Unconfirmed)', ['@label' => $label]);
       }
 
       // Add status label for the unsubscribed subscriptions.
       if ($items[$delta]->status == SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED) {
-        $output = $this->t('@label (Unsubscribed)', array('@label' => $label));
+        $output = $this->t('@label (Unsubscribed)', ['@label' => $label]);
       }
 
       // Add the label.

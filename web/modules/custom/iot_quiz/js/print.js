@@ -1,7 +1,7 @@
 (function ($, Drupal) {
   Drupal.behaviors.PrintPdf = {
     attach: function (context, settings) {
-      $(".printpdf").click(function(e){
+      $(".printpdf").click(function (e) {
         e.preventDefault();
         HTMLtoPDF();
       });

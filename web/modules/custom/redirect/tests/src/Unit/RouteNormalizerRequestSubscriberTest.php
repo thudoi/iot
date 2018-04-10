@@ -11,24 +11,21 @@ use Drupal\Core\DependencyInjection\ContainerBuilder;
 
 /**
  * Tests the route normalizer.
- *
  * @group redirect
- *
  * @coversDefaultClass \Drupal\redirect\EventSubscriber\RouteNormalizerRequestSubscriber
  */
-class RouteNormalizerRequestSubscriberTest extends UnitTestCase {
+class RouteNormalizerRequestSubscriberTest extends UnitTestCase
+{
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp ()
+  {
     parent::setUp();
 
     $kill_switch = $this->getMock('\Drupal\Core\PageCache\ResponsePolicy\KillSwitch');
-    $kill_switch->expects($this->any())
-      ->method('trigger')
-      ->withAnyParameters()
-      ->will($this->returnValue(NULL));
+    $kill_switch->expects($this->any())->method('trigger')->withAnyParameters()->will($this->returnValue(NULL));
     $container = new ContainerBuilder();
     $container->set('page_cache_kill_switch', $kill_switch);
     \Drupal::setContainer($container);
@@ -37,7 +34,8 @@ class RouteNormalizerRequestSubscriberTest extends UnitTestCase {
   /**
    * @covers ::onKernelRequestRedirect
    */
-  public function testSkipIfFlagNotEnabled() {
+  public function testSkipIfFlagNotEnabled ()
+  {
     $request_uri = 'https://example.com/route-to-normalize';
     $request_query = [];
 
@@ -51,7 +49,8 @@ class RouteNormalizerRequestSubscriberTest extends UnitTestCase {
   /**
    * @covers ::onKernelRequestRedirect
    */
-  public function testSkipIfSubRequest() {
+  public function testSkipIfSubRequest ()
+  {
     $request_uri = 'https://example.com/route-to-normalize';
     $request_query = [];
 
@@ -65,7 +64,8 @@ class RouteNormalizerRequestSubscriberTest extends UnitTestCase {
   /**
    * @covers ::onKernelRequestRedirect
    */
-  public function testSkipIfRequestAttribute() {
+  public function testSkipIfRequestAttribute ()
+  {
     $request_uri = 'https://example.com/route-to-normalize';
     $request_query = [];
 
@@ -80,7 +80,8 @@ class RouteNormalizerRequestSubscriberTest extends UnitTestCase {
    * @covers ::onKernelRequestRedirect
    * @dataProvider getTestUrls
    */
-  public function testOnKernelRequestRedirect($request_uri, $request_query, $expected, $expect_normalization) {
+  public function testOnKernelRequestRedirect ($request_uri, $request_query, $expected, $expect_normalization)
+  {
     $event = $this->getGetResponseEventStub($request_uri, http_build_query($request_query));
     $subscriber = $this->getSubscriber($request_uri);
     $subscriber->onKernelRequestRedirect($event);
@@ -94,111 +95,80 @@ class RouteNormalizerRequestSubscriberTest extends UnitTestCase {
   /**
    * Data provider for testOnKernelRequestRedirect().
    */
-  public function getTestUrls() {
-    return [
-      ['https://example.com/route-to-normalize', [], 'https://example.com/route-to-normalize', FALSE],
-      ['https://example.com/route-to-normalize', ['key' => 'value'], 'https://example.com/route-to-normalize?key=value', FALSE],
-      ['https://example.com/index.php/', ['q' => 'node/1'], 'https://example.com/?q=node/1', TRUE],
-    ];
+  public function getTestUrls ()
+  {
+    return [['https://example.com/route-to-normalize', [], 'https://example.com/route-to-normalize', FALSE], ['https://example.com/route-to-normalize', ['key' => 'value'], 'https://example.com/route-to-normalize?key=value', FALSE], ['https://example.com/index.php/', ['q' => 'node/1'], 'https://example.com/?q=node/1', TRUE],];
   }
 
   /**
    * Create a RouteNormalizerRequestSubscriber object.
-   *
    * @param string $request_uri
    *   The return value for the generateFromRoute method.
    * @param bool $enabled
    *   Flag indicating if the normalizer shoud be enabled.
    * @param bool $call_expected
    *   If true, canRedirect() and other methods should be called once.
-   *
    * @return \Drupal\redirect\EventSubscriber\RouteNormalizerRequestSubscriber
    */
-  protected function getSubscriber($request_uri, $enabled = TRUE, $call_expected = TRUE) {
-    return new RouteNormalizerRequestSubscriber(
-      $this->getUrlGeneratorStub($request_uri, $call_expected),
-      $this->getPathMatcherStub($call_expected),
-      $this->getConfigFactoryStub([
-        'redirect.settings' => [
-          'route_normalizer_enabled' => $enabled,
-          'default_status_code' => 301,
-        ],
-      ]),
-      $this->getRedirectCheckerStub($call_expected)
-    );
+  protected function getSubscriber ($request_uri, $enabled = TRUE, $call_expected = TRUE)
+  {
+    return new RouteNormalizerRequestSubscriber($this->getUrlGeneratorStub($request_uri, $call_expected), $this->getPathMatcherStub($call_expected), $this->getConfigFactoryStub(['redirect.settings' => ['route_normalizer_enabled' => $enabled, 'default_status_code' => 301,],]), $this->getRedirectCheckerStub($call_expected));
   }
 
   /**
    * Gets the UrlGenerator mock object.
-   *
    * @param string $request_uri
    *   The return value for the generateFromRoute method.
    * @param bool $call_expected
    *   If true, we expect generateFromRoute() to be called once.
-   *
    * @return \Drupal\Core\Routing\UrlGeneratorInterface|PHPUnit_Framework_MockObject_MockObject
    */
-  protected function getUrlGeneratorStub($request_uri, $call_expected = TRUE) {
-    $url_generator = $this->getMockBuilder('\Drupal\Core\Routing\UrlGeneratorInterface')
-      ->getMock();
+  protected function getUrlGeneratorStub ($request_uri, $call_expected = TRUE)
+  {
+    $url_generator = $this->getMockBuilder('\Drupal\Core\Routing\UrlGeneratorInterface')->getMock();
 
     $options = ['absolute' => TRUE];
 
     $expectation = $call_expected ? $this->once() : $this->never();
 
-    $url_generator->expects($expectation)
-      ->method('generateFromRoute')
-      ->with('<current>', [], $options)
-      ->willReturn($request_uri);
+    $url_generator->expects($expectation)->method('generateFromRoute')->with('<current>', [], $options)->willReturn($request_uri);
     return $url_generator;
   }
 
   /**
    * Gets the PathMatcher mock object.
-   *
    * @param bool $call_expected
    *   If true, we expect isFrontPage() to be called once.
-   *
    * @return \Drupal\Core\Path\PathMatcherInterface|PHPUnit_Framework_MockObject_MockObject
    */
-  protected function getPathMatcherStub($call_expected = TRUE) {
-    $path_matcher = $this->getMockBuilder('\Drupal\Core\Path\PathMatcherInterface')
-      ->getMock();
+  protected function getPathMatcherStub ($call_expected = TRUE)
+  {
+    $path_matcher = $this->getMockBuilder('\Drupal\Core\Path\PathMatcherInterface')->getMock();
 
     $expectation = $call_expected ? $this->once() : $this->never();
 
-    $path_matcher->expects($expectation)
-      ->method('isFrontPage')
-      ->withAnyParameters()
-      ->willReturn(FALSE);
+    $path_matcher->expects($expectation)->method('isFrontPage')->withAnyParameters()->willReturn(FALSE);
     return $path_matcher;
   }
 
   /**
    * Gets the RedirectChecker mock object.
-   *
    * @param bool $call_expected
    *   If true, we expect canRedirect() to be called once.
-   *
    * @return \Drupal\redirect\RedirectChecker|PHPUnit_Framework_MockObject_MockObject
    */
-  protected function getRedirectCheckerStub($call_expected = TRUE) {
-    $redirect_checker = $this->getMockBuilder('\Drupal\redirect\RedirectChecker')
-      ->disableOriginalConstructor()
-      ->getMock();
+  protected function getRedirectCheckerStub ($call_expected = TRUE)
+  {
+    $redirect_checker = $this->getMockBuilder('\Drupal\redirect\RedirectChecker')->disableOriginalConstructor()->getMock();
 
     $expectation = $call_expected ? $this->once() : $this->never();
 
-    $redirect_checker->expects($expectation)
-      ->method('canRedirect')
-      ->withAnyParameters()
-      ->willReturn(TRUE);
+    $redirect_checker->expects($expectation)->method('canRedirect')->withAnyParameters()->willReturn(TRUE);
     return $redirect_checker;
   }
 
   /**
    * Returns a GET response event object.
-   *
    * @param string $path_info
    *   The path of the request.
    * @param array $query_string
@@ -207,18 +177,17 @@ class RouteNormalizerRequestSubscriberTest extends UnitTestCase {
    *   The request type of the request.
    * @param bool $set_request_attribute
    *   If true, the request attribute '_disable_route_normalizer' will be set.
-   *
    * @return \Symfony\Component\HttpKernel\Event\GetResponseEvent
    */
-  protected function getGetResponseEventStub($path_info, $query_string, $request_type = HttpKernelInterface::MASTER_REQUEST, $set_request_attribute = FALSE) {
+  protected function getGetResponseEventStub ($path_info, $query_string, $request_type = HttpKernelInterface::MASTER_REQUEST, $set_request_attribute = FALSE)
+  {
     $request = Request::create($path_info . '?' . $query_string, 'GET', [], [], [], ['SCRIPT_NAME' => 'index.php', 'SCRIPT_FILENAME' => 'index.php']);
 
     if ($set_request_attribute === TRUE) {
       $request->attributes->add(['_disable_route_normalizer' => TRUE]);
     }
 
-    $http_kernel = $this->getMockBuilder('\Symfony\Component\HttpKernel\HttpKernelInterface')
-      ->getMock();
+    $http_kernel = $this->getMockBuilder('\Symfony\Component\HttpKernel\HttpKernelInterface')->getMock();
     return new GetResponseEvent($http_kernel, $request, $request_type);
   }
 

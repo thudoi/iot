@@ -1,19 +1,19 @@
 <?php
 
 namespace Drupal\simplenews\Tests;
+
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 
 /**
  * Tests crucial aspects of Subscriber fieldability and User field sync.
- *
  * @group simplenews
  */
-class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
+class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
+{
   /**
    * A user with administrative permissions.
-   *
    * @var \Drupal\user\UserInterface
    */
   protected $admin;
@@ -21,36 +21,31 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp ()
+  {
     parent::setUp();
     $this->addField('string', 'field_shared', 'user');
     $this->addField('string', 'field_shared', 'simplenews_subscriber');
 
-    Role::load('anonymous')
-      ->grantPermission('subscribe to newsletters')
-      ->grantPermission('access user profiles')
-      ->save();
-    Role::load('authenticated')
-      ->grantPermission('subscribe to newsletters')
-      ->save();
+    Role::load('anonymous')->grantPermission('subscribe to newsletters')->grantPermission('access user profiles')->save();
+    Role::load('authenticated')->grantPermission('subscribe to newsletters')->save();
 
-    $this->admin = $this->drupalCreateUser(array(
-      'administer users',
-    ));
+    $this->admin = $this->drupalCreateUser(['administer users',]);
   }
 
   /**
    * Subscribe then register: fields updated, subscription remains unconfirmed.
    */
-  public function testSynchronizeSubscribeRegister() {
+  public function testSynchronizeSubscribeRegister ()
+  {
     $email = $this->randomEmail();
 
     // Subscribe.
-    $this->subscribe('default', $email, array('field_shared[0][value]' => $this->randomString(10)));
+    $this->subscribe('default', $email, ['field_shared[0][value]' => $this->randomString(10)]);
 
     // Register.
     $new_value = $this->randomString(20);
-    $uid = $this->registerUser($email, array('field_shared[0][value]' => $new_value));
+    $uid = $this->registerUser($email, ['field_shared[0][value]' => $new_value]);
 
     // Assert fields are updated.
     $this->drupalGet("user/$uid");
@@ -64,23 +59,24 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
   /**
    * Register then subscribe: require login, fields updated.
    */
-  public function testSynchronizeRegisterSubscribe() {
+  public function testSynchronizeRegisterSubscribe ()
+  {
     $email = $this->randomEmail();
 
     // Register.
-    $uid = $this->registerUser($email, array('field_shared[0][value]' => $this->randomString(10)));
+    $uid = $this->registerUser($email, ['field_shared[0][value]' => $this->randomString(10)]);
     $user = User::load($uid);
 
     // Attempt subscribe and assert login message.
     $this->subscribe('default', $email);
-    $this->assertRaw(t('There is an account registered for the e-mail address %mail. Please log in to manage your newsletter subscriptions', array('%mail' => $email)));
+    $this->assertRaw(t('There is an account registered for the e-mail address %mail. Please log in to manage your newsletter subscriptions', ['%mail' => $email]));
 
     // Login.
     $this->resetPassLogin($user);
 
     // Subscribe.
     $new_value = $this->randomString(20);
-    $this->subscribe('default', NULL, array('field_shared[0][value]' => $new_value), t('Update'));
+    $this->subscribe('default', NULL, ['field_shared[0][value]' => $new_value], t('Update'));
 
     // Assert fields are updated.
     $this->drupalGet("user/$uid");
@@ -90,25 +86,25 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
   /**
    * Subscribe, request password: "name is not recognized".
    */
-  public function testSubscribeRequestPassword() {
+  public function testSubscribeRequestPassword ()
+  {
     $email = $this->randomEmail();
 
     // Subscribe.
     $this->subscribe('default', $email);
 
     // Request new password.
-    $this->drupalPostForm('user/password', array(
-      'name' => $email,
-    ), t('Submit'));
+    $this->drupalPostForm('user/password', ['name' => $email,], t('Submit'));
 
     // Assert the email is not recognized as an account.
-    $this->assertRaw(t('%name is not recognized as a username or an email address.', array('%name' => $email)));
+    $this->assertRaw(t('%name is not recognized as a username or an email address.', ['%name' => $email]));
   }
 
   /**
    * Disable account, subscriptions inactive.
    */
-  public function testDisableAccount() {
+  public function testDisableAccount ()
+  {
     $email = $this->randomEmail();
 
     // Register account.
@@ -116,12 +112,12 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Subscribe.
     $this->resetPassLogin(User::load($uid));
-    $this->subscribe('default', NULL, array(), t('Update'));
+    $this->subscribe('default', NULL, [], t('Update'));
     $this->drupalLogout();
 
     // Disable account.
     $this->drupalLogin($this->admin);
-    $this->drupalPostForm("user/$uid/cancel", array(), t('Cancel account'));
+    $this->drupalPostForm("user/$uid/cancel", [], t('Cancel account'));
 
     // Assert subscriber is inactive.
     $subscriber = $this->getLatestSubscriber();
@@ -131,7 +127,8 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
   /**
    * Delete account, subscriptions deleted.
    */
-  public function testDeleteAccount() {
+  public function testDeleteAccount ()
+  {
     $email = $this->randomEmail();
 
     // Register account.
@@ -142,7 +139,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Delete account.
     $this->drupalLogin($this->admin);
-    $this->drupalPostForm("user/$uid/cancel", array('user_cancel_method' => 'user_cancel_reassign'), t('Cancel account'));
+    $this->drupalPostForm("user/$uid/cancel", ['user_cancel_method' => 'user_cancel_reassign'], t('Cancel account'));
 
     // Assert subscriptions are deleted.
     $subscriber = $this->getLatestSubscriber();
@@ -152,7 +149,8 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
   /**
    * Blocked account subscribes, display message.
    */
-  public function testBlockedSubscribe() {
+  public function testBlockedSubscribe ()
+  {
     $email = $this->randomEmail();
 
     // Register account.
@@ -160,12 +158,12 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Block account.
     $this->drupalLogin($this->admin);
-    $this->drupalPostForm("user/$uid/edit", array('status' => 0), t('Save'));
+    $this->drupalPostForm("user/$uid/edit", ['status' => 0], t('Save'));
     $this->drupalLogout();
 
     // Attempt subscribe and assert "blocked" message.
     $this->subscribe('default', $email);
-    $this->assertRaw(t('The email address %mail belongs to a blocked user.', array('%mail' => $email)));
+    $this->assertRaw(t('The email address %mail belongs to a blocked user.', ['%mail' => $email]));
   }
 
 }

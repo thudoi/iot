@@ -8,17 +8,9 @@
 /**
  * Implements hook_drush_command().
  */
-function redirect_drush_command() {
-  $items['generate-redirects'] = array(
-    'description' => 'Create redirects.',
-    'drupal dependencies' => array('devel_generate'),
-    'arguments' => array(
-      'count' => 'Number of redirects to generate.',
-    ),
-    'options' => array(
-      'delete' => 'Delete all redirects before generating new ones.',
-    ),
-  );
+function redirect_drush_command ()
+{
+  $items['generate-redirects'] = ['description' => 'Create redirects.', 'drupal dependencies' => ['devel_generate'], 'arguments' => ['count' => 'Number of redirects to generate.',], 'options' => ['delete' => 'Delete all redirects before generating new ones.',],];
 
   return $items;
 }
@@ -26,7 +18,8 @@ function redirect_drush_command() {
 /**
  * Command callback. Generate a number of redirects.
  */
-function drush_redirect_generate_redirects($count = NULL) {
+function drush_redirect_generate_redirects ($count = NULL)
+{
   if (drush_generate_is_number($count) == FALSE) {
     return drush_set_error('DEVEL_GENERATE_INVALID_INPUT', t('Invalid number of redirects.'));
   }
@@ -38,7 +31,8 @@ function drush_redirect_generate_redirects($count = NULL) {
 /**
  * Perform an unprogressive batch process for CLI.
  */
-function redirect_run_unprogressive_batch() {
+function redirect_run_unprogressive_batch ()
+{
   $batch = batch_get();
   if (!empty($batch)) {
     // If there is already something in the batch, don't run.

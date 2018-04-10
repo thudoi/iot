@@ -9,19 +9,22 @@ namespace Drupal\votingapi;
 
 use Drupal\Core\Plugin\PluginBase;
 
-abstract class VoteResultFunctionBase extends PluginBase implements VoteResultFunctionInterface {
+abstract class VoteResultFunctionBase extends PluginBase implements VoteResultFunctionInterface
+{
 
   /**
    * {@inheritdoc}
    */
-  public function getLabel() {
+  public function getLabel ()
+  {
     return $this->t($this->pluginDefinition['label']);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDescription() {
+  public function getDescription ()
+  {
     return $this->t($this->pluginDefinition['description']);
   }
 }

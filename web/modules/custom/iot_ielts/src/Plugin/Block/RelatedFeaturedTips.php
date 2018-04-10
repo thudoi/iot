@@ -14,31 +14,26 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Featured Tips' Block.
- *
  * @Block(
  *   id = "related_featured_tips",
  *   admin_label = @Translation("Related Featured Tips"),
  *   category = @Translation("Related Featured Tips"),
  * )
  */
-class RelatedFeaturedTips extends BlockBase {
+class RelatedFeaturedTips extends BlockBase
+{
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build() {
-    if(isset($_GET['page'])&&$_GET['page']!=0){
-      return [
-        '#markup'=> ''
-      ];
-    }else{
+  public function build ()
+  {
+    if (isset($_GET['page']) && $_GET['page'] != 0) {
+      return ['#markup' => ''];
+    } else {
       $vote_widget_service = \Drupal::service('rate.entity.vote_widget');
-      $nids = \Drupal::entityQuery('node')->condition('type', 'tips')
-        ->condition('sticky', 1)
-        ->condition('status', 1)
-        ->sort('created', 'DESC')
-        ->execute();
+      $nids = \Drupal::entityQuery('node')->condition('type', 'tips')->condition('sticky', 1)->condition('status', 1)->sort('created', 'DESC')->execute();
       $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
       $node = FALSE;
       $views = 0;
@@ -54,11 +49,7 @@ class RelatedFeaturedTips extends BlockBase {
         foreach ($nodes as $nid => $node) {
           $tips[$nid] = $node;
           $term = Term::load($node->get('field_category')->target_id);
-          $vote_widget = $vote_widget_service->buildRateVotingWidget(
-            $node->id(),
-            $node->getEntityTypeId(),
-            $node->bundle()
-          );
+          $vote_widget = $vote_widget_service->buildRateVotingWidget($node->id(), $node->getEntityTypeId(), $node->bundle());
           $rate[$nid] = $vote_widget['votingapi_links'];
           $views[$nid] = counterNode($node);
           if ($term) {
@@ -69,14 +60,7 @@ class RelatedFeaturedTips extends BlockBase {
         }
       }
 
-      return [
-        '#theme' => ['iot_tips_featured_related'],
-        '#nodes' => $tips,
-        '#rate' => $rate,
-        '#views' => $views,
-        '#term' => $cate,
-        '#desc' => $desc,
-      ];
+      return ['#theme' => ['iot_tips_featured_related'], '#nodes' => $tips, '#rate' => $rate, '#views' => $views, '#term' => $cate, '#desc' => $desc,];
     }
   }
 

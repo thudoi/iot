@@ -14,7 +14,6 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Tips' Block.
- *
  * @Block(
  *   id = "tips",
  *   admin_label = @Translation("Tips"),
@@ -28,21 +27,16 @@ class Tips extends BlockBase
    * {@inheritdoc}
    * @return array
    */
-  public function build()
+  public function build ()
   {
     $nid = \Drupal::state()->get('iot_random_tips');
-    if($nid){
+    if ($nid) {
       $node = Node::load($nid);
-    }else{
-      $nids = \Drupal::entityQuery('node')->condition('type', 'tips')
-        ->condition('promote', 1)
-        ->condition('status', 1)
-        ->sort('created','DESC')
-        ->range(0,1)
-        ->execute();
+    } else {
+      $nids = \Drupal::entityQuery('node')->condition('type', 'tips')->condition('promote', 1)->condition('status', 1)->sort('created', 'DESC')->range(0, 1)->execute();
       $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
       $node = false;
-      if($nodes){
+      if ($nodes) {
         $node = reset($nodes);
       }
     }
@@ -51,34 +45,22 @@ class Tips extends BlockBase
     $vote_widget = false;
     $cate = false;
     $term_uri = false;
-    if($node){
+    if ($node) {
       $term = Term::load($node->get('field_category')->target_id);
-      $vote_widget = $vote_widget_service->buildRateVotingWidget(
-        $node->id(),
-        $node->getEntityTypeId(),
-        $node->bundle()
-      );
+      $vote_widget = $vote_widget_service->buildRateVotingWidget($node->id(), $node->getEntityTypeId(), $node->bundle());
       $views = counterNode($node);
-      if($term){
+      if ($term) {
         $cate = $term;
         $term_uri = taxonomy_term_uri($term);
       }
-      if($node->get('field_standfirst')->value){
+      if ($node->get('field_standfirst')->value) {
         $desc = shortContent($node->get('field_standfirst')->value, 150);
-      }else{
+      } else {
         $desc = shortContent($node->get('body')->value, 150);
       }
     }
 
-    return [
-      '#theme' => ['iot_tips'],
-      '#node' => $node,
-      '#rate' => $vote_widget['votingapi_links'],
-      '#views'=> $views,
-      '#term'=>$cate,
-      '#term_uri'=>$term_uri,
-      '#desc' => $desc
-    ];
+    return ['#theme' => ['iot_tips'], '#node' => $node, '#rate' => $vote_widget['votingapi_links'], '#views' => $views, '#term' => $cate, '#term_uri' => $term_uri, '#desc' => $desc];
   }
 
 }

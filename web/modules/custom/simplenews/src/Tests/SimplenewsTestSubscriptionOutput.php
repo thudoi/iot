@@ -4,34 +4,24 @@ namespace Drupal\simplenews\Tests;
 
 /**
  * Test subscription output on user profile page.
- *
  * @group simplenews
  */
-class SimplenewsTestSubscriptionOutput extends SimplenewsTestBase {
+class SimplenewsTestSubscriptionOutput extends SimplenewsTestBase
+{
 
   /**
    * Test subscription output visibility for different users.
    */
-  public function testSubscriptionVisiblity() {
+  public function testSubscriptionVisiblity ()
+  {
 
     // Enable the extra field.
-    entity_get_display('user', 'user', 'default')
-      ->setComponent('simplenews', array(
-          'label' => 'hidden',
-          'type' => 'simplenews',
-        ))
-      ->save();
+    entity_get_display('user', 'user', 'default')->setComponent('simplenews', ['label' => 'hidden', 'type' => 'simplenews',])->save();
 
     // Create admin user.
-    $admin_user = $this->drupalCreateUser(array(
-      'administer users',
-    ));
+    $admin_user = $this->drupalCreateUser(['administer users',]);
     // Create user that can view user profiles.
-    $user = $this->drupalCreateUser(array(
-      'access user profiles',
-      'subscribe to newsletters',
-      'access content',
-    ));
+    $user = $this->drupalCreateUser(['access user profiles', 'subscribe to newsletters', 'access content',]);
     $this->drupalLogin($admin_user);
     // Tests extra fields for admin user.
     $this->drupalGet('user/' . $admin_user->id());

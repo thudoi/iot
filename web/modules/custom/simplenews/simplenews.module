@@ -61,14 +61,16 @@ define('SIMPLENEWS_OPT_INOUT_DOUBLE', 'double');
 /**
  * Implements hook_node_type_delete().
  */
-function simplenews_node_type_delete(NodeTypeInterface $info) {
+function simplenews_node_type_delete (NodeTypeInterface $info)
+{
   drupal_static_reset('simplenews_get_content_types');
 }
 
 /**
  * Implements hook_node_view().
  */
-function simplenews_node_view(array &$build, NodeInterface $node, $display, $view_mode) {
+function simplenews_node_view (array &$build, NodeInterface $node, $display, $view_mode)
+{
   if (!simplenews_check_node_types($node->getType())) {
     return;
   }
@@ -80,9 +82,7 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
   }
 
   // Build up content, add as much as there is.
-  $context = array(
-    'node' => $node,
-  );
+  $context = ['node' => $node,];
 
   // If the current user is a subscriber, extend context.
   $user = \Drupal::currentUser();
@@ -103,7 +103,7 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
       // Only fields which result in simple markup elements are supported for
       // token replacements for now.
       if (isset($item['#markup'])) {
-        $item['#markup'] = \Drupal::token()->replace($item['#markup'], $context, array());
+        $item['#markup'] = \Drupal::token()->replace($item['#markup'], $context, []);
       }
     }
   }
@@ -112,7 +112,8 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
 /**
  * Implements hook_node_presave().
  */
-function simplenews_node_presave(NodeInterface $node) {
+function simplenews_node_presave (NodeInterface $node)
+{
   if (!$node->hasField('simplenews_issue')) {
     return;
   }
@@ -126,37 +127,31 @@ function simplenews_node_presave(NodeInterface $node) {
 /**
  * Implements hook_node_delete().
  */
-function simplenews_node_delete($node) {
+function simplenews_node_delete ($node)
+{
   if (!simplenews_check_node_types($node->getType())) {
     return;
   }
   // Check if pending emails of this newsletter issue exist and delete these too.
-  $count = \Drupal::service('simplenews.spool_storage')->deleteMails(array('entity_id' => $node->id(), 'entity_type' => 'node'));
+  $count = \Drupal::service('simplenews.spool_storage')->deleteMails(['entity_id' => $node->id(), 'entity_type' => 'node']);
   if ($count) {
-    drupal_set_message(t('@count pending emails for %title were found and deleted.', array(
-        '%title' => $node->getTitle(),
-        '@count' => $count,
-      )), 'warning');
-    \Drupal::logger('simplenews')->alert('Newsletter %title deleted with @count pending emails..', array(
-      '%title' => $node->getTitle(),
-      '@count' => $count,
-      ));
+    drupal_set_message(t('@count pending emails for %title were found and deleted.', ['%title' => $node->getTitle(), '@count' => $count,]), 'warning');
+    \Drupal::logger('simplenews')->alert('Newsletter %title deleted with @count pending emails..', ['%title' => $node->getTitle(), '@count' => $count,]);
   }
 }
 
 /**
  * Check if content type(s) is enabled for use as Simplenews newsletter.
- *
  * @param $types
  *   Array of content types or single content type string.
  * @return boolean
  *   TRUE if at least one of $types is enabled for Simplenews.
- *
  * @ingroup issue
  */
-function simplenews_check_node_types($types) {
+function simplenews_check_node_types ($types)
+{
   if (!is_array($types)) {
-    $types = array($types);
+    $types = [$types];
   }
   if ($sn_types = simplenews_get_content_types()) {
     foreach ($types as $type) {
@@ -170,28 +165,27 @@ function simplenews_check_node_types($types) {
 
 /**
  * Get all node types supported by Simplenews.
- *
  * @return
  *   Array of node-types which can be used a simplenews newsletter issue.
- *
  * @ingroup issue
  */
-function simplenews_get_content_types() {
-  $simplenews_types = &drupal_static(__FUNCTION__, array());
+function simplenews_get_content_types ()
+{
+  $simplenews_types = &drupal_static(__FUNCTION__, []);
 
   if (!$simplenews_types) {
     $field_map = \Drupal::entityManager()->getFieldMapByFieldType('simplenews_issue');
-    $simplenews_types = isset($field_map['node']['simplenews_issue']) ? $field_map['node']['simplenews_issue']['bundles'] : array();
+    $simplenews_types = isset($field_map['node']['simplenews_issue']) ? $field_map['node']['simplenews_issue']['bundles'] : [];
   }
   return $simplenews_types;
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
- *
  * Add checkbox to the content type form to use the content type as newsletter.
  */
-function simplenews_form_node_type_form_alter(array &$form, FormStateInterface $form_state) {
+function simplenews_form_node_type_form_alter (array &$form, FormStateInterface $form_state)
+{
   // Add option to use content type as simplenews newsletter.
 
   $node_type = $form_state->getFormObject()->getEntity();
@@ -203,12 +197,7 @@ function simplenews_form_node_type_form_alter(array &$form, FormStateInterface $
     $default = isset($fields['simplenews_issue']);
   }
 
-  $form['workflow']['simplenews_content_type'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use as simplenews newsletter'),
-    '#default_value' => $default,
-    '#description' => t('This will add the simplenews issue field to this content type, allowing content of this type to be sent out as a newsletter issue.'),
-  );
+  $form['workflow']['simplenews_content_type'] = ['#type' => 'checkbox', '#title' => t('Use as simplenews newsletter'), '#default_value' => $default, '#description' => t('This will add the simplenews issue field to this content type, allowing content of this type to be sent out as a newsletter issue.'),];
 
   $form['actions']['submit']['#submit'][] = 'simplenews_form_node_type_submit';
   if (isset($form['actions']['save_continue'])) {
@@ -219,7 +208,8 @@ function simplenews_form_node_type_form_alter(array &$form, FormStateInterface $
 /**
  * Submit callback to add the simplenews_issue field to node types.
  */
-function simplenews_form_node_type_submit(array $form, FormStateInterface $form_state) {
+function simplenews_form_node_type_submit (array $form, FormStateInterface $form_state)
+{
   $checked = $form_state->getValue('simplenews_content_type');
 
   $node_type = $form_state->getFormObject()->getEntity();
@@ -230,20 +220,12 @@ function simplenews_form_node_type_submit(array $form, FormStateInterface $form_
   if ($checked && !$exists) {
     // If checked and the field does not exist yet, create it.
     $field_storage = FieldStorageConfig::loadByName('node', 'simplenews_issue');
-    $field = FieldConfig::create([
-      'field_storage' => $field_storage,
-      'label' => t('Issue'),
-      'bundle' => $node_type->id(),
-      'translatable' => TRUE,
-    ]);
+    $field = FieldConfig::create(['field_storage' => $field_storage, 'label' => t('Issue'), 'bundle' => $node_type->id(), 'translatable' => TRUE,]);
     $field->save();
 
     // Set the default widget.
-    entity_get_form_display('node', $node_type->id(), 'default')
-      ->setComponent($field->getName())
-      ->save();
-  }
-  elseif (!$checked && $exists) {
+    entity_get_form_display('node', $node_type->id(), 'default')->setComponent($field->getName())->save();
+  } elseif (!$checked && $exists) {
     // @todo Consider deleting the field or find a way to disable it. Maybe
     //   do not allow to disable the checkbox and point to removing the field
     //   manually? Or remove this feature completely and rely on the field only.
@@ -253,7 +235,8 @@ function simplenews_form_node_type_submit(array $form, FormStateInterface $form_
 /**
  * Implements hook_form_alter().
  */
-function simplenews_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+function simplenews_form_node_form_alter (&$form, FormStateInterface $form_state, $form_id)
+{
   // Add Simplenews settings to simplenews newsletter node form.
   $node = $form_state->getFormObject()->getEntity();
   if (in_array($node->getType(), simplenews_get_content_types())) {
@@ -265,29 +248,20 @@ function simplenews_form_node_form_alter(&$form, FormStateInterface $form_state,
     }
 
     if (\Drupal::moduleHandler()->moduleExists('token')) {
-      $form['simplenews_token_help'] = array(
-        '#title' => t('Replacement patterns'),
-        '#type' => 'fieldset',
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
-        '#description' => t('These tokens can be used in all text fields except subject and will be replaced on-screen and in the email.'),
-      );
+      $form['simplenews_token_help'] = ['#title' => t('Replacement patterns'), '#type' => 'fieldset', '#collapsible' => TRUE, '#collapsed' => TRUE, '#description' => t('These tokens can be used in all text fields except subject and will be replaced on-screen and in the email.'),];
 
-      $form['simplenews_token_help']['browser'] = array(
-        '#theme' => 'token_tree_link',
-        '#token_types' => array('simplenews-newsletter', 'simplenews-subscriber', 'node'),
-      );
+      $form['simplenews_token_help']['browser'] = ['#theme' => 'token_tree_link', '#token_types' => ['simplenews-newsletter', 'simplenews-subscriber', 'node'],];
     }
   }
 }
 
 /**
  * Checks that the site URI is set, and sets an error message otherwise.
- *
  * @return bool
  *   TRUE if the URI is set, otherwise FALSE.
  */
-function simplenews_assert_uri() {
+function simplenews_assert_uri ()
+{
   $host = \Drupal::request()->getHost();
   // Check if the host name is configured.
   if ($host == 'default') {
@@ -300,7 +274,8 @@ function simplenews_assert_uri() {
 /**
  * Implements hook_cron().
  */
-function simplenews_cron() {
+function simplenews_cron ()
+{
   if (!simplenews_assert_uri()) {
     return;
   }
@@ -313,12 +288,12 @@ function simplenews_cron() {
 
 /**
  * Implements hook_form_FORM_ID_alter().
- *
  * Add simplenews subscription fields to user register form.
  * @todo mode this function to another place in the module.
  */
-function simplenews_form_user_register_form_alter(&$form, FormStateInterface $form_state) {
-  $options = $default_value = $hidden = array();
+function simplenews_form_user_register_form_alter (&$form, FormStateInterface $form_state)
+{
+  $options = $default_value = $hidden = [];
 
   // Determine the lists to which a user can choose to subscribe.
   // Determine to which other list a user is automatically subscribed.
@@ -331,8 +306,7 @@ function simplenews_form_user_register_form_alter(&$form, FormStateInterface $fo
       if ($subscribe_new_account == 'on') {
         $default_value[] = $newsletter->id();
       }
-    }
-    else {
+    } else {
       if ($subscribe_new_account == 'silent' || ($subscribe_new_account == 'on' && $opt_inout_method == SIMPLENEWS_OPT_INOUT_HIDDEN)) {
         $hidden[] = $newsletter->id();
       }
@@ -341,21 +315,11 @@ function simplenews_form_user_register_form_alter(&$form, FormStateInterface $fo
 
   if (count($options)) {
     // @todo Change this text: use less words;
-    $form['simplenews'] = array(
-      '#type' => 'fieldset',
-      '#description' => t('Select the newsletter(s) to which you wish to subscribe.'),
-    );
-    $form['simplenews']['subscriptions'] = array(
-      '#type' => 'checkboxes',
-      '#options' => $options,
-      '#default_value' => $default_value,
-    );
+    $form['simplenews'] = ['#type' => 'fieldset', '#description' => t('Select the newsletter(s) to which you wish to subscribe.'),];
+    $form['simplenews']['subscriptions'] = ['#type' => 'checkboxes', '#options' => $options, '#default_value' => $default_value,];
   }
   if (count($hidden)) {
-    $form['simplenews_hidden'] = array(
-      '#type' => 'hidden',
-      '#value' => implode(',', $hidden),
-    );
+    $form['simplenews_hidden'] = ['#type' => 'hidden', '#value' => implode(',', $hidden),];
   }
   $form['actions']['submit']['#submit'][] = 'simplenews_user_profile_form_submit';
 }
@@ -363,7 +327,8 @@ function simplenews_form_user_register_form_alter(&$form, FormStateInterface $fo
 /**
  * Submit callback for the user profile form to save the simplenews newsletters setting.
  */
-function simplenews_user_profile_form_submit($form, FormStateInterface $form_state) {
+function simplenews_user_profile_form_submit ($form, FormStateInterface $form_state)
+{
   $account = $form_state->getFormObject()->getEntity();
   // Process subscription check boxes.
 
@@ -377,7 +342,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
       $newsletters = simplenews_newsletter_load_multiple($ids);
       foreach ($newsletters as $newsletter) {
         $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
-        drupal_set_message(t('You have been subscribed to %newsletter.', array('%newsletter' => $newsletter->name)));
+        drupal_set_message(t('You have been subscribed to %newsletter.', ['%newsletter' => $newsletter->name]));
       }
     }
   }
@@ -393,7 +358,8 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
 /**
  * Implements hook_ENTITY_TYPE_create().
  */
-function simplenews_user_create(UserInterface $account) {
+function simplenews_user_create (UserInterface $account)
+{
   // Copy values for shared fields from existing subscriber.
   $mail = $account->getEmail();
   $sync = \Drupal::config('simplenews.settings')->get('subscriber.sync_fields');
@@ -406,10 +372,10 @@ function simplenews_user_create(UserInterface $account) {
 
 /**
  * Implements hook_user_insert().
- *
  * Update uid and preferred language when the new account was already subscribed.
  */
-function simplenews_user_insert(UserInterface $account) {
+function simplenews_user_insert (UserInterface $account)
+{
 
   // Don't do anything if the user has no email.
   if (!$account->getEmail()) {
@@ -435,10 +401,10 @@ function simplenews_user_insert(UserInterface $account) {
 
 /**
  * Implements hook_user_login().
- *
  * Subscribe user to a newsletter as per registration form.
  */
-function simplenews_user_login(UserInterface $account) {
+function simplenews_user_login (UserInterface $account)
+{
   // Subscriptions of users that did sign up by themselves have to be
   // activated first at their first login (-> account::access = 0)
   if ($account->getLastAccessedTime() == 0) {
@@ -452,16 +418,14 @@ function simplenews_user_login(UserInterface $account) {
 
 /**
  * Implements hook_user_presave().
- *
  * User data (mail, status, language) and all configurable fields are
  * synchronized with subscriber.
- *
  * This function handles existing user account, simplenews_user_insert takes
  * care of new accounts.
- *
  * @see simplenews_user_insert()
  */
-function simplenews_user_presave(UserInterface $account) {
+function simplenews_user_presave (UserInterface $account)
+{
   $syncing = &drupal_static(__FUNCTION__, FALSE);
 
   // Don't do anything if the user has no email.
@@ -470,9 +434,7 @@ function simplenews_user_presave(UserInterface $account) {
   }
 
   /** @var \Drupal\simplenews\Entity\Subscriber $subscriber */
-  $subscriber = $account->isNew() ?
-    simplenews_subscriber_load_by_mail($account->getEmail()) :
-    simplenews_subscriber_load_by_uid($account->id());
+  $subscriber = $account->isNew() ? simplenews_subscriber_load_by_mail($account->getEmail()) : simplenews_subscriber_load_by_uid($account->id());
   if ($subscriber && !$subscriber->isSyncing()) {
     $syncing = TRUE;
     // We only process existing accounts.
@@ -498,7 +460,8 @@ function simplenews_user_presave(UserInterface $account) {
 /**
  * Implements hook_user_delete().
  */
-function simplenews_user_delete(UserInterface $account) {
+function simplenews_user_delete (UserInterface $account)
+{
   // Delete subscription when account is removed.
   $subscriber = simplenews_subscriber_load_by_uid($account->id());
   if ($subscriber) {
@@ -509,16 +472,13 @@ function simplenews_user_delete(UserInterface $account) {
 /**
  * Implements hook_user_view().
  */
-function simplenews_user_view(array &$build, UserInterface $account, EntityViewDisplayInterface $display, $view_mode) {
+function simplenews_user_view (array &$build, UserInterface $account, EntityViewDisplayInterface $display, $view_mode)
+{
   $user = \Drupal::currentUser();
   $build['#cache']['contexts'][] = 'user.permissions';
   if ($user->id() == $account->id() || $user->hasPermission('administer users')) {
     if ($display->getComponent('simplenews')) {
-      $build['simplenews'] = array(
-        '#type' => 'details',
-        '#title' => t('Subscribed to'),
-        '#open' => TRUE,
-      );
+      $build['simplenews'] = ['#type' => 'details', '#title' => t('Subscribed to'), '#open' => TRUE,];
       // Collect newsletter to which the current user is subscribed.
       // 'hidden' newsletters are not listed.
       $newsletters = simplenews_newsletter_get_visible();
@@ -538,25 +498,14 @@ function simplenews_user_view(array &$build, UserInterface $account, EntityViewD
       // we do not display the 'no subscriptions' message.
       if ($account->hasPermission('subscribe to newsletters')) {
         if ($links) {
-          $build['simplenews']['subscriptions'] = array(
-            '#theme' => 'item_list',
-            '#items' => $links,
-          );
-        }
-        else {
-          $build['simplenews']['subscriptions'] = array(
-            '#type' => 'item',
-            '#markup' => t('None'),
-          );
+          $build['simplenews']['subscriptions'] = ['#theme' => 'item_list', '#items' => $links,];
+        } else {
+          $build['simplenews']['subscriptions'] = ['#type' => 'item', '#markup' => t('None'),];
         }
 
       }
       if ($account->hasPermission('subscribe to newsletters')) {
-        $build['simplenews']['my_newsletters'] = array(
-          '#type' => 'link',
-          '#title' => t('Manage subscriptions'),
-          '#url' => new Url('simplenews.newsletter_subscriptions_user', array('user' => $account->id())),
-        );
+        $build['simplenews']['my_newsletters'] = ['#type' => 'link', '#title' => t('Manage subscriptions'), '#url' => new Url('simplenews.newsletter_subscriptions_user', ['user' => $account->id()]),];
       }
     }
   }
@@ -564,106 +513,88 @@ function simplenews_user_view(array &$build, UserInterface $account, EntityViewD
 
 /**
  * Load a simplenews newsletter subscriber object.
- *
  * @param $snid
  *   Simplenews subscriber ID.
- *
  * @return Subscriber
  *   Newsletter subscriber entity, FALSE if subscriber does not exist.
- *
  * @ingroup subscriber
  */
-function simplenews_subscriber_load($snid) {
-  $subscribers = simplenews_subscriber_load_multiple(array($snid));
+function simplenews_subscriber_load ($snid)
+{
+  $subscribers = simplenews_subscriber_load_multiple([$snid]);
   return $subscribers ? reset($subscribers) : FALSE;
 }
 
 /**
  * Load a simplenews newsletter subscriber object.
- *
  * @param $mail
  *   Subscriber e-mail address.
- *
  * @return \Drupal\simplenews\SubscriberInterface
  *   Newsletter subscriber object, FALSE if subscriber does not exist.
- *
  * @ingroup subscriber
  */
-function simplenews_subscriber_load_by_mail($mail) {
-  $subscribers = entity_load_multiple_by_properties('simplenews_subscriber', array('mail' => $mail));
+function simplenews_subscriber_load_by_mail ($mail)
+{
+  $subscribers = entity_load_multiple_by_properties('simplenews_subscriber', ['mail' => $mail]);
   return $subscribers ? reset($subscribers) : FALSE;
 }
 
 /**
  * Load a simplenews newsletter subscriber object.
- *
  * @param $uid
  *   Subscriber user id.
- *
  * @return Subscriber
  *   Newsletter subscriber entity, NULL if subscriber does not exist.
- *
  * @ingroup subscriber
  */
-function simplenews_subscriber_load_by_uid($uid) {
+function simplenews_subscriber_load_by_uid ($uid)
+{
   if (!$uid) {
     return NULL;
   }
-  $subscribers = entity_load_multiple_by_properties('simplenews_subscriber', array('uid' => $uid));
+  $subscribers = entity_load_multiple_by_properties('simplenews_subscriber', ['uid' => $uid]);
   return $subscribers ? reset($subscribers) : NULL;
 }
 
 /**
  * Loads simplenews subscriber objects.
- *
  * @param $snids
  *   (Optional) Array of subscriber ID's.
- *
  * @return
  *   Array of subscriber objects that match the given ID's/conditions.
- *
  * @ingroup subscriber
  */
-function simplenews_subscriber_load_multiple($snids = array()) {
+function simplenews_subscriber_load_multiple ($snids = [])
+{
   return entity_load_multiple('simplenews_subscriber', $snids);
 }
 
 /**
  * Delete subscribers and corresponding subscriptions from the database.
- *
  * @param $snids
  *   Simplenews subscriber ids
- *
  * @ingroup subscriber
  */
-function simplenews_subscriber_delete_multiple(array $snids) {
+function simplenews_subscriber_delete_multiple (array $snids)
+{
   entity_delete_multiple('simplenews_subscriber', $snids);
 }
 
 /**
  * Create a list of recent newsletters issues.
- *
  * @param integer $newsletter_id
  *   The newsletter id.
  * @param integer $count
  *   The number of newsletters.
- *
  * @ingroup issue
- *
  * @todo Replace this list by a View.
  */
-function simplenews_recent_newsletters($newsletter_id, $count = 5) {
+function simplenews_recent_newsletters ($newsletter_id, $count = 5)
+{
   $config = \Drupal::config('simplenews.settings');
   $query = new EntityFieldQuery;
-  $result = $query
-    ->entityCondition('entity_type', 'node')
-    ->propertyCondition('status', NODE_PUBLISHED)
-    ->fieldCondition($config->get('fields.newsletter'), 'target_id', $newsletter_id)
-    ->fieldCondition($config->get('fields.issue_status'), 'value', SIMPLENEWS_STATUS_SEND_NOT, '<>')
-    ->propertyOrderBy('created', 'DESC')
-    ->range(0, $count)
-    ->execute();
-  $titles = array();
+  $result = $query->entityCondition('entity_type', 'node')->propertyCondition('status', NODE_PUBLISHED)->fieldCondition($config->get('fields.newsletter'), 'target_id', $newsletter_id)->fieldCondition($config->get('fields.issue_status'), 'value', SIMPLENEWS_STATUS_SEND_NOT, '<>')->propertyOrderBy('created', 'DESC')->range(0, $count)->execute();
+  $titles = [];
   if (!empty($result['node'])) {
     foreach (node_load_multiple(array_keys($result['node'])) as $item) {
       $titles[$item->nid]['data'] = l($item->title, 'node/' . $item->nid);
@@ -674,9 +605,7 @@ function simplenews_recent_newsletters($newsletter_id, $count = 5) {
 
 /**
  * Implements hook_mail().
- *
  * Send simplenews mails using drupal mail API.
- *
  * @param $key
  *   Must be one of: node, test, subscribe, unsubscribe.
  * @param $message
@@ -689,7 +618,8 @@ function simplenews_recent_newsletters($newsletter_id, $count = 5) {
  *   - simplenews_source: An implementation of SimplenewsSourceInterface which
  *     provides the necessary information to build the newsletter mail.
  */
-function simplenews_mail($key, &$message, $params) {
+function simplenews_mail ($key, &$message, $params)
+{
   /** @var \Drupal\simplenews\Mail\MailBuilder $builder */
   $builder = \Drupal::service('simplenews.mail_builder');
 
@@ -713,56 +643,50 @@ function simplenews_mail($key, &$message, $params) {
   // Debug message of node and test emails is set in simplenews_mail_mail().
   $config = \Drupal::config('simplenews.settings');
   if ($config->get('mail.debug') && $key != 'node' && $key != 'test') {
-    \Drupal::logger('simplenews')->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', array('%type' => $key, '%to' => $message['to'], '%subject' => $message['subject']));
+    \Drupal::logger('simplenews')->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', ['%type' => $key, '%to' => $message['to'], '%subject' => $message['subject']]);
   }
 }
 
 /**
  * Build a recipient handler class from a given plugin id and settings array.
- *
  * @param $handler
  *   The id of the simplenews_recipient_handler plugin to use.
  * @param $configuration
  *   An array of settings to pass to the handler class.
- *
  * @return \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface
  *   A constructed recipient handler plugin.
- *
  * @throws Exception if the handler class does not exist.
  */
-function simplenews_get_recipient_handler($newsletter, $handler, $configuration = array()) {
+function simplenews_get_recipient_handler ($newsletter, $handler, $configuration = [])
+{
   $configuration['newsletter'] = $newsletter;
-  return  \Drupal::service('plugin.manager.simplenews_recipient_handler')->createInstance($handler, $configuration);
+  return \Drupal::service('plugin.manager.simplenews_recipient_handler')->createInstance($handler, $configuration);
 }
 
 /**
  * Get a simplenews newsletter entity object.
- *
  * @param $newsletter_id
  *   Simplenews newsletter ID.
- *
  * @return \Drupal\simplenews\NewsletterInterface
  *   Newsletter entity object, NULL if newsletter does not exist.
- *
  * @ingroup newsletter
  */
-function simplenews_newsletter_load($newsletter_id, $reset = FALSE) {
-  $newsletter = simplenews_newsletter_load_multiple(array($newsletter_id), $reset);
+function simplenews_newsletter_load ($newsletter_id, $reset = FALSE)
+{
+  $newsletter = simplenews_newsletter_load_multiple([$newsletter_id], $reset);
   return $newsletter ? reset($newsletter) : NULL;
 }
 
 /**
  * Get list of simplenews categories with translated names.
- *
  * @todo Maybe refactor this method to simplenews_newsletter_name_list.
- *
  * @return
  *   array of newsletter names. Translated if required.
- *
  * @ingroup newsletter.
  */
-function simplenews_newsletter_list() {
-  $newsletters = array();
+function simplenews_newsletter_list ()
+{
+  $newsletters = [];
   foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
     $newsletters[$id] = SafeMarkup::checkPlain($newsletter->label());
   }
@@ -771,20 +695,16 @@ function simplenews_newsletter_list() {
 
 /**
  * Loads all visible newsletters.
- *
  * Does not include newsletters with the opt-out/opt-in setting set to hidden.
  * It is possible to apply additional conditions.
- *
  * @param $conditions Aditional contitions.
  * @return array Filtered newsletter entities.
- *
  * @ingroup newsletter
  */
-function simplenews_newsletter_get_visible($conditions = array()) {
+function simplenews_newsletter_get_visible ($conditions = [])
+{
   $query = \Drupal::entityQuery('simplenews_newsletter');
-  $query
-    ->condition('opt_inout', SIMPLENEWS_OPT_INOUT_HIDDEN, '<>')
-    ->sort('weight');
+  $query->condition('opt_inout', SIMPLENEWS_OPT_INOUT_HIDDEN, '<>')->sort('weight');
   foreach ($conditions as $key => $value) {
     $query->condition($key, $value);
   }
@@ -794,36 +714,34 @@ function simplenews_newsletter_get_visible($conditions = array()) {
 
 /**
  * Loads all newsletters.
- *
  * @return array All newsletter entities.
- *
  * @ingroup newsletter
  */
-function simplenews_newsletter_get_all() {
+function simplenews_newsletter_get_all ()
+{
   $newsletters = simplenews_newsletter_load_multiple();
   $entity_type = \Drupal::entityManager()->getDefinition('simplenews_newsletter');
-  uasort($newsletters, array($entity_type->getClass(), 'sort'));
+  uasort($newsletters, [$entity_type->getClass(), 'sort']);
   return $newsletters;
 }
 
 /**
  * Load one or many newsletter entites from database.
- *
  * @param array $ids List of ids to be loaded or empty array for all.
  * @param boolean $reset
  * @return type
- *
  * @ingroup newsletter
  */
-function simplenews_newsletter_load_multiple($ids = NULL, $reset = FALSE) {
+function simplenews_newsletter_load_multiple ($ids = NULL, $reset = FALSE)
+{
   return entity_load_multiple('simplenews_newsletter', $ids, $reset);
 }
 
 /**
  * Implements hook_help().
- *
  */
-function simplenews_help($route_name, RouteMatchInterface $route_match) {
+function simplenews_help ($route_name, RouteMatchInterface $route_match)
+{
   switch ($route_name) {
     case 'help.page.simplenews':
       $help = "<p>" . t('Simplenews publishes and sends newsletters to lists of subscribers. Both anonymous and authenticated users can opt-in to different mailing lists.') . "</p>\n";
@@ -833,7 +751,7 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
       $help .= "<h2>" . t('Configuration') . "</h2>\n";
       $help .= '<ul>';
       if (\Drupal::currentUser()->hasPermission('administer permissions')) {
-        $link = Link::fromTextAndUrl(t('Configure permissions'), Url::fromRoute('user.admin_permissions'), array('fragment' => 'module-simplenews'));
+        $link = Link::fromTextAndUrl(t('Configure permissions'), Url::fromRoute('user.admin_permissions'), ['fragment' => 'module-simplenews']);
         $help .= '<li>' . $link->toString() . "</li>\n";
       }
       if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
@@ -841,14 +759,14 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
         $help .= '<li>' . $link->toString() . "</li>\n";
       }
       if (\Drupal::currentUser()->hasPermission('administer blocks')) {
-        $help .= '<li>' . t('Enable a newsletter <a href=":admin_blocks">subscription block</a>.', array(':admin_blocks' => Url::fromRoute('block.admin_display')->toString())) . "</li>\n";
+        $help .= '<li>' . t('Enable a newsletter <a href=":admin_blocks">subscription block</a>.', [':admin_blocks' => Url::fromRoute('block.admin_display')->toString()]) . "</li>\n";
       }
       if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
-        $help .= '<li>' . t('Manage your <a href=":newsletters">newsletters</a>, <a href=":sent">sent newsletters</a> and <a href=":subscriptions">subscriptions</a>.', array(':newsletters' => Url::fromRoute('simplenews.newsletter_list')->toString(), ':sent' => Url::fromUri('base:admin/content/simplenews')->toString(), ':subscriptions' => Url::fromUri('base:admin/people/simplenews')->toString())) . "</li>\n";
+        $help .= '<li>' . t('Manage your <a href=":newsletters">newsletters</a>, <a href=":sent">sent newsletters</a> and <a href=":subscriptions">subscriptions</a>.', [':newsletters' => Url::fromRoute('simplenews.newsletter_list')->toString(), ':sent' => Url::fromUri('base:admin/content/simplenews')->toString(), ':subscriptions' => Url::fromUri('base:admin/people/simplenews')->toString()]) . "</li>\n";
       }
       $help .= '</ul>';
 
-      $help .= "<p>" . t('For more information, see the online handbook entry for <a href=":handbook">Simplenews</a>.', array(':handbook' => 'http://drupal.org/node/197057')) . "</p>\n";
+      $help .= "<p>" . t('For more information, see the online handbook entry for <a href=":handbook">Simplenews</a>.', [':handbook' => 'http://drupal.org/node/197057']) . "</p>\n";
       return $help;
     case 'node.add':
       $type = $route_match->getParameter('node_type');
@@ -856,21 +774,21 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
       if ($type->id() == 'simplenews_issue') {
         $help = '<p>' . t('Add this newsletter issue to a newsletter by selecting a newsletter from the select list. To send this newsletter issue, first save the node, then use the "Newsletter" tab.') . "</p>\n";
         if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
-          $help .= '<p>' . t('Set default send options at <a href=":configuration">Administration > Configuration > Web services > Newsletters</a>.', array(':configuration' => Url::fromRoute('simplenews.newsletter_list')->toString())) . "</p>\n";
+          $help .= '<p>' . t('Set default send options at <a href=":configuration">Administration > Configuration > Web services > Newsletters</a>.', [':configuration' => Url::fromRoute('simplenews.newsletter_list')->toString()]) . "</p>\n";
         }
         if (\Drupal::currentUser()->hasPermission('administer newsletters')) {
-          $help .= '<p>' . t('Set newsletter specific options at <a href=":configuration">Administration > Content > Newsletters</a>.', array(':configuration' => Url::fromUri('base:admin/content/simplenews')->toString())) . "</p>\n";
+          $help .= '<p>' . t('Set newsletter specific options at <a href=":configuration">Administration > Content > Newsletters</a>.', [':configuration' => Url::fromUri('base:admin/content/simplenews')->toString()]) . "</p>\n";
         }
       }
       return $help;
     case 'simplenews.settings_newsletter':
       $help = '<ul>';
-      $help .= '<li>' . t('These settings are default to all newsletters. Newsletter specific settings can be found at the <a href=":page">newsletter\'s settings page</a>.', array(':page' => Url::fromRoute('simplenews.newsletter_list')->toString())) . "</li>\n";
-      $help .= '<li>' . t('Install <a href=":swift_mail_url">Swift Mailer</a> to send HTML emails or emails with attachments (both plain text and HTML).', array(':swift_mail_url' => 'https://www.drupal.org/project/swiftmailer')) . "</li>\n";
+      $help .= '<li>' . t('These settings are default to all newsletters. Newsletter specific settings can be found at the <a href=":page">newsletter\'s settings page</a>.', [':page' => Url::fromRoute('simplenews.newsletter_list')->toString()]) . "</li>\n";
+      $help .= '<li>' . t('Install <a href=":swift_mail_url">Swift Mailer</a> to send HTML emails or emails with attachments (both plain text and HTML).', [':swift_mail_url' => 'https://www.drupal.org/project/swiftmailer']) . "</li>\n";
       $help .= '</ul>';
       return $help;
     case 'simplenews.newsletter_list':
-      $help = '<p>' . t('Newsletter allow you to send periodic e-mails to subscribers. See <a href=":manage_subscribers">Newsletter subscriptions</a> for a listing of the subscribers', array(':manage_subscribers' => Url::fromUri('base:admin/people/simplenews')->toString()));
+      $help = '<p>' . t('Newsletter allow you to send periodic e-mails to subscribers. See <a href=":manage_subscribers">Newsletter subscriptions</a> for a listing of the subscribers', [':manage_subscribers' => Url::fromUri('base:admin/people/simplenews')->toString()]);
       return $help;
     case 'simplenews.newsletter_add':
       $help = '<p>' . t('You can create different newsletters (or subjects) to categorize your news (e.g. Cats news, Dogs news, ...).') . "</p>\n";
@@ -885,7 +803,8 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Generates the hash key used for subscribe/unsubscribe link.
  */
-function simplenews_generate_hash($mail, $action = '', $timestamp = REQUEST_TIME) {
+function simplenews_generate_hash ($mail, $action = '', $timestamp = REQUEST_TIME)
+{
   $data = $mail . \Drupal::service('private_key')->get() . $action . $timestamp;
   return Crypt::hashBase64($data);
 }
@@ -893,82 +812,59 @@ function simplenews_generate_hash($mail, $action = '', $timestamp = REQUEST_TIME
 /**
  * Returns simplenews format options.
  */
-function simplenews_format_options() {
-  return array(
-    'plain' => t('Plain'),
-    'html' => t('HTML'),
-  );
+function simplenews_format_options ()
+{
+  return ['plain' => t('Plain'), 'html' => t('HTML'),];
 }
 
 /**
  * Function to provide the various simplenews mail priorities for newsletters.
  */
-function simplenews_get_priority() {
-  return array(
-    SIMPLENEWS_PRIORITY_NONE => t('- None -'),
-    SIMPLENEWS_PRIORITY_HIGHEST => t('Highest'),
-    SIMPLENEWS_PRIORITY_HIGH => t('High'),
-    SIMPLENEWS_PRIORITY_NORMAL => t('Normal'),
-    SIMPLENEWS_PRIORITY_LOW => t('Low'),
-    SIMPLENEWS_PRIORITY_LOWEST => t('Lowest'),
-  );
+function simplenews_get_priority ()
+{
+  return [SIMPLENEWS_PRIORITY_NONE => t('- None -'), SIMPLENEWS_PRIORITY_HIGHEST => t('Highest'), SIMPLENEWS_PRIORITY_HIGH => t('High'), SIMPLENEWS_PRIORITY_NORMAL => t('Normal'), SIMPLENEWS_PRIORITY_LOW => t('Low'), SIMPLENEWS_PRIORITY_LOWEST => t('Lowest'),];
 }
 
 /**
  * Returns a list of options for the new account settings.
  */
-function simplenews_new_account_options() {
-  return array(
-    'none' => t('- None -'),
-    'on' => t('Default on'),
-    'off' => t('Default off'),
-    'silent' => t('Silent'),
-  );
+function simplenews_new_account_options ()
+{
+  return ['none' => t('- None -'), 'on' => t('Default on'), 'off' => t('Default off'), 'silent' => t('Silent'),];
 }
 
 /**
  * Returns the available options for the opt_inout newsletter property.
  */
-function simplenews_opt_inout_options() {
-  return array(
-    SIMPLENEWS_OPT_INOUT_HIDDEN => t('Hidden'),
-    SIMPLENEWS_OPT_INOUT_SINGLE => t('Single'),
-    SIMPLENEWS_OPT_INOUT_DOUBLE => t('Double'),
-  );
+function simplenews_opt_inout_options ()
+{
+  return [SIMPLENEWS_OPT_INOUT_HIDDEN => t('Hidden'), SIMPLENEWS_OPT_INOUT_SINGLE => t('Single'), SIMPLENEWS_OPT_INOUT_DOUBLE => t('Double'),];
 }
 
 /**
  * Returns the available options for the subscriber status.
  */
-function simplenews_subscriber_status_list() {
-  return array(
-    SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED => t('Subscribed'),
-    SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED => t('Unsubscribed'),
-    SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED => t('Unconfirmed'),
-  );
+function simplenews_subscriber_status_list ()
+{
+  return [SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED => t('Subscribed'), SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED => t('Unsubscribed'), SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED => t('Unconfirmed'),];
 }
 
 /**
  * Implements hook_theme().
- *
  */
-function simplenews_theme() {
+function simplenews_theme ()
+{
 
-  return array(
-    'simplenews_newsletter_body' => array(
-      'render element' => 'elements',
-    ),
-  );
+  return ['simplenews_newsletter_body' => ['render element' => 'elements',],];
 }
 
 /**
  * Process variables to format the simplenews newsletter body.
- *
  * @see simplenews-newsletter-body.html.twig
- *
  * @ingroup theming
  */
-function template_preprocess_simplenews_newsletter_body(&$variables) {
+function template_preprocess_simplenews_newsletter_body (&$variables)
+{
 
   $elements = &$variables['elements'];
 
@@ -994,14 +890,14 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
   foreach (Element::children($elements) as $key) {
     // In case of nodes, skip the hardcoded formatters for created, title and
     // uid.
-    if ($entity_type == 'node' && in_array($key,  ['uid', 'created', 'title'])) {
+    if ($entity_type == 'node' && in_array($key, ['uid', 'created', 'title'])) {
       continue;
     }
     $variables['build'][$key] = $elements[$key];
   }
 
-  $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', array(), array('langcode' => $variables['language']));
-  $variables['test_message'] = t('This is a test version of the newsletter.', array(), array('langcode' => $variables['language']));
+  $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', [], ['langcode' => $variables['language']]);
+  $variables['test_message'] = t('This is a test version of the newsletter.', [], ['langcode' => $variables['language']]);
 
   // Do not display the unsubscribe link by default for hidden categories.
   $variables['opt_out_hidden'] = $variables['newsletter']->opt_inout == 'hidden';
@@ -1010,24 +906,20 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
 /**
  * Implements hook_theme_suggestions_HOOK().
  */
-function simplenews_theme_suggestions_simplenews_newsletter_body(array $variables) {
-  return array(
-    'simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id(),
-    'simplenews_newsletter_body__' . $variables['elements']['#view_mode'],
-    'simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id() . '__' . $variables['elements']['#view_mode'],
-  );
+function simplenews_theme_suggestions_simplenews_newsletter_body (array $variables)
+{
+  return ['simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id(), 'simplenews_newsletter_body__' . $variables['elements']['#view_mode'], 'simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id() . '__' . $variables['elements']['#view_mode'],];
 }
 
 /**
  * Count number of subscribers per newsletter list.
- *
  * @param $newsletter_id
  *   The newsletter id.
- *
  * @return
  *   Number of subscribers.
  */
-function simplenews_count_subscriptions($newsletter_id) {
+function simplenews_count_subscriptions ($newsletter_id)
+{
   $subscription_count = &drupal_static(__FUNCTION__);
 
   if (isset($subscription_count[$newsletter_id])) {
@@ -1037,27 +929,23 @@ function simplenews_count_subscriptions($newsletter_id) {
   // @todo: entity query + aggregate
   $query = db_select('simplenews_subscriber__subscriptions', 'ss');
   $query->leftJoin('simplenews_subscriber', 'sn', 'sn.id = ss.entity_id');
-  $query->condition('subscriptions_target_id', $newsletter_id)
-    ->condition('sn.status', SubscriberInterface::ACTIVE)
-    ->condition('ss.subscriptions_status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
+  $query->condition('subscriptions_target_id', $newsletter_id)->condition('sn.status', SubscriberInterface::ACTIVE)->condition('ss.subscriptions_status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
   $subscription_count[$newsletter_id] = $query->countQuery()->execute()->fetchField();
   return $subscription_count[$newsletter_id];
 }
 
 /**
  * Update the sent status of a node.
- *
  * If the node part of a translation set, all corresponding translations are
  * updated as well.
- *
  * @param $node
  *   The node object to be updated.
  * @param $status
  *   The new status, defaults to SIMPLENEWS_STATUS_SEND_PENDING.
- *
  * @ingroup issue
  */
-function simplenews_issue_update_sent_status(NodeInterface $node, $status = SIMPLENEWS_STATUS_SEND_PENDING) {
+function simplenews_issue_update_sent_status (NodeInterface $node, $status = SIMPLENEWS_STATUS_SEND_PENDING)
+{
   $node->simplenews_issue->status = $status;
   $node->save();
 }
@@ -1065,33 +953,18 @@ function simplenews_issue_update_sent_status(NodeInterface $node, $status = SIMP
 /**
  * Implements hook_entity_extra_field_info().
  */
-function simplenews_entity_extra_field_info() {
-  $return['user']['user'] = array(
-    'display' => array(
-      'simplenews' => array(
-        'label' => 'Newsletters',
-        'description' => t('Newsletter subscriptions of the user'),
-        'weight' => 30,
-        'visible' => FALSE,
-      ),
-    ),
-    'form' => array(
-      'simplenews' => array(
-        'label' => 'Newsletters',
-        'description' => t('Newsletter subscriptions of the user'),
-        'weight' => 5,
-      ),
-    ),
-  );
+function simplenews_entity_extra_field_info ()
+{
+  $return['user']['user'] = ['display' => ['simplenews' => ['label' => 'Newsletters', 'description' => t('Newsletter subscriptions of the user'), 'weight' => 30, 'visible' => FALSE,],], 'form' => ['simplenews' => ['label' => 'Newsletters', 'description' => t('Newsletter subscriptions of the user'), 'weight' => 5,],],];
   return $return;
 }
 
 /**
  * Implements hook_node_access().
- *
  * Don't allow deletion when a newsletter is pending
  */
-function simplenews_node_access(NodeInterface $node, $op, $account) {
+function simplenews_node_access (NodeInterface $node, $op, $account)
+{
   if ($op == 'delete') {
     // Check if a newsletter is pending
     if ($node->hasField('simplenews_issue') && $node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_PENDING) {
@@ -1103,7 +976,8 @@ function simplenews_node_access(NodeInterface $node, $op, $account) {
 /**
  * Implements hook_field_widget_info_alter().
  */
-function simplenews_field_widget_info_alter(&$info) {
+function simplenews_field_widget_info_alter (&$info)
+{
   if (isset($info['options_select'])) {
     $info['options_select']['field_types'][] = 'simplenews_issue';
   }
@@ -1114,20 +988,17 @@ function simplenews_field_widget_info_alter(&$info) {
 
 /**
  * Mask a mail address.
- *
  * For example, name@example.org will be masked as n*****@e*****.org.
- *
  * @param $mail
  *   A valid mail address to mask.
- *
  * @return
  *   The masked mail address.
  */
-function simplenews_mask_mail($mail) {
+function simplenews_mask_mail ($mail)
+{
   if (preg_match('/^(.).*@(.).*(\..+)$/', $mail)) {
     return preg_replace('/^(.).*@(.).*(\..+)$/', '$1*****@$2*****$3', $mail);
-  }
-  else {
+  } else {
     // Missing top-level domain.
     return preg_replace('/^(.).*@(.).*$/', '$1*****@$2*****', $mail);
   }
@@ -1136,7 +1007,8 @@ function simplenews_mask_mail($mail) {
 /**
  * Implements hook_field_formatter_info_alter().
  */
-function simplenews_field_formatter_info_alter(&$info) {
+function simplenews_field_formatter_info_alter (&$info)
+{
   $info['entity_reference_label']['field_types'][] = 'simplenews_subscription';
   $info['entity_reference_label']['field_types'][] = 'simplenews_issue';
 }
@@ -1144,8 +1016,9 @@ function simplenews_field_formatter_info_alter(&$info) {
 /**
  * Batch callback to dispatch batch operations to a service.
  */
-function _simplenews_batch_dispatcher() {
+function _simplenews_batch_dispatcher ()
+{
   $args = func_get_args();
   list($service, $method) = explode(':', array_shift($args));
-  call_user_func_array(array(\Drupal::service($service), $method), $args);
+  call_user_func_array([\Drupal::service($service), $method], $args);
 }

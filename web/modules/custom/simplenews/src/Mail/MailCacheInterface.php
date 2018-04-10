@@ -4,18 +4,16 @@ namespace Drupal\simplenews\Mail;
 
 /**
  * Interface for a simplenews mail cache implementation.
- *
  * @ingroup mail
  */
-interface MailCacheInterface {
+interface MailCacheInterface
+{
 
   /**
    * Return a cached element, if existing.
-   *
    * Although group and key can be used to identify the requested cache, the
    * implementations are responsible to create a unique cache key themself using
    * the $mail. For example based on the node id and the language.
-   *
    * @param \Drupal\simplenews\Mail\MailInterface $mail
    *   The mail object.
    * @param string $group
@@ -27,19 +25,16 @@ interface MailCacheInterface {
    *       can not be personalized anymore.
    * @param string $key
    *   Identifies the requested element, e.g. body or attachments.
-   *
    * @return mixed
    *   The cached data or NULL.
    */
-  function get(MailInterface $mail, $group, $key);
+  function get (MailInterface $mail, $group, $key);
 
   /**
    * Write an element to the cache.
-   *
    * Although group and key can be used to identify the requested cache, the
    * implementations are responsible to create a unique cache key themself using
    * the $mail. For example based on the entity id and the language.
-   *
    * @param \Drupal\simplenews\Mail\MailInterface $mail
    *   The mail object.
    * @param string $group
@@ -54,5 +49,5 @@ interface MailCacheInterface {
    * @param mixed $data
    *   The data to be saved in the cache.
    */
-  function set(MailInterface $mail, $group, $key, $data);
+  function set (MailInterface $mail, $group, $key, $data);
 }

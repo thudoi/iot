@@ -9,15 +9,17 @@
       {% for node in nodes %}
         <div class="col-md-3 col-sm-6 col-xs-12 col-fix">
           <div class="book-item">
-            <a href="{{path('entity.node.canonical', {'node': node.collection.nid.value})}}">
+            <a href="{{ path('entity.node.canonical', {'node': node.collection.nid.value}) }}">
 
-              <img alt="" src="{{ file_url(node.collection.field_collection_thumbnail.entity.uri.value | image_style('latest_collection'))}}"/>
+              <img alt=""
+                   src="{{ file_url(node.collection.field_collection_thumbnail.entity.uri.value | image_style('latest_collection')) }}"/>
             </a>
             <h3>
-              <a href="{{path('entity.node.canonical', {'node': node.collection.nid.value})}}">{{ node.collection.title.value }}</a>
+              <a
+                href="{{ path('entity.node.canonical', {'node': node.collection.nid.value}) }}">{{ node.collection.title.value }}</a>
             </h3>
             <div class="test-vote small">
-                {{ node.star_rate }}
+              {{ node.star_rate }}
             </div>
           </div>
         </div>

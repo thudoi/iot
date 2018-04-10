@@ -2,19 +2,23 @@
   list-style: none;
   overflow: hidden;
 }
+
 .rate-widget-fivestar .item-list ul li {
   background-image: none;
   padding: 0;
   margin: 0;
 }
+
 .rate-widget-fivestar ul li {
   float: left;
   list-style: none;
 }
+
 .rate-widget-fivestar ul li a {
   display: block;
   float: left;
 }
+
 .rate-fivestar-btn-filled {
   display: inline-block;
   background: url(../images/fivestar.png) no-repeat 0 -16px;
@@ -22,9 +26,11 @@
   height: 16px;
   text-indent: -9999px;
 }
+
 .rate-user .rate-fivestar-btn-filled {
   background: url(../images/fivestar.png) no-repeat 0 0;
 }
+
 .rate-fivestar-btn-empty {
   display: inline-block;
   background: url(../images/fivestar.png) no-repeat 0 -32px;
@@ -32,6 +38,7 @@
   height: 16px;
   text-indent: -9999px;
 }
+
 .rate-widget-fivestar a.hover:before {
   content: "\f005" !important;
 }

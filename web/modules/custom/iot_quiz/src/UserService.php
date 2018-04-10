@@ -5,14 +5,17 @@ namespace Drupal\iot_quiz;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 
-define('READING' , 1);
-define('LISTENING',0);
-class UserService {
+define('READING', 1);
+define('LISTENING', 0);
+
+class UserService
+{
 
   /**
    * @return array
    */
-  public function UserAnalytic() {
+  public function UserAnalytic ()
+  {
     $current_user = \Drupal::currentUser();
     $now = date('d/m/Y', time());
     $nowstamp = time();
@@ -30,16 +33,11 @@ class UserService {
     }
     $days_between = ceil(abs($nowstamp - $laststamp) / 86400);
     $date = [];
-    for($i = 0; $i <= $days_between; $i ++){
-      $date[date('d/m/Y',$laststamp + ($i * 86400))] = date('d/m/Y',$laststamp + ($i * 86400));
+    for ($i = 0; $i <= $days_between; $i++) {
+      $date[date('d/m/Y', $laststamp + ($i * 86400))] = date('d/m/Y', $laststamp + ($i * 86400));
     }
 
-    $sids = \Drupal::entityQuery('node')
-      ->condition('type', 'score')
-      ->condition('uid', $current_user->id())
-      ->condition('status',1)
-      ->condition('created', [$laststamp, $nowstamp], 'BETWEEN')
-      ->execute();
+    $sids = \Drupal::entityQuery('node')->condition('type', 'score')->condition('uid', $current_user->id())->condition('status', 1)->condition('created', [$laststamp, $nowstamp], 'BETWEEN')->execute();
     $nodes = Node::loadMultiple($sids);
     $unanswered = 0;
     $totalQuestion = 0;
@@ -57,10 +55,10 @@ class UserService {
       $scoreCorrect = $node->get('field_score')->value;// return 9/40
       $scoreArr = explode('/', $scoreCorrect);
       $score = $this->getScore($node);
-      if($score > 0){
-        if(!empty($node->get('body')->value)){
+      if ($score > 0) {
+        if (!empty($node->get('body')->value)) {
           $seialize = unserialize($node->get('body')->value);
-        }else{
+        } else {
           $seialize = false;
         }
         $quiz = Node::load($node->get('field_score_quiz')->target_id);
@@ -80,28 +78,12 @@ class UserService {
         $totalAnswer += $scoreArr[1] - $node->get('field_unanswered_question')->value;
         $num[] = $i;
         if ($quiz->get('field_quiz_type')->value == 'listening') {
-          $listArr[$node->id()] = [
-            'listening' => [
-              'score' => $score,
-              'test' => $i,
-              'accuracy' => $scoreArr[0] * 100 / $scoreArr[1],
-              'time' => $left,
-              'date' => date('d/m/Y',$node->get('created')->value),
-            ],
-          ];
+          $listArr[$node->id()] = ['listening' => ['score' => $score, 'test' => $i, 'accuracy' => $scoreArr[0] * 100 / $scoreArr[1], 'time' => $left, 'date' => date('d/m/Y', $node->get('created')->value),],];
         }
         if ($quiz->get('field_quiz_type')->value == 'reading') {
-          $listArr[$node->id()] = [
-            'reading' => [
-              'score' => $score,
-              'test' => $i,
-              'accuracy' => $scoreArr[0] * 100 / $scoreArr[1],
-              'time' => $left,
-              'date' => date('d/m/Y',$node->get('created')->value),
-            ],
-          ];
+          $listArr[$node->id()] = ['reading' => ['score' => $score, 'test' => $i, 'accuracy' => $scoreArr[0] * 100 / $scoreArr[1], 'time' => $left, 'date' => date('d/m/Y', $node->get('created')->value),],];
         }
-        $test_taken +=1;
+        $test_taken += 1;
       }
 
       $i++;
@@ -134,56 +116,25 @@ class UserService {
       if (isset($list['listening']) && $list['listening']['time'] != NULL) {
         $timeL[$list['listening']['date']][$nid] = $list['listening']['time'];
       }
-      if (isset($list['reading']) &&  $list['reading']['time']!= NULL) {
+      if (isset($list['reading']) && $list['reading']['time'] != NULL) {
         $timeR[$list['reading']['date']][$nid] = $list['reading']['time'];
       }
     }
-   // $score_listening = implode(',', $scoreL);
-   // $score_reading = implode(',', $scoreR);
-   // $acc_listening = implode(',', $accL);
-   // $acc_reading = implode(',', $accR);
-  //  $time_listening = implode(',', $timeL);
-  //  $time_reading = implode(',', $timeR);
+    // $score_listening = implode(',', $scoreL);
+    // $score_reading = implode(',', $scoreR);
+    // $acc_listening = implode(',', $accL);
+    // $acc_reading = implode(',', $accR);
+    //  $time_listening = implode(',', $timeL);
+    //  $time_reading = implode(',', $timeR);
 
     $totalPie = $totalCorrect + $totalInCorrect + $unanswered;
-    $inQpercent = $totalInCorrect * 100 /$totalPie;
-    $coQpercent = $totalCorrect * 100 /$totalPie;
-    $unQpercent = $unanswered * 100 /$totalPie;
-    $pie = [
-      'total_unanswer' => $unQpercent,
-      'total_incorrect' => $inQpercent,
-      'total_correct' => $coQpercent,
-    ];
-    $chartLine = [
-      'test' => implode(',', $num),
-      'scoreL' => $scoreL,
-      'scoreR' => $scoreR,
-      'accL' => $accL,
-      'accR' => $accR,
-      'timeL' => $timeL,
-      'timeR' => $timeR,
-    ];
-    $dateRange = implode(',',$date);
-    return [
-      'taken' => $test_taken,
-      'avarage_score' => $this->formatNumber($totalScore / $test_taken, TRUE),
-      'avarage_accuracy' => $this->formatNumber($totalAccuracy / $test_taken),
-      'avarage_time' => gmdate("i:s", $avarageTime),
-      'total_question' => $totalQuestion,
-      'total_unanswer' => $unanswered,
-      'total_incorrect' => $totalInCorrect,
-      'total_correct' => $totalCorrect,
-      'list' => $listArr,
-      'listening' => $listening,
-      'reading' => $reading,
-      'dateTo' => date('d/m/Y', $nowstamp),
-      'dateFrom' => date('d/m/Y', $laststamp),
-      'time_per_question' => gmdate("i:s", $avarageAnserSecond),
-      'max_score' => $this->formatNumber($max_score,true),
-      'chartLine'=> $chartLine,
-      'pei' => $pie,
-      'dateRange' => $dateRange,
-      'dataRange' => $date,
+    $inQpercent = $totalInCorrect * 100 / $totalPie;
+    $coQpercent = $totalCorrect * 100 / $totalPie;
+    $unQpercent = $unanswered * 100 / $totalPie;
+    $pie = ['total_unanswer' => $unQpercent, 'total_incorrect' => $inQpercent, 'total_correct' => $coQpercent,];
+    $chartLine = ['test' => implode(',', $num), 'scoreL' => $scoreL, 'scoreR' => $scoreR, 'accL' => $accL, 'accR' => $accR, 'timeL' => $timeL, 'timeR' => $timeR,];
+    $dateRange = implode(',', $date);
+    return ['taken' => $test_taken, 'avarage_score' => $this->formatNumber($totalScore / $test_taken, TRUE), 'avarage_accuracy' => $this->formatNumber($totalAccuracy / $test_taken), 'avarage_time' => gmdate("i:s", $avarageTime), 'total_question' => $totalQuestion, 'total_unanswer' => $unanswered, 'total_incorrect' => $totalInCorrect, 'total_correct' => $totalCorrect, 'list' => $listArr, 'listening' => $listening, 'reading' => $reading, 'dateTo' => date('d/m/Y', $nowstamp), 'dateFrom' => date('d/m/Y', $laststamp), 'time_per_question' => gmdate("i:s", $avarageAnserSecond), 'max_score' => $this->formatNumber($max_score, true), 'chartLine' => $chartLine, 'pei' => $pie, 'dateRange' => $dateRange, 'dataRange' => $date,
 
     ];
   }
@@ -191,7 +142,8 @@ class UserService {
   /**
    * @return array
    */
-  public function getListeningAnalytics() {
+  public function getListeningAnalytics ()
+  {
     $current_user = \Drupal::currentUser();
     $now = date('d/m/Y', time());
     $nowstamp = time();
@@ -208,12 +160,7 @@ class UserService {
       $nowstamp = strtotime($date);
     }
 
-    $sids = \Drupal::entityQuery('node')
-      ->condition('type', 'score')
-      ->condition('uid', $current_user->id())
-      ->condition('status',1)
-      ->condition('created', [$laststamp, $nowstamp], 'BETWEEN')
-      ->execute();
+    $sids = \Drupal::entityQuery('node')->condition('type', 'score')->condition('uid', $current_user->id())->condition('status', 1)->condition('created', [$laststamp, $nowstamp], 'BETWEEN')->execute();
     $nodes = Node::loadMultiple($sids);
     $unanswered = 0;
     $totalQuestion = 0;
@@ -233,11 +180,11 @@ class UserService {
       $scoreArr = explode('/', $scoreCorrect);
       $score = $this->getScore($node);
       if ($quiz->get('field_quiz_type')->value == 'listening') {
-        if($score > 0){
-          if($node->get('body')->value){
+        if ($score > 0) {
+          if ($node->get('body')->value) {
             $seialize = unserialize(strip_tags($node->get('body')->value));
-            if($seialize){
-              foreach($seialize as $sr){
+            if ($seialize) {
+              foreach ($seialize as $sr) {
                 $performData[] = $sr;
               }
             }
@@ -264,34 +211,23 @@ class UserService {
       }
       $i++;
     }
-    if($performData){
+    if ($performData) {
       $perform = $this->getPerformTest($performData, LISTENING);
-    }else{
+    } else {
       $perform = false;
     }
 
 
     $avarageTime = $totalsecond / $test_taken;
     $avarageAnserSecond = $totalsecond / $totalAnswer;
-    return [
-      'taken' => $test_taken,
-      'avarage_score' => $this->formatNumber($totalScore / $test_taken,true),
-      'avarage_accuracy' => $this->formatNumber($totalAccuracy / $test_taken),
-      'avarage_time' => gmdate("i:s", $avarageTime),
-      'total_question' => $totalQuestion,
-      'total_unanswer' => $unanswered,
-      'total_incorrect' => $totalInCorrect,
-      'total_correct' => $totalCorrect,
-      'time_per_question' => gmdate("i:s", $avarageAnserSecond),
-      'max_score' => max($arr_score_list),
-      'perform'=> $perform,
-    ];
+    return ['taken' => $test_taken, 'avarage_score' => $this->formatNumber($totalScore / $test_taken, true), 'avarage_accuracy' => $this->formatNumber($totalAccuracy / $test_taken), 'avarage_time' => gmdate("i:s", $avarageTime), 'total_question' => $totalQuestion, 'total_unanswer' => $unanswered, 'total_incorrect' => $totalInCorrect, 'total_correct' => $totalCorrect, 'time_per_question' => gmdate("i:s", $avarageAnserSecond), 'max_score' => max($arr_score_list), 'perform' => $perform,];
   }
 
   /**
    * @return array
    */
-  public function getReadingAnalytics() {
+  public function getReadingAnalytics ()
+  {
     $current_user = \Drupal::currentUser();
     $now = date('d/m/Y', time());
     $nowstamp = time();
@@ -308,12 +244,7 @@ class UserService {
       $nowstamp = strtotime($date);
     }
 
-    $sids = \Drupal::entityQuery('node')
-      ->condition('type', 'score')
-      ->condition('uid', $current_user->id())
-      ->condition('status',1)
-      ->condition('created', [$laststamp, $nowstamp], 'BETWEEN')
-      ->execute();
+    $sids = \Drupal::entityQuery('node')->condition('type', 'score')->condition('uid', $current_user->id())->condition('status', 1)->condition('created', [$laststamp, $nowstamp], 'BETWEEN')->execute();
     $nodes = Node::loadMultiple($sids);
     $unanswered = 0;
     $totalQuestion = 0;
@@ -333,11 +264,11 @@ class UserService {
       $scoreArr = explode('/', $scoreCorrect);
       $score = $this->getScore($node);
       if ($quiz->get('field_quiz_type')->value == 'reading') {
-        if($score > 0){
-          if(!empty($node->get('body')->value)){
+        if ($score > 0) {
+          if (!empty($node->get('body')->value)) {
             $seialize = unserialize($node->get('body')->value);
-            if($seialize){
-              foreach($seialize as $sr){
+            if ($seialize) {
+              foreach ($seialize as $sr) {
                 $performData[] = $sr;
               }
             }
@@ -362,37 +293,24 @@ class UserService {
       }
       $i++;
     }
-    if($performData){
+    if ($performData) {
       $perform = $this->getPerformTest($performData, READING);
-    }else{
+    } else {
       $perform = false;
     }
 
     $avarageTime = $totalsecond / $test_taken;
     $avarageAnserSecond = $totalsecond / $totalAnswer;
-    return [
-      'taken' => $test_taken,
-      'avarage_score' => $this->formatNumber($totalScore / $test_taken,true),
-      'avarage_accuracy' => $this->formatNumber($totalAccuracy / $test_taken),
-      'avarage_time' => gmdate("i:s", $avarageTime),
-      'total_question' => $totalQuestion,
-      'total_unanswer' => $unanswered,
-      'total_incorrect' => $totalInCorrect,
-      'total_correct' => $totalCorrect,
-      'time_per_question' => gmdate("i:s", $avarageAnserSecond),
-      'max_score' => max($arr_score_list),
-      'perform'=> $perform
-    ];
+    return ['taken' => $test_taken, 'avarage_score' => $this->formatNumber($totalScore / $test_taken, true), 'avarage_accuracy' => $this->formatNumber($totalAccuracy / $test_taken), 'avarage_time' => gmdate("i:s", $avarageTime), 'total_question' => $totalQuestion, 'total_unanswer' => $unanswered, 'total_incorrect' => $totalInCorrect, 'total_correct' => $totalCorrect, 'time_per_question' => gmdate("i:s", $avarageAnserSecond), 'max_score' => max($arr_score_list), 'perform' => $perform];
   }
 
   /**
    * Get Score
-   *
    * @param $node
-   *
    * @return int
    */
-  public function getScore($node) {
+  public function getScore ($node)
+  {
     $arr = [];
     $result_listening = \Drupal::state()->get('mapping_listening');
     if ($result_listening) {
@@ -446,35 +364,32 @@ class UserService {
 
   /**
    * Formart Number
-   *
    * @param $number , $score
-   *
    * @return mixed
    */
-  public function formatNumber($number, $score = NULL) {
+  public function formatNumber ($number, $score = NULL)
+  {
     if ($score) {
       $number = number_format($number, 1);
       $nArr = explode('.', $number);
       if (isset($nArr[1])) {
         if ($nArr[1 > 3 && $nArr[1] < 5]) {
-          if($nArr[0] < 9){
+          if ($nArr[0] < 9) {
             $number = $nArr[0] . '.5';
-          }else{
+          } else {
             $number = $nArr[0];
           }
 
-        }
-        elseif ($nArr[1] > 5) {
-          if($nArr[0] < 9){
+        } elseif ($nArr[1] > 5) {
+          if ($nArr[0] < 9) {
             $number = $nArr[0] + 1;
-          }else{
+          } else {
             $number = $nArr[0];
           }
 
         }
       }
-    }
-    else {
+    } else {
       $number = number_format($number, 2);
     }
     return $number;
@@ -483,31 +398,25 @@ class UserService {
   /**
    * @param $score
    * @param $type
-   *
    * @return array
    */
-  public function getPerformTest($score,$type){
+  public function getPerformTest ($score, $type)
+  {
     $terms = $this->getQuestionTypeFront($type);
     $data = [];
-    if($score){
-      foreach($terms as $tid => $name){
+    if ($score) {
+      foreach ($terms as $tid => $name) {
         $total_question = 0;
         $total_correct = 0;
-        foreach($score as $sc){
-          if(isset($sc['type']) && $tid==$sc['type']){
-            $total_question +=1;
-            if(isset($sc['correct']) && $sc['correct']==1){
-              $total_correct +=1;
+        foreach ($score as $sc) {
+          if (isset($sc['type']) && $tid == $sc['type']) {
+            $total_question += 1;
+            if (isset($sc['correct']) && $sc['correct'] == 1) {
+              $total_correct += 1;
             }
           }
         }
-        $data[] = [
-          'name'=> $name.'('.$this->mappingName($name).')',
-          'total_question'=> $total_question,
-          'total_correct'=>$total_correct,
-          'accuracy' => $total_correct > 0 ? $this->formatNumber($total_correct * 100 / $total_question,false) : 0,
-          'shortname'=> $this->mappingName($name),
-        ];
+        $data[] = ['name' => $name . '(' . $this->mappingName($name) . ')', 'total_question' => $total_question, 'total_correct' => $total_correct, 'accuracy' => $total_correct > 0 ? $this->formatNumber($total_correct * 100 / $total_question, false) : 0, 'shortname' => $this->mappingName($name),];
 
       }
       return $data;
@@ -517,18 +426,18 @@ class UserService {
 
   /**
    * @param $type
-   *
    * @return array
    */
-  public function getQuestionTypeFront($type){
+  public function getQuestionTypeFront ($type)
+  {
     $vid = 'question_type';
-    $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
+    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
     $data = [];
-    foreach($terms as $t){
+    foreach ($terms as $t) {
       $term = Term::load($t->tid);
       $arr = $term->get('field_type')->getValue();
-      foreach($arr as $ar){
-        if($ar['value']== $type){
+      foreach ($arr as $ar) {
+        if ($ar['value'] == $type) {
           $data[$t->tid] = $term->getName();
         }
       }
@@ -539,20 +448,11 @@ class UserService {
 
   /**
    * @param $name
-   *
    * @return array
    */
-  public function mappingName($name){
-    $data = [
-      'Matching'=>'M',
-      'Matching Headings'=>'MH',
-      'Multiple Choice' =>'MCH',
-      'Multiple Choices with multiple answers'=> 'MCA',
-      'Plan, map, diagram labelling'=> 'PMD',
-      'Sentence Completion' => 'SEC',
-      'Summary, form completion' =>'SFC',
-      'TRUE-FALSE-NOT GIVEN' => 'TFNG',
-      'YES-NO-NOT GIVEN'=> 'YNNG'
+  public function mappingName ($name)
+  {
+    $data = ['Matching' => 'M', 'Matching Headings' => 'MH', 'Multiple Choice' => 'MCH', 'Multiple Choices with multiple answers' => 'MCA', 'Plan, map, diagram labelling' => 'PMD', 'Sentence Completion' => 'SEC', 'Summary, form completion' => 'SFC', 'TRUE-FALSE-NOT GIVEN' => 'TFNG', 'YES-NO-NOT GIVEN' => 'YNNG',
 
     ];
     return $data[$name];

@@ -15,19 +15,20 @@
 #}
 <div{{ widget_attributes }}>
   <div class="item-list test-vote">
-      <span>{{ score|number_format(1, '.', ',') }}</span>
-      {% for index, star in stars %}
-          {% if has_voted or not can_vote %}
-              {% if(c_user) %}
-                    <i {{ star.star_attributes }}></i>
-              {% else %}
-                <a {{ star.star_attributes }} data-dialog-type="modal" href="/account/login?destination={{ url('<current>') }}"></a>
-              {% endif %}
-          {% else %}
-              <a {{ star.star_attributes }} href="{{ star.star_link }}"></a>
-          {% endif %}
-      {% endfor %}
-      <em>({{ total_votes }} votes)</em>
-  {{ info_description }}
-</div>
+    <span>{{ score|number_format(1, '.', ',') }}</span>
+    {% for index, star in stars %}
+      {% if has_voted or not can_vote %}
+        {% if(c_user) %}
+          <i {{ star.star_attributes }}></i>
+        {% else %}
+          <a {{ star.star_attributes }} data-dialog-type="modal"
+                                        href="/account/login?destination={{ url('<current>') }}"></a>
+        {% endif %}
+      {% else %}
+        <a {{ star.star_attributes }} href="{{ star.star_link }}"></a>
+      {% endif %}
+    {% endfor %}
+    <em>({{ total_votes }} votes)</em>
+    {{ info_description }}
+  </div>
 </div>

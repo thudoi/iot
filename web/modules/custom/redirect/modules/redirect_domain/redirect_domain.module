@@ -4,9 +4,10 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 
 /**
-* Implements hook_help().
-*/
-function redirect_domain_help($route_name, RouteMatchInterface $route_match) {
+ * Implements hook_help().
+ */
+function redirect_domain_help ($route_name, RouteMatchInterface $route_match)
+{
   $output = '';
   switch ($route_name) {
     case 'help.page.redirect_domain':

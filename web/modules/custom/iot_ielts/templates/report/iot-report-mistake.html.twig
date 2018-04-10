@@ -29,12 +29,14 @@
           <div class="row">
             <div class="col-sm-6">
 
-              <input type="text" class="yourname" value="{% if name %}{{ name }}{% endif %}" placeholder="{{ 'Your Name'|t }}">
+              <input type="text" class="yourname" value="{% if name %}{{ name }}{% endif %}"
+                     placeholder="{{ 'Your Name'|t }}">
 
 
             </div>
             <div class="col-sm-6">
-              <input required type="email" class="email" value="{% if user %}{{ user.mail.value }}{% endif %}" placeholder="{{ 'Email (*)'|t }}">
+              <input required type="email" class="email" value="{% if user %}{{ user.mail.value }}{% endif %}"
+                     placeholder="{{ 'Email (*)'|t }}">
               <div class="error-message report-email"></div>
             </div>
           </div>

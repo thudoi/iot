@@ -9,58 +9,49 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Do a mass subscription for a list of email addresses.
  */
-class SubscriberMassUnsubscribeForm extends FormBase {
+class SubscriberMassUnsubscribeForm extends FormBase
+{
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId ()
+  {
     return 'simplenews_subscriber_mass_unsubscribe';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['emails'] = array(
-      '#type' => 'textarea',
-      '#title' => t('Email addresses'),
-      '#cols' => 60,
-      '#rows' => 5,
-      '#description' => t('Email addresses must be separated by comma, space or newline.'),
-    );
+  public function buildForm (array $form, FormStateInterface $form_state)
+  {
+    $form['emails'] = ['#type' => 'textarea', '#title' => t('Email addresses'), '#cols' => 60, '#rows' => 5, '#description' => t('Email addresses must be separated by comma, space or newline.'),];
 
-    $form['newsletters'] = array(
-      '#type' => 'checkboxes',
-      '#title' => t('Unsubscribe from'),
-      '#options' => simplenews_newsletter_list(),
-      '#required' => TRUE,
-    );
+    $form['newsletters'] = ['#type' => 'checkboxes', '#title' => t('Unsubscribe from'), '#options' => simplenews_newsletter_list(), '#required' => TRUE,];
 
     foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
       $form['newsletters'][$id]['#description'] = SafeMarkup::checkPlain($newsletter->description);
     }
 
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Unsubscribe'),
-    );
+    $form['submit'] = ['#type' => 'submit', '#value' => t('Unsubscribe'),];
     return $form;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm (array &$form, FormStateInterface $form_state)
+  {
     parent::validateForm($form, $form_state);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $removed = array();
-    $invalid = array();
+  public function submitForm (array &$form, FormStateInterface $form_state)
+  {
+    $removed = [];
+    $invalid = [];
     $checked_lists = array_keys(array_filter($form_state->getValue('newsletters')));
 
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
@@ -73,28 +64,26 @@ class SubscriberMassUnsubscribeForm extends FormBase {
           $subscription_manager->unsubscribe($email, $newsletter_id, FALSE, 'mass unsubscribe');
           $removed[] = $email;
         }
-      }
-      else {
+      } else {
         $invalid[] = $email;
       }
     }
     if ($removed) {
       $removed = implode(", ", $removed);
-      drupal_set_message(t('The following addresses were unsubscribed: %removed.', array('%removed' => $removed)));
+      drupal_set_message(t('The following addresses were unsubscribed: %removed.', ['%removed' => $removed]));
 
       $newsletters = simplenews_newsletter_get_all();
-      $list_names = array();
+      $list_names = [];
       foreach ($checked_lists as $newsletter_id) {
         $list_names[] = $newsletters[$newsletter_id]->label();
       }
-      drupal_set_message(t('The addresses were unsubscribed from the following newsletters: %newsletters.', array('%newsletters' => implode(', ', $list_names))));
-    }
-    else {
+      drupal_set_message(t('The addresses were unsubscribed from the following newsletters: %newsletters.', ['%newsletters' => implode(', ', $list_names)]));
+    } else {
       drupal_set_message(t('No addresses were removed.'));
     }
     if ($invalid) {
       $invalid = implode(", ", $invalid);
-      drupal_set_message(t('The following addresses were invalid: %invalid.', array('%invalid' => $invalid)), 'error');
+      drupal_set_message(t('The following addresses were invalid: %invalid.', ['%invalid' => $invalid]), 'error');
     }
 
     // Return to the parent page.

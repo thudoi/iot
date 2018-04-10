@@ -1,17 +1,15 @@
 {
-  "name": "drupal/tcpdf",
-  "description": "TCPDF wrapper for Drupal.",
-  "type": "drupal-module",
-  "license": "GPL-2.0+",
-
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://packagist.drupal-composer.org"
+    "name": "drupal/tcpdf",
+    "description": "TCPDF wrapper for Drupal.",
+    "type": "drupal-module",
+    "license": "GPL-2.0+",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packagist.drupal-composer.org"
+        }
+    ],
+    "required": {
+        "tecnickcom/tcpdf": "6.2.11"
     }
-  ],
-
-  "required" : {
-    "tecnickcom/tcpdf": "6.2.11"
-  }
 }

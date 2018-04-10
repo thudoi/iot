@@ -6,14 +6,13 @@ use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests the clean up cron job for redirect_404.
- *
  * @group redirect_404
  */
-class Fix404RedirectCronJobTest extends KernelTestBase {
+class Fix404RedirectCronJobTest extends KernelTestBase
+{
 
   /**
    * Modules to enable.
-   *
    * @var array
    */
   public static $modules = ['redirect_404'];
@@ -21,7 +20,8 @@ class Fix404RedirectCronJobTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp ()
+  {
     parent::setUp();
     $this->installSchema('redirect_404', 'redirect_404');
 
@@ -37,12 +37,10 @@ class Fix404RedirectCronJobTest extends KernelTestBase {
   /**
    * Tests adding and deleting rows from redirect_404 table.
    */
-  function testRedirect404CronJob() {
+  function testRedirect404CronJob ()
+  {
     // Set the limit to 3 just for the test.
-    \Drupal::configFactory()
-      ->getEditable('redirect_404.settings')
-      ->set('row_limit', 3)
-      ->save();
+    \Drupal::configFactory()->getEditable('redirect_404.settings')->set('row_limit', 3)->save();
 
     // Check that there are 6 rows in the redirect_404 table.
     $result = db_query("SELECT COUNT(*) FROM {redirect_404}")->fetchField();
@@ -62,8 +60,7 @@ class Fix404RedirectCronJobTest extends KernelTestBase {
       $this->assert404Row('/test4');
       $this->assert404Row('/test5');
       $this->assertNo404Row('/test6');
-    }
-    else {
+    } else {
       // In SQLite is the opposite: the 3 rows kept are the newest ones.
       $this->assert404Row('/test1');
       $this->assert404Row('/test2');
@@ -77,12 +74,10 @@ class Fix404RedirectCronJobTest extends KernelTestBase {
   /**
    * Tests adding rows and deleting one row from redirect_404 table.
    */
-  function testRedirect404CronJobKeepAllButOne() {
+  function testRedirect404CronJobKeepAllButOne ()
+  {
     // Set the limit to 5 just for the test.
-    \Drupal::configFactory()
-      ->getEditable('redirect_404.settings')
-      ->set('row_limit', 5)
-      ->save();
+    \Drupal::configFactory()->getEditable('redirect_404.settings')->set('row_limit', 5)->save();
 
     // Check that there are 6 rows in the redirect_404 table.
     $result = db_query("SELECT COUNT(*) FROM {redirect_404}")->fetchField();
@@ -102,8 +97,7 @@ class Fix404RedirectCronJobTest extends KernelTestBase {
       $this->assert404Row('/test4');
       $this->assert404Row('/test5');
       $this->assertNo404Row('/test6');
-    }
-    else {
+    } else {
       // In SQlite, only the oldest row is deleted.
       $this->assert404Row('/test1');
       $this->assert404Row('/test2');
@@ -116,7 +110,6 @@ class Fix404RedirectCronJobTest extends KernelTestBase {
 
   /**
    * Inserts a 404 request log in the redirect_404 test table.
-   *
    * @param string $path
    *   The path of the request.
    * @param int $count
@@ -126,45 +119,37 @@ class Fix404RedirectCronJobTest extends KernelTestBase {
    * @param string $langcode
    *   (optional) The langcode of the request.
    */
-  protected function insert404Row($path, $count = 1, $timestamp = 0, $langcode = 'en') {
-    db_insert('redirect_404')
-    ->fields([
-      'path' => $path,
-      'langcode' => $langcode,
-      'count' => $count,
-      'timestamp' => $timestamp,
-      'resolved' => 0,
-    ])
-    ->execute();
+  protected function insert404Row ($path, $count = 1, $timestamp = 0, $langcode = 'en')
+  {
+    db_insert('redirect_404')->fields(['path' => $path, 'langcode' => $langcode, 'count' => $count, 'timestamp' => $timestamp, 'resolved' => 0,])->execute();
   }
 
   /**
    * Passes if the row with the given parameters is in the redirect_404 table.
-   *
    * @param string $path
    *   The path of the request.
    * @param string $langcode
    *   (optional) The langcode of the request.
    */
-  protected function assert404Row($path, $langcode = 'en') {
+  protected function assert404Row ($path, $langcode = 'en')
+  {
     $this->assert404RowHelper($path, $langcode, FALSE);
   }
 
   /**
    * Passes if the row with the given parameters is NOT in the redirect_404 table.
-   *
    * @param string $path
    *   The path of the request.
    * @param string $langcode
    *   (optional) The langcode of the request.
    */
-  protected function assertNo404Row($path, $langcode = 'en') {
+  protected function assertNo404Row ($path, $langcode = 'en')
+  {
     $this->assert404RowHelper($path, $langcode, TRUE);
   }
 
   /**
    * Passes if the row with the given parameters is in the redirect_404 table.
-   *
    * @param string $path
    *   The path of the request.
    * @param string $langcode
@@ -173,19 +158,13 @@ class Fix404RedirectCronJobTest extends KernelTestBase {
    *   (optional) TRUE if this 404 row should not exist in the redirect_404
    *   table, FALSE if it should. Defaults to TRUE.
    */
-  protected function assert404RowHelper($path, $langcode = 'en', $not_exists = TRUE) {
-    $result = db_select('redirect_404', 'r404')
-      ->fields('r404', ['path'])
-      ->condition('path', $path)
-      ->condition('langcode', $langcode)
-      ->condition('resolved', 0)
-      ->execute()
-      ->fetchField();
+  protected function assert404RowHelper ($path, $langcode = 'en', $not_exists = TRUE)
+  {
+    $result = db_select('redirect_404', 'r404')->fields('r404', ['path'])->condition('path', $path)->condition('langcode', $langcode)->condition('resolved', 0)->execute()->fetchField();
 
     if ($not_exists) {
       $this->assertNotEquals($path, $result);
-    }
-    else {
+    } else {
       $this->assertEquals($path, $result);
     }
   }

@@ -14,7 +14,6 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Facts' Block.
- *
  * @Block(
  *   id = "footerbar",
  *   admin_label = @Translation("Footer Bar"),
@@ -28,11 +27,9 @@ class FooterBar extends BlockBase
    * {@inheritdoc}
    * @return array
    */
-  public function build()
+  public function build ()
   {
-    return [
-        '#theme' => ['iot_footer_bar'],
-    ];
+    return ['#theme' => ['iot_footer_bar'],];
   }
 
 }

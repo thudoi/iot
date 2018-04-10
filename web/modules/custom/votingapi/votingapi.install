@@ -8,7 +8,8 @@
 /**
  * Implements hook_uninstall().
  */
-function votingapi_uninstall() {
+function votingapi_uninstall ()
+{
   db_query("DELETE FROM {config} WHERE name = 'votingapi.settings'");
   drupal_flush_all_caches();
 }

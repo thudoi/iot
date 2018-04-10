@@ -13,17 +13,16 @@ use Drupal\votingapi\Entity\Vote;
 
 /**
  * Tests the Voting API basics.
- *
  * @group VotingAPI
  */
-class VoteCreationTest extends WebTestBase {
+class VoteCreationTest extends WebTestBase
+{
 
   /**
    * Modules to enable.
-   *
    * @var array
    */
-  public static $modules = array('node', 'votingapi', 'votingapi_test');
+  public static $modules = ['node', 'votingapi', 'votingapi_test'];
 
   /**
    * A simple user with basic node and vote permissions
@@ -47,16 +46,13 @@ class VoteCreationTest extends WebTestBase {
    */
   private $vote;
 
-  protected function setUp() {
+  protected function setUp ()
+  {
     parent::setUp();
 
     // Create Basic page and Article node types.
     if ($this->profile != 'standard') {
-      $node_type = $this->drupalCreateContentType(array(
-        'type' => 'page',
-        'name' => 'Basic page',
-        'display_submitted' => FALSE,
-      ));
+      $node_type = $this->drupalCreateContentType(['type' => 'page', 'name' => 'Basic page', 'display_submitted' => FALSE,]);
       node_add_body_field($node_type);
     }
 
@@ -79,7 +75,8 @@ class VoteCreationTest extends WebTestBase {
   /**
    * Test voting with non-existent Vote Type Id
    */
-  public function testVoteCreationWithInvalidVoteType() {
+  public function testVoteCreationWithInvalidVoteType ()
+  {
 
 
     $this->vote = Vote::create(['type' => 'vote']);

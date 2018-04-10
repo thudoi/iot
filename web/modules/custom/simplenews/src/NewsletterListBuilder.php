@@ -7,14 +7,15 @@ use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Defines a class to build a listing of simplenews newsletter entities.
- *
  * @see \Drupal\simplenews\Entity\Newsletter
  */
-class NewsletterListBuilder extends ConfigEntityListBuilder {
+class NewsletterListBuilder extends ConfigEntityListBuilder
+{
   /**
    * {@inheritdoc}
    */
-  public function buildHeader() {
+  public function buildHeader ()
+  {
     $header['name'] = t('Newsletter name');
     return $header + parent::buildHeader();
   }
@@ -22,7 +23,8 @@ class NewsletterListBuilder extends ConfigEntityListBuilder {
   /**
    * {@inheritdoc}
    */
-  public function buildRow(EntityInterface $entity) {
+  public function buildRow (EntityInterface $entity)
+  {
     $row['name'] = $this->getLabel($entity);
     return $row + parent::buildRow($entity);
   }

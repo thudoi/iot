@@ -16,12 +16,14 @@ use Drupal\votingapi\VoteResultFunctionBase;
  *   description = @Translation("A vote test plugin.")
  * )
  */
-class Zebra extends VoteResultFunctionBase {
+class Zebra extends VoteResultFunctionBase
+{
 
   /**
    * {@inheritdoc}
    */
-  public function calculateResult($votes) {
+  public function calculateResult ($votes)
+  {
     return 10101;
   }
 }

@@ -14,7 +14,6 @@ use Drupal\user\UserInterface;
 
 /**
  * Defines the simplenews subscriber entity.
- *
  * @ContentEntityType(
  *   id = "simplenews_subscriber",
  *   label = @Translation("Simplenews subscriber"),
@@ -44,11 +43,11 @@ use Drupal\user\UserInterface;
  *   }
  * )
  */
-class Subscriber extends ContentEntityBase implements SubscriberInterface {
+class Subscriber extends ContentEntityBase implements SubscriberInterface
+{
 
   /**
    * Whether currently copying field values to corresponding User.
-   *
    * @var bool
    */
   protected static $syncing;
@@ -56,49 +55,56 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function getMessage() {
+  public function getMessage ()
+  {
     return $this->get('message')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setMessage($message) {
+  public function setMessage ($message)
+  {
     $this->set('message', $message);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getStatus() {
+  public function getStatus ()
+  {
     return $this->get('status')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setStatus($status) {
+  public function setStatus ($status)
+  {
     $this->set('status', $status);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getMail() {
+  public function getMail ()
+  {
     return $this->get('mail')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setMail($mail) {
+  public function setMail ($mail)
+  {
     $this->set('mail', $mail);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getUserId() {
+  public function getUserId ()
+  {
     $value = $this->get('uid')->getValue();
     if (isset($value[0]['target_id'])) {
       return $value[0]['target_id'];
@@ -109,7 +115,8 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function getUser() {
+  public function getUser ()
+  {
     $mail = $this->getMail();
 
     if (empty($mail)) {
@@ -117,8 +124,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     }
     if ($user = User::load($this->getUserId())) {
       return $user;
-    }
-    else {
+    } else {
       return user_load_by_mail($this->getMail()) ?: NULL;
     }
   }
@@ -126,28 +132,32 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function setUserId($uid) {
+  public function setUserId ($uid)
+  {
     $this->set('uid', $uid);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLangcode() {
+  public function getLangcode ()
+  {
     return $this->get('langcode')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setLangcode($langcode) {
+  public function setLangcode ($langcode)
+  {
     $this->set('langcode', $langcode);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function fillFromAccount(AccountInterface $account) {
+  public function fillFromAccount (AccountInterface $account)
+  {
     $this->setUserId($account->id());
     $this->setMail($account->getEmail());
     $this->setLangcode($account->getPreferredLangcode());
@@ -157,28 +167,32 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function getChanges() {
+  public function getChanges ()
+  {
     return unserialize($this->get('changes')->value);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setChanges($changes) {
+  public function setChanges ($changes)
+  {
     $this->set('changes', serialize($changes));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function isSyncing() {
+  public function isSyncing ()
+  {
     return static::$syncing;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function isSubscribed($newsletter_id) {
+  public function isSubscribed ($newsletter_id)
+  {
     foreach ($this->subscriptions as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED;
@@ -190,7 +204,8 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function isUnsubscribed($newsletter_id) {
+  public function isUnsubscribed ($newsletter_id)
+  {
     foreach ($this->subscriptions as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED;
@@ -202,7 +217,8 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function getSubscription($newsletter_id) {
+  public function getSubscription ($newsletter_id)
+  {
     foreach ($this->subscriptions as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item;
@@ -214,8 +230,9 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function getSubscribedNewsletterIds() {
-    $ids = array();
+  public function getSubscribedNewsletterIds ()
+  {
+    $ids = [];
     foreach ($this->subscriptions as $item) {
       if ($item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED) {
         $ids[] = $item->target_id;
@@ -227,50 +244,41 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function subscribe($newsletter_id, $status = SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $source = 'unknown', $timestamp = REQUEST_TIME) {
+  public function subscribe ($newsletter_id, $status = SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $source = 'unknown', $timestamp = REQUEST_TIME)
+  {
     if ($subscription = $this->getSubscription($newsletter_id)) {
       $subscription->status = $status;
-    }
-    else {
-      $data = array(
-        'target_id' => $newsletter_id,
-        'status' => $status,
-        'source' => $source,
-        'timestamp' => $timestamp,
-      );
+    } else {
+      $data = ['target_id' => $newsletter_id, 'status' => $status, 'source' => $source, 'timestamp' => $timestamp,];
       $this->subscriptions->appendItem($data);
     }
     if ($status == SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED) {
-      \Drupal::moduleHandler()->invokeAll('simplenews_subscribe', array($this, $newsletter_id));
+      \Drupal::moduleHandler()->invokeAll('simplenews_subscribe', [$this, $newsletter_id]);
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function unsubscribe($newsletter_id, $source = 'unknown', $timestamp = REQUEST_TIME) {
+  public function unsubscribe ($newsletter_id, $source = 'unknown', $timestamp = REQUEST_TIME)
+  {
     if ($subscription = $this->getSubscription($newsletter_id)) {
       $subscription->status = SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED;
-    }
-    else {
-      $data = array(
-        'target_id' => $newsletter_id,
-        'status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED,
-        'source' => $source,
-        'timestamp' => $timestamp,
-      );
+    } else {
+      $data = ['target_id' => $newsletter_id, 'status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED, 'source' => $source, 'timestamp' => $timestamp,];
       $this->subscriptions->appendItem($data);
     }
     // Clear eventually existing mail spool rows for this subscriber.
-    \Drupal::service('simplenews.spool_storage')->deleteMails(array('snid' => $this->id(), 'newsletter_id' => $newsletter_id));
+    \Drupal::service('simplenews.spool_storage')->deleteMails(['snid' => $this->id(), 'newsletter_id' => $newsletter_id]);
 
-    \Drupal::moduleHandler()->invokeAll('simplenews_unsubscribe', array($this, $newsletter_id));
+    \Drupal::moduleHandler()->invokeAll('simplenews_unsubscribe', [$this, $newsletter_id]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+  public function postSave (EntityStorageInterface $storage, $update = TRUE)
+  {
     parent::postSave($storage, $update);
 
     // Copy values for shared fields to existing user.
@@ -287,13 +295,12 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function postCreate(EntityStorageInterface $storage) {
+  public function postCreate (EntityStorageInterface $storage)
+  {
     parent::postCreate($storage);
 
     // Set the uid field if there is a user with the same email.
-    $user_ids = \Drupal::entityQuery('user')
-      ->condition('mail', $this->getMail())
-      ->execute();
+    $user_ids = \Drupal::entityQuery('user')->condition('mail', $this->getMail())->execute();
     if (!empty($user_ids)) {
       $this->setUserId(array_pop($user_ids));
     }
@@ -309,8 +316,9 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function getUserSharedFields(UserInterface $user) {
-    $field_names = array();
+  public function getUserSharedFields (UserInterface $user)
+  {
+    $field_names = [];
     // Find any fields sharing name and type.
     foreach ($this->getFieldDefinitions() as $field_definition) {
       /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
@@ -326,53 +334,23 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    $fields['id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Subscriber ID'))
-      ->setDescription(t('Primary key: Unique subscriber ID.'))
-      ->setReadOnly(TRUE)
-      ->setSetting('unsigned', TRUE);
+  public static function baseFieldDefinitions (EntityTypeInterface $entity_type)
+  {
+    $fields['id'] = BaseFieldDefinition::create('integer')->setLabel(t('Subscriber ID'))->setDescription(t('Primary key: Unique subscriber ID.'))->setReadOnly(TRUE)->setSetting('unsigned', TRUE);
 
-    $fields['uuid'] = BaseFieldDefinition::create('uuid')
-      ->setLabel(t('UUID'))
-      ->setDescription(t('The subscriber UUID.'))
-      ->setReadOnly(TRUE);
+    $fields['uuid'] = BaseFieldDefinition::create('uuid')->setLabel(t('UUID'))->setDescription(t('The subscriber UUID.'))->setReadOnly(TRUE);
 
-    $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Status'))
-      ->setDescription(t('Boolean indicating the status of the subscriber.'))
-      ->setDefaultValue(TRUE);
+    $fields['status'] = BaseFieldDefinition::create('boolean')->setLabel(t('Status'))->setDescription(t('Boolean indicating the status of the subscriber.'))->setDefaultValue(TRUE);
 
-    $fields['mail'] = BaseFieldDefinition::create('email')
-      ->setLabel(t('Email'))
-      ->setDescription(t("The subscriber's email address."))
-      ->setSetting('default_value', '')
-      ->setRequired(TRUE)
-      ->setDisplayOptions('form', array(
-        'type' => 'email',
-        'settings' => array(),
-        'weight' => 5,
-      ))
-      ->setDisplayConfigurable('form', TRUE);
+    $fields['mail'] = BaseFieldDefinition::create('email')->setLabel(t('Email'))->setDescription(t("The subscriber's email address."))->setSetting('default_value', '')->setRequired(TRUE)->setDisplayOptions('form', ['type' => 'email', 'settings' => [], 'weight' => 5,])->setDisplayConfigurable('form', TRUE);
 
-    $fields['uid'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('User'))
-      ->setDescription(t('The corresponding user.'))
-      ->setSetting('target_type', 'user')
-      ->setSetting('handler', 'default')
-      ->setDisplayConfigurable('form', TRUE);
+    $fields['uid'] = BaseFieldDefinition::create('entity_reference')->setLabel(t('User'))->setDescription(t('The corresponding user.'))->setSetting('target_type', 'user')->setSetting('handler', 'default')->setDisplayConfigurable('form', TRUE);
 
-    $fields['langcode'] = BaseFieldDefinition::create('language')
-      ->setLabel(t('Language'))
-      ->setDescription(t("The subscriber's preferred language."));
+    $fields['langcode'] = BaseFieldDefinition::create('language')->setLabel(t('Language'))->setDescription(t("The subscriber's preferred language."));
 
-    $fields['changes'] = BaseFieldDefinition::create('string_long')
-      ->setLabel(t('Changes'))
-      ->setDescription(t('Contains the requested subscription changes.'));
+    $fields['changes'] = BaseFieldDefinition::create('string_long')->setLabel(t('Changes'))->setDescription(t('Contains the requested subscription changes.'));
 
-    $fields['created'] = BaseFieldDefinition::create('created')
-      ->setLabel(t('Created'))
-      ->setDescription(t('The time that the subscriber was created.'));
+    $fields['created'] = BaseFieldDefinition::create('created')->setLabel(t('Created'))->setDescription(t('The time that the subscriber was created.'));
 
     return $fields;
   }

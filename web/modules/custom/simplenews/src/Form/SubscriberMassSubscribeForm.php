@@ -9,43 +9,31 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Do a mass subscription for a list of email addresses.
  */
-class SubscriberMassSubscribeForm extends FormBase {
+class SubscriberMassSubscribeForm extends FormBase
+{
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId ()
+  {
     return 'simplenews_subscriber_mass_subscribe';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['emails'] = array(
-      '#type' => 'textarea',
-      '#title' => t('Email addresses'),
-      '#cols' => 60,
-      '#rows' => 5,
-      '#description' => t('Email addresses must be separated by comma, space or newline.'),
-    );
+  public function buildForm (array $form, FormStateInterface $form_state)
+  {
+    $form['emails'] = ['#type' => 'textarea', '#title' => t('Email addresses'), '#cols' => 60, '#rows' => 5, '#description' => t('Email addresses must be separated by comma, space or newline.'),];
 
-    $form['newsletters'] = array(
-      '#type' => 'checkboxes',
-      '#title' => t('Subscribe to'),
-      '#options' => simplenews_newsletter_list(),
-      '#required' => TRUE,
-    );
+    $form['newsletters'] = ['#type' => 'checkboxes', '#title' => t('Subscribe to'), '#options' => simplenews_newsletter_list(), '#required' => TRUE,];
 
     foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
       $form['newsletters'][$id]['#description'] = SafeMarkup::checkPlain($newsletter->description);
     }
 
-    $form['resubscribe'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Force resubscription'),
-      '#description' => t('If checked, previously unsubscribed e-mail addresses will be resubscribed. Consider that this might be against the will of your users.'),
-    );
+    $form['resubscribe'] = ['#type' => 'checkbox', '#title' => t('Force resubscription'), '#description' => t('If checked, previously unsubscribed e-mail addresses will be resubscribed. Consider that this might be against the will of your users.'),];
 
     // Include language selection when the site is multilingual.
     // Default value is the empty string which will result in receiving emails
@@ -56,25 +44,12 @@ class SubscriberMassSubscribeForm extends FormBase {
       foreach ($languages as $langcode => $language) {
         $options[$langcode] = $language->getName();
       }
-      $form['language'] = array(
-        '#type' => 'radios',
-        '#title' => t('Anonymous user preferred language'),
-        '#default_value' => '',
-        '#options' => $options,
-        '#description' => t('New subscriptions will be subscribed with the selected preferred language. The language of existing subscribers is unchanged.'),
-      );
-    }
-    else {
-      $form['language'] = array(
-        '#type' => 'value',
-        '#value' => '',
-      );
+      $form['language'] = ['#type' => 'radios', '#title' => t('Anonymous user preferred language'), '#default_value' => '', '#options' => $options, '#description' => t('New subscriptions will be subscribed with the selected preferred language. The language of existing subscribers is unchanged.'),];
+    } else {
+      $form['language'] = ['#type' => 'value', '#value' => '',];
     }
 
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Subscribe'),
-    );
+    $form['submit'] = ['#type' => 'submit', '#value' => t('Subscribe'),];
 
     return $form;
   }
@@ -82,17 +57,19 @@ class SubscriberMassSubscribeForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm (array &$form, FormStateInterface $form_state)
+  {
     parent::validateForm($form, $form_state);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $added = array();
-    $invalid = array();
-    $unsubscribed = array();
+  public function submitForm (array &$form, FormStateInterface $form_state)
+  {
+    $added = [];
+    $invalid = [];
+    $unsubscribed = [];
     $checked_newsletters = array_keys(array_filter($form_state->getValue('newsletters')));
     $langcode = $form_state->getValue('language');
 
@@ -116,37 +93,34 @@ class SubscriberMassSubscribeForm extends FormBase {
           if (!$is_unsubscribed || $form_state->getValue('resubscribe') == TRUE) {
             $subscription_manager->subscribe($email, $newsletter->id(), FALSE, 'mass subscribe', $langcode);
             $added[] = $email;
-          }
-          else {
+          } else {
             $unsubscribed[$newsletter->label()][] = $email;
           }
         }
-      }
-      else {
+      } else {
         $invalid[] = $email;
       }
     }
     if ($added) {
       $added = implode(", ", $added);
-      drupal_set_message(t('The following addresses were added or updated: %added.', array('%added' => $added)));
+      drupal_set_message(t('The following addresses were added or updated: %added.', ['%added' => $added]));
 
-      $list_names = array();
+      $list_names = [];
       foreach (simplenews_newsletter_load_multiple($checked_newsletters) as $newsletter) {
         $list_names[] = $newsletter->label();
       }
-      drupal_set_message(t('The addresses were subscribed to the following newsletters: %newsletters.', array('%newsletters' => implode(', ', $list_names))));
-    }
-    else {
+      drupal_set_message(t('The addresses were subscribed to the following newsletters: %newsletters.', ['%newsletters' => implode(', ', $list_names)]));
+    } else {
       drupal_set_message(t('No addresses were added.'));
     }
     if ($invalid) {
       $invalid = implode(", ", $invalid);
-      drupal_set_message(t('The following addresses were invalid: %invalid.', array('%invalid' => $invalid)), 'error');
+      drupal_set_message(t('The following addresses were invalid: %invalid.', ['%invalid' => $invalid]), 'error');
     }
 
     foreach ($unsubscribed as $name => $subscribers) {
       $subscribers = implode(", ", $subscribers);
-      drupal_set_message(t('The following addresses were skipped because they have previously unsubscribed from %name: %unsubscribed.', array('%name' => $name, '%unsubscribed' => $subscribers)), 'warning');
+      drupal_set_message(t('The following addresses were skipped because they have previously unsubscribed from %name: %unsubscribed.', ['%name' => $name, '%unsubscribed' => $subscribers]), 'warning');
     }
 
     if (!empty($unsubscribed)) {

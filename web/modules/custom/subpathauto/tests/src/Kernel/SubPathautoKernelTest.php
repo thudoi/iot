@@ -12,7 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @coversDefaultClass \Drupal\subpathauto\PathProcessor
  * @group subpathauto
  */
-class SubPathautoKernelTest extends KernelTestBase {
+class SubPathautoKernelTest extends KernelTestBase
+{
 
   use UserCreationTrait;
 
@@ -33,7 +34,6 @@ class SubPathautoKernelTest extends KernelTestBase {
 
   /**
    * The service under testing.
-   *
    * @var \Drupal\subpathauto\PathProcessor
    */
   protected $sut;
@@ -41,7 +41,8 @@ class SubPathautoKernelTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp ()
+  {
     parent::setUp();
 
     $this->installSchema('system', 'sequences');
@@ -51,10 +52,7 @@ class SubPathautoKernelTest extends KernelTestBase {
     $this->installConfig('subpathauto');
 
     // Create the node bundles required for testing.
-    $type = NodeType::create([
-      'type' => 'page',
-      'name' => 'page',
-    ]);
+    $type = NodeType::create(['type' => 'page', 'name' => 'page',]);
     $type->save();
 
     $this->aliasStorage = $this->container->get('path.alias_storage');
@@ -69,7 +67,8 @@ class SubPathautoKernelTest extends KernelTestBase {
   /**
    * @covers ::processInbound
    */
-  public function testProcessInbound() {
+  public function testProcessInbound ()
+  {
     // Alias should not be converted for aliases that are not valid.
     $processed = $this->sut->processInbound('/kittens/are-fake', Request::create('/kittens/are-fake'));
     $this->assertEquals('/kittens/are-fake', $processed);
@@ -94,7 +93,8 @@ class SubPathautoKernelTest extends KernelTestBase {
   /**
    * @covers ::processOutbound
    */
-  public function testProcessOutbound() {
+  public function testProcessOutbound ()
+  {
     // Alias should not be converted for invalid paths.
     $processed = $this->sut->processOutbound('/kittens/are-fake');
     $this->assertEquals('/kittens/are-fake', $processed);

@@ -9,7 +9,8 @@ use Drupal\simplenews\SkipMailException;
 /**
  * Implements hook_mail_alter().
  */
-function simplenews_test_mail_alter(&$message) {
+function simplenews_test_mail_alter (&$message)
+{
   if ($message['id'] == 'simplenews_node') {
     /** @var \Drupal\simplenews\Mail\MailInterface $mail */
     $mail = $message['params']['simplenews_mail'];

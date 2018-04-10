@@ -14,7 +14,6 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Support' Block.
- *
  * @Block(
  *   id = "searchTips",
  *   admin_label = @Translation("Search Tips"),
@@ -28,16 +27,13 @@ class SearchTips extends BlockBase
    * {@inheritdoc}
    * @return array
    */
-  public function build()
+  public function build ()
   {
     $get = false;
-    if(isset($_GET['title'])){
+    if (isset($_GET['title'])) {
       $get = $_GET['title'];
     }
-    return [
-        '#theme' => ['iot_search_tips'],
-        '#get' => $get,
-    ];
+    return ['#theme' => ['iot_search_tips'], '#get' => $get,];
   }
 
 }

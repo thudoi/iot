@@ -7,13 +7,13 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Configure simplenews subscriptions of the logged user.
  */
-class SubscriptionsBlockForm extends SubscriptionsFormBase {
+class SubscriptionsBlockForm extends SubscriptionsFormBase
+{
 
   protected $uniqueId;
 
   /**
    * A message to use as description for the block.
-   *
    * @var string
    */
   public $message;
@@ -21,7 +21,8 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId ()
+  {
     if (empty($this->uniqueId)) {
       throw new \Exception('Unique ID must be set with setUniqueId.');
     }
@@ -31,14 +32,16 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   /**
    * {@inheritdoc}
    */
-  public function setUniqueId($id) {
+  public function setUniqueId ($id)
+  {
     $this->uniqueId = $id;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function form(array $form, FormStateInterface $form_state) {
+  public function form (array $form, FormStateInterface $form_state)
+  {
     // Hide subscription widget if only one newsletter available.
     if (count($this->getNewsletters()) == 1) {
       $this->getSubscriptionWidget($form_state)->setHidden();
@@ -46,10 +49,7 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
 
     $form = parent::form($form, $form_state);
 
-    $form['message'] = array(
-      '#type' => 'item',
-      '#markup' => $this->message,
-    );
+    $form['message'] = ['#type' => 'item', '#markup' => $this->message,];
 
     return $form;
   }
@@ -57,7 +57,8 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function actions(array $form, FormStateInterface $form_state) {
+  protected function actions (array $form, FormStateInterface $form_state)
+  {
     // If only one newsletter, show Subscribe/Unsubscribe instead of Update.
     $actions = parent::actions($form, $form_state);
     if ($this->getOnlyNewsletterId() != NULL) {
@@ -71,10 +72,11 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
+  protected function getSubmitMessage (FormStateInterface $form_state, $op, $confirm)
+  {
     switch ($op) {
       case static::SUBMIT_UPDATE:
-        return $this->t('The newsletter subscriptions for %mail have been updated.', array('%mail' => $form_state->getValue('mail')[0]['value']));
+        return $this->t('The newsletter subscriptions for %mail have been updated.', ['%mail' => $form_state->getValue('mail')[0]['value']]);
 
       case static::SUBMIT_SUBSCRIBE:
         if ($confirm) {

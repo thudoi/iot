@@ -7,14 +7,11 @@
 /**
  * Implements hook_theme().
  */
-function tcpdf_example_theme($existing, $type, $theme, $path) {
+function tcpdf_example_theme ($existing, $type, $theme, $path)
+{
   switch ($type) {
     case 'module':
-      return array(
-        'tcpdf_example_basic_html' => array(
-          'template' => 'tcpdf_example_basic_html'
-        ),
-      );
+      return ['tcpdf_example_basic_html' => ['template' => 'tcpdf_example_basic_html'],];
       break;
   }
 }
@@ -23,11 +20,11 @@ function tcpdf_example_theme($existing, $type, $theme, $path) {
  * Callback for generating the header. This function acts like if it overridded
  *   the Header() function of tcpdf class except the tcpdf instance is not $this
  *   but a parameter.
- *
  * @param type $tcpdf TCPDFDrupal instance. It can be used as $this in the
  *   Header() function of a siebling of TCPDF.
  */
-function tcpdf_example_default_header(&$tcpdf, $context) {
+function tcpdf_example_default_header (&$tcpdf, $context)
+{
   global $base_url;
 
   // $args contains passed variable...

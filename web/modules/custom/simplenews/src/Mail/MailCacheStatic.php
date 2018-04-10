@@ -4,28 +4,26 @@ namespace Drupal\simplenews\Mail;
 
 /**
  * Abstract implementation of the mail caching that does static caching.
- *
  * Subclasses need to implement the abstract function isCacheable() to decide
  * what should be cached.
- *
  * @ingroup mail
  */
-abstract class MailCacheStatic implements MailCacheInterface {
+abstract class MailCacheStatic implements MailCacheInterface
+{
 
   /**
    * The static cache.
    */
-  protected $cache = array();
+  protected $cache = [];
 
   /**
    * Returns the cache identifier for the mail.
-   *
    * @param \Drupal\simplenews\Mail\MailInterface $mail
    *   The mail object.
-   *
    * @return string
    */
-  protected function getCid(MailInterface $mail) {
+  protected function getCid (MailInterface $mail)
+  {
     $entity_id = $mail->getEntity()->id();
     return $mail->getEntity()->getEntityTypeId() . ':' . $entity_id . ':' . $mail->getLanguage();
   }
@@ -33,7 +31,8 @@ abstract class MailCacheStatic implements MailCacheInterface {
   /**
    * {@inheritdoc}
    */
-  public function get(MailInterface $mail, $group, $key) {
+  public function get (MailInterface $mail, $group, $key)
+  {
     if (!$this->isCacheable($mail, $group, $key)) {
       return NULL;
     }
@@ -46,7 +45,8 @@ abstract class MailCacheStatic implements MailCacheInterface {
   /**
    * {@inheritdoc}
    */
-  public function set(MailInterface $mail, $group, $key, $data) {
+  public function set (MailInterface $mail, $group, $key, $data)
+  {
     if (!$this->isCacheable($mail, $group, $key)) {
       return;
     }
@@ -56,7 +56,6 @@ abstract class MailCacheStatic implements MailCacheInterface {
 
   /**
    * Return if the requested element should be cached.
-   *
    * @param \Drupal\simplenews\Mail\MailInterface $mail
    *   The mail object.
    * @param string $group
@@ -68,9 +67,8 @@ abstract class MailCacheStatic implements MailCacheInterface {
    *       can not be personalized anymore.
    * @param string $key
    *   Identifies the requested element, e.g. body or attachments.
-   *
    * @return bool
    *   TRUE if it should be cached, FALSE otherwise.
    */
-  abstract function isCacheable(MailInterface $mail, $group, $key);
+  abstract function isCacheable (MailInterface $mail, $group, $key);
 }

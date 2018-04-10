@@ -14,7 +14,6 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'ContactHome' Block.
- *
  * @Block(
  *   id = "contactmessage",
  *   admin_label = @Translation("Contact Message"),
@@ -28,17 +27,10 @@ class ContactMessage extends BlockBase
    * {@inheritdoc}
    * @return array
    */
-  public function build()
+  public function build ()
   {
 
-    return [
-        '#theme' => ['iot_contact_message'],
-      '#attached' => array(
-        'library' => array(
-          'iot_ielts/contact_form',
-        ),
-      )
-    ];
+    return ['#theme' => ['iot_contact_message'], '#attached' => ['library' => ['iot_ielts/contact_form',],]];
   }
 
 }

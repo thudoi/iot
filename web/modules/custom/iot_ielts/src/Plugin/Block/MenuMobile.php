@@ -14,7 +14,6 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Facts' Block.
- *
  * @Block(
  *   id = "menu_mobile",
  *   admin_label = @Translation("Menu Mobile"),
@@ -28,26 +27,22 @@ class MenuMobile extends BlockBase
    * {@inheritdoc}
    * @return array
    */
-  public function build()
+  public function build ()
   {
     $user = \Drupal::currentUser();
-    if($user->id() <= 0){
+    if ($user->id() <= 0) {
       $name = false;
-    }else{
+    } else {
       $name = $user->getAccountName();
     }
-    return [
-        '#theme' => ['iot_menu_mobile'],
-        '#menus' => $this->_get_menu_items('main'),
-        '#user' => $name
-    ];
+    return ['#theme' => ['iot_menu_mobile'], '#menus' => $this->_get_menu_items('main'), '#user' => $name];
   }
 
   /**
    * @param $menu_name
    * @return array
    */
-  public function _get_menu($menu_name)
+  public function _get_menu ($menu_name)
   {
 
     $menu_tree = \Drupal::menuTree();
@@ -56,12 +51,9 @@ class MenuMobile extends BlockBase
     // Load the tree based on this set of parameters.
     $tree = $menu_tree->load($menu_name, $parameters);
     // Transform the tree using the manipulators you want.
-    $manipulators = array(
-      // Only show links that are accessible for the current user.
-        array('callable' => 'menu.default_tree_manipulators:checkAccess'),
-      // Use the default sorting of menu links.
-        array('callable' => 'menu.default_tree_manipulators:generateIndexAndSort'),
-    );
+    $manipulators = [// Only show links that are accessible for the current user.
+      ['callable' => 'menu.default_tree_manipulators:checkAccess'], // Use the default sorting of menu links.
+      ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],];
     $tree = $menu_tree->transform($tree, $manipulators);
     // Finally, build a renderable array from the transformed tree.
     $menu = $menu_tree->build($tree);
@@ -73,22 +65,21 @@ class MenuMobile extends BlockBase
    * @param $menu_name
    * @return array
    */
-  public function _get_menu_items($menu_name)
+  public function _get_menu_items ($menu_name)
   {
 
     $menu_data = $this->_get_menu($menu_name);
     $i = 1;
     foreach ($menu_data['#items'] as $item) {
       if (isset($item['url']) && $item['url']->getRouteName() == '') {
-        $menu[$i]['links'] = ['title'=>$item['title'],'link' => $item['url']->getRouteName()];
-      }
-      else {
-        $menu[$i]['links'] = ['title'=>$item['title'], 'link'=>$item['url']->getInternalPath()];
+        $menu[$i]['links'] = ['title' => $item['title'], 'link' => $item['url']->getRouteName()];
+      } else {
+        $menu[$i]['links'] = ['title' => $item['title'], 'link' => $item['url']->getInternalPath()];
       }
       $menu[$i]['belows'] = $this->_get_child($item['below']);
-      $i ++;
+      $i++;
     }
-   // kint($menu);
+    // kint($menu);
     return $menu;
   }
 
@@ -96,7 +87,7 @@ class MenuMobile extends BlockBase
    * @param $items
    * @return array
    */
-  public function _get_child($items)
+  public function _get_child ($items)
   {
     $belows = [];
 
@@ -107,24 +98,23 @@ class MenuMobile extends BlockBase
         $t = 1;
         foreach ($below['below'] as $child) {
           if (isset($below['url']) && $below['url']->getRouteName() == '') {
-            $belowsChild[$t]['child'] = ['title'=>$child['title'] ,'link'=> $child['url']->getRouteName()];
+            $belowsChild[$t]['child'] = ['title' => $child['title'], 'link' => $child['url']->getRouteName()];
           } else {
-            $belowsChild[$t]['child'] = ['title'=>$child['title'],'link' => $child['url']->getInternalPath()];
+            $belowsChild[$t]['child'] = ['title' => $child['title'], 'link' => $child['url']->getInternalPath()];
           }
-          $t ++;
+          $t++;
         }
       }
       if (isset($below['url']) && $below['url']->getRouteName() == '') {
-        $belows[$i]['belows'] = ['title'=>$below['title'],'link' => $below['url']->getRouteName()];
+        $belows[$i]['belows'] = ['title' => $below['title'], 'link' => $below['url']->getRouteName()];
+      } else {
+        $belows[$i]['belows'] = ['title' => $below['title'], 'link' => $below['url']->getInternalPath()];
       }
-       else {
-      $belows[$i]['belows'] = ['title'=>$below['title'],'link' => $below['url']->getInternalPath()];
-       }
-      if($belowsChild){
+      if ($belowsChild) {
         $belows[$i]['belowChild'] = $belowsChild;
       }
 
-      $i ++;
+      $i++;
     }
     return $belows;
   }

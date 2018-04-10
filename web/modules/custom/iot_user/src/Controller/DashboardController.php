@@ -18,11 +18,10 @@ class DashboardController extends ControllerBase
 
   /**
    * Dashboard.
-   *
    * @return string
    *   Return Hello string.
    */
-  public function profile()
+  public function profile ()
   {
     $user = \Drupal::currentUser();
     if ($user->id() <= 0) {
@@ -34,13 +33,10 @@ class DashboardController extends ControllerBase
     $data['user'] = $account;
     $data['dob'] = date('d/m/Y', strtotime($account->get('field_dob')->value));
 
-    return [
-        '#theme' => 'iot_user_profile',
-        '#user' => $data,
-    ];
+    return ['#theme' => 'iot_user_profile', '#user' => $data,];
   }
 
-  public function profileCallback()
+  public function profileCallback ()
   {
     $request = Request::createFromGlobals();
     $service = \Drupal::service('user.auth');
@@ -98,11 +94,7 @@ class DashboardController extends ControllerBase
       $data = file_get_contents($_FILES["picture"]["tmp_name"]);
       $file = file_save_data($data, "public://pictures/" . date('Y-m') . "/" . $_FILES["picture"]["name"], FILE_EXISTS_REPLACE);
       if ($file) {
-        $account->set('user_picture', [
-            'target_id' => $file->id(),
-            'alt' => $_FILES["picture"]["name"],
-            'title' => $_FILES["picture"]["name"]
-        ]);
+        $account->set('user_picture', ['target_id' => $file->id(), 'alt' => $_FILES["picture"]["name"], 'title' => $_FILES["picture"]["name"]]);
       }
 
     }
@@ -114,11 +106,10 @@ class DashboardController extends ControllerBase
 
   /**
    * Dashboard.
-   *
    * @return string
    *   Return Hello string.
    */
-  public function history()
+  public function history ()
   {
     $service = \Drupal::service('iot_quiz.userservice');
     $user = \Drupal::currentUser();
@@ -135,45 +126,35 @@ class DashboardController extends ControllerBase
     if (isset($_GET['status']) && !empty($_GET['status'])) {
       $st = $_GET['status'];
     }
-    if($st=='true'){
+    if ($st == 'true') {
       $status = 1;
     }
-    if($st=='false'){
+    if ($st == 'false') {
       $status = 0;
     }
-    $header = array(
-      // We make it sortable by name.
-        array('data' => $this->t('Date taken'), 'field' => 'created', 'sort' => 'desc'),
-        array('data' => $this->t('Type')),
-        array('data' => $this->t('Series')),
-        array('data' => $this->t('Test name'), 'field' => 'title', 'sort' => 'asc'),
-        array('data' => $this->t('Score')),
-        array('data' => $this->t('Accuracy')),
-        array('data' => $this->t('Tme spent')),
-        array('data' => $this->t('Progress')),
-        array('data' => $this->t('Action')),
+    $header = [// We make it sortable by name.
+      ['data' => $this->t('Date taken'), 'field' => 'created', 'sort' => 'desc'], ['data' => $this->t('Type')], ['data' => $this->t('Series')], ['data' => $this->t('Test name'), 'field' => 'title', 'sort' => 'asc'], ['data' => $this->t('Score')], ['data' => $this->t('Accuracy')], ['data' => $this->t('Tme spent')], ['data' => $this->t('Progress')], ['data' => $this->t('Action')],
 
-    );
+    ];
 
     $db = \Drupal::database();
     $query = $db->select('node_field_data', 'n');
-    $query->fields('n', array('nid'));
+    $query->fields('n', ['nid']);
     $query->leftJoin('node__field_score', 'sc', 'n.nid=sc.entity_id');
     $query->leftJoin('node__field_score_quiz', 'sq', 'n.nid=sq.entity_id');
     $query->condition('n.type', 'score');
     $query->condition('n.uid', $user->id());
-    if (isset($_GET['collection']) && $_GET['collection']!='All') {
+    if (isset($_GET['collection']) && $_GET['collection'] != 'All') {
       $query->condition('sq.field_score_quiz_target_id', $this->getQuizByCollection($_GET['collection']), 'IN');
     }
     $or = db_or();
 
     if ($status == 0) {
       $query->condition('n.status', $status, '=');
-    }
-    elseif ($status == 1) {
+    } elseif ($status == 1) {
       $query->condition('n.status', $status, '=');
       $query->condition('sc.field_score_value', '0/%', 'NOT LIKE');
-    }else{
+    } else {
       $or->condition('sc.field_score_value', '0/%', 'NOT LIKE');
       $or->condition('n.status', 0, '=');
       $query->condition($or);
@@ -181,15 +162,13 @@ class DashboardController extends ControllerBase
 
 
     // The actual action of sorting the rows is here.
-    $table_sort = $query->extend('Drupal\Core\Database\Query\TableSortExtender')
-        ->orderByHeader($header);
+    $table_sort = $query->extend('Drupal\Core\Database\Query\TableSortExtender')->orderByHeader($header);
     // Limit the rows to 20 for each page.
-    $pager = $table_sort->extend('Drupal\Core\Database\Query\PagerSelectExtender')
-        ->limit(10);
+    $pager = $table_sort->extend('Drupal\Core\Database\Query\PagerSelectExtender')->limit(10);
     $result = $pager->execute();
 
     // Populate the rows.
-    $rows = array();
+    $rows = [];
     $timeTotal = 0;
     foreach ($result as $row) {
       $node = Node::load($row->nid);
@@ -214,12 +193,8 @@ class DashboardController extends ControllerBase
       } else {
         $progress = '<div class="progress"><div data="' . intval($scoreArr[0] * 100 / $scoreArr[1]) . '%" class="progress-state" style="width: ' . $service->formatNumber($scoreArr[0] * 100 / $scoreArr[1], true) . '%"></div></div>';
       }
-      $progress = array(
-          '#markup' => $progress,
-      );
-      $action = array(
-          '#markup' => $node->get('status')->value == 1 ? '<a href="' . $alias_node . '" class="btn-table"><span></span> Review</a>' : '<a href="' . $alias_quiz . '" class="btn-table"><span class="icon-resume"></span> Resume </a>',
-      );
+      $progress = ['#markup' => $progress,];
+      $action = ['#markup' => $node->get('status')->value == 1 ? '<a href="' . $alias_node . '" class="btn-table"><span></span> Review</a>' : '<a href="' . $alias_quiz . '" class="btn-table"><span class="icon-resume"></span> Resume </a>',];
       $accu = '-';
       $time = '-';
       $score = '-';
@@ -229,58 +204,30 @@ class DashboardController extends ControllerBase
         $score = $service->getScore($node);
       }
 
-      $rows[] = array('data' => array(
-          'created' => date('d/m/Y', $node->get('created')->value),
-          'type' => $collection['category'],
-          'series' => $collection['series'],
-          'title' => $node->get('title')->value,
-          'score' => $score,
-          'accuracy' => $accu,
-          'time' => $time,
-          'progress' => render($progress),
-          'action' => render($action),
-      ));
+      $rows[] = ['data' => ['created' => date('d/m/Y', $node->get('created')->value), 'type' => $collection['category'], 'series' => $collection['series'], 'title' => $node->get('title')->value, 'score' => $score, 'accuracy' => $accu, 'time' => $time, 'progress' => render($progress), 'action' => render($action),]];
     }
 
     // The table description.
-    $build = array(
-        '#markup' => t('<h2 class="page-caption">Tests History</h2><div class="table-history">')
-    );
+    $build = ['#markup' => t('<h2 class="page-caption">Tests History</h2><div class="table-history">')];
 
-    $filter = [
-        '#theme' => 'iot_user_history_filter',
-        '#collections' => $this->getAllCollections(),
-        '#st' => $st,
-        '#col' => $col
-    ];
-    $build['filter'] = array(
-        '#markup' => render($filter),
-    );
+    $filter = ['#theme' => 'iot_user_history_filter', '#collections' => $this->getAllCollections(), '#st' => $st, '#col' => $col];
+    $build['filter'] = ['#markup' => render($filter),];
 
     // Generate the table.
-    $build['my_table'] = array(
-        '#theme' => 'table',
-        '#header' => $header,
-        '#rows' => $rows,
-    );
+    $build['my_table'] = ['#theme' => 'table', '#header' => $header, '#rows' => $rows,];
 
     // Finally add the pager.
-    $build['pager'] = array(
-        '#type' => 'pager'
-    );
-    $build['close'] = array(
-        '#markup' => t('</div>')
-    );
+    $build['pager'] = ['#type' => 'pager'];
+    $build['close'] = ['#markup' => t('</div>')];
 
     return $build;
   }
 
   /**
    * @param $quiz
-   *
    * @return array
    */
-  public function getCollectionByQuiz($quiz)
+  public function getCollectionByQuiz ($quiz)
   {
     $set = Node::load($quiz->get('field_set')->target_id);
     $collection = Node::load($set->get('field_collection')->target_id);
@@ -292,12 +239,9 @@ class DashboardController extends ControllerBase
   /*
    * Implement get All Collection
    */
-  public function getAllCollections()
+  public function getAllCollections ()
   {
-    $nids = \Drupal::entityQuery('node')->condition('type', 'collection')
-        ->condition('status', 1)
-        ->sort('field_collection_order','ASC')
-        ->execute();
+    $nids = \Drupal::entityQuery('node')->condition('type', 'collection')->condition('status', 1)->sort('field_collection_order', 'ASC')->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $secs = [];
     foreach ($nodes as $sec) {
@@ -309,19 +253,13 @@ class DashboardController extends ControllerBase
   /**
    * Get all quiz id by collection
    */
-  public function getQuizByCollection($col)
+  public function getQuizByCollection ($col)
   {
     $quiz = [];
-    $sets = \Drupal::entityQuery('node')->condition('type', 'set')
-        ->condition('status', 1)
-        ->condition('field_collection', $col)
-        ->execute();
+    $sets = \Drupal::entityQuery('node')->condition('type', 'set')->condition('status', 1)->condition('field_collection', $col)->execute();
     $sets = \Drupal\node\Entity\Node::loadMultiple($sets);
     foreach ($sets as $set) {
-      $qs = \Drupal::entityQuery('node')->condition('type', 'quiz')
-          ->condition('status', 1)
-          ->condition('field_set', $set->id())
-          ->execute();
+      $qs = \Drupal::entityQuery('node')->condition('type', 'quiz')->condition('status', 1)->condition('field_set', $set->id())->execute();
       $qzs = \Drupal\node\Entity\Node::loadMultiple($qs);
       foreach ($qzs as $quz) {
         $quiz[] = $quz->id();

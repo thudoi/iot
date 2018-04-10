@@ -13,20 +13,21 @@ use Drupal\Tests\migrate_drupal\Kernel\MigrateDrupalTestBase;
 
 /**
  * Tests the d7_path_redirect source plugin.
- *
  * @group redirect
  */
-class PathRedirectTest extends MigrateDrupalTestBase {
+class PathRedirectTest extends MigrateDrupalTestBase
+{
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = array('redirect', 'link');
+  public static $modules = ['redirect', 'link'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp ()
+  {
     parent::setUp();
     $this->installEntitySchema('redirect');
     $this->loadFixture(__DIR__ . '/../../../../fixtures/drupal7.php');
@@ -36,7 +37,6 @@ class PathRedirectTest extends MigrateDrupalTestBase {
 
   /**
    * Asserts various aspects of a redirect entity.
-   *
    * @param int $id
    *   The entity ID in the form ENTITY_TYPE.BUNDLE.FIELD_NAME.
    * @param string $source_url
@@ -46,22 +46,21 @@ class PathRedirectTest extends MigrateDrupalTestBase {
    * @param string $status_code
    *   The expected status code.
    */
-  protected function assertEntity($id, $source_url, $redirect_url, $status_code) {
+  protected function assertEntity ($id, $source_url, $redirect_url, $status_code)
+  {
     /** @var Redirect $redirect */
     $redirect = Redirect::load($id);
-    $this->assertSame($this->getMigration('d7_path_redirect')
-      ->getIdMap()
-      ->lookupDestinationID([$id]), [$redirect->id()]);
+    $this->assertSame($this->getMigration('d7_path_redirect')->getIdMap()->lookupDestinationID([$id]), [$redirect->id()]);
     $this->assertSame($source_url, $redirect->getSourceUrl());
-    $this->assertSame($redirect_url, $redirect->getRedirectUrl()
-      ->toUriString());
+    $this->assertSame($redirect_url, $redirect->getRedirectUrl()->toUriString());
     $this->assertSame($status_code, $redirect->getStatusCode());
   }
 
   /**
    * Tests the Drupal 7 path redirect to Drupal 8 migration.
    */
-  public function testPathRedirect() {
+  public function testPathRedirect ()
+  {
     $this->assertEntity(5, '/test/source/url', 'base:test/redirect/url', '301');
     $this->assertEntity(7, '/test/source/url2', 'http://test/external/redirect/url?foo=bar&biz=buz', '307');
   }

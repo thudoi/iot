@@ -10,14 +10,13 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests the demo module for Simplenews.
- *
  * @group simplenews
  */
-class SimplenewsDemoTest extends WebTestBase {
+class SimplenewsDemoTest extends WebTestBase
+{
 
   /**
    * Modules to enable.
-   *
    * @var string[]
    */
   public static $modules = [];
@@ -25,10 +24,11 @@ class SimplenewsDemoTest extends WebTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp ()
+  {
     parent::setUp();
     // Install bartik theme.
-    \Drupal::service('theme_handler')->install(array('bartik'));
+    \Drupal::service('theme_handler')->install(['bartik']);
     $theme_settings = $this->config('system.theme');
     $theme_settings->set('default', 'bartik')->save();
     // Install simplenews_demo module.
@@ -40,7 +40,8 @@ class SimplenewsDemoTest extends WebTestBase {
   /**
    * Asserts the demo module has been installed successfully.
    */
-  protected function testInstalled() {
+  protected function testInstalled ()
+  {
     // Check for the two subscription blocks.
     $this->assertText('Simplenews multiple subscriptions');
     $this->assertText('Stay informed - subscribe to our newsletters.');
@@ -50,11 +51,11 @@ class SimplenewsDemoTest extends WebTestBase {
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
     // Assert default description is present.
-    $this->assertEqual('This is an example newsletter. Change it.', (string) $this->xpath('//textarea[@id="edit-description"]')[0]);
+    $this->assertEqual('This is an example newsletter. Change it.', (string)$this->xpath('//textarea[@id="edit-description"]')[0]);
     $from_name = $this->xpath('//input[@id="edit-from-name"]')[0];
     $from_address = $this->xpath('//input[@id="edit-from-address"]')[0];
-    $this->assertEqual('Drupal', (string) $from_name['value']);
-    $this->assertEqual('simpletest@example.com', (string) $from_address['value']);
+    $this->assertEqual('Drupal', (string)$from_name['value']);
+    $this->assertEqual('simpletest@example.com', (string)$from_address['value']);
     // Assert demo newsletters.
     $this->drupalGet('admin/config/services/simplenews');
     $this->assertText(t('Press releases'));

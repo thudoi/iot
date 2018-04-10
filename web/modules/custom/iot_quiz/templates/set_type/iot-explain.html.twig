@@ -23,12 +23,13 @@
             {{ 'Explain'|t }}
           </a>
         {% endif %}
-          {% set question = qid|split('-') %}
+        {% set question = qid|split('-') %}
 
-          <a class="locate-explain hide-mobile use-ajax " data-dialog-type="modal" href="/report/{{ nodequiz.nid.value }}/mistake?qid={{ question[0] }}&url={{ url('<current>') }}">
-              <i class="fa fa-exclamation-triangle"></i>
-              {{ 'Report'|t }}
-          </a>
+        <a class="locate-explain hide-mobile use-ajax " data-dialog-type="modal"
+           href="/report/{{ nodequiz.nid.value }}/mistake?qid={{ question[0] }}&url={{ url('<current>') }}">
+          <i class="fa fa-exclamation-triangle"></i>
+          {{ 'Report'|t }}
+        </a>
       </div>
       {% if explain[qid] != '' %}
         <div id="col-{{ qid }}" class="collapse">{{ explain[qid]|raw }}</div>
@@ -42,7 +43,7 @@
         {% if listen[qid] %}
           <a class="listen-from-here" data="{{ listen[qid] }}" href="#">
             <span class="icon-listen"></span>
-           {{ 'Listen from here'|t }}
+            {{ 'Listen from here'|t }}
           </a>
         {% endif %}
         {% if qid in quiz|keys %}
@@ -62,19 +63,18 @@
              data-target="#col-{{ qid }}"
              href="javascript:void(0)">
             <span class="icon-explain"></span>
-              {{ 'Explain'|t }}
+            {{ 'Explain'|t }}
 
           </a>
         {% endif %}
 
-              {% set question = qid|split('-') %}
+        {% set question = qid|split('-') %}
 
-          <a class="locate-explain hide-mobile use-ajax " data-dialog-type="modal" href="/report/{{ nodequiz.nid.value }}/mistake?qid={{ question[0] }}&url={{ url('<current>') }}">
-              <i class="fa fa-exclamation-triangle"></i>
-              {{ 'Report'|t }}
-          </a>
-
-
+        <a class="locate-explain hide-mobile use-ajax " data-dialog-type="modal"
+           href="/report/{{ nodequiz.nid.value }}/mistake?qid={{ question[0] }}&url={{ url('<current>') }}">
+          <i class="fa fa-exclamation-triangle"></i>
+          {{ 'Report'|t }}
+        </a>
 
 
       </div>

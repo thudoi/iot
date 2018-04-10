@@ -11,15 +11,16 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * Class SetController.
  */
-class TipsController extends ControllerBase {
+class TipsController extends ControllerBase
+{
 
   /**
    * Section Manager.
-   *
    * @return array
    *   Return template.
    */
-  public function import() {
+  public function import ()
+  {
     $connection = \Drupal::database();
     $query = $connection->select('articles', 'a');
     $query->fields('a');
@@ -27,11 +28,11 @@ class TipsController extends ControllerBase {
     foreach ($result as $article) {
       $file = FALSE;
       if ($article->Avatar) {
-        $image = str_replace('_thumbpad','',$article->Avatar);
+        $image = str_replace('_thumbpad', '', $article->Avatar);
         $data = file_get_contents($image);
         $link = explode('/', $image);
         $num = count($link);
-        $file = file_save_data($data, 'public://' . $link[$num-1], FILE_EXISTS_REPLACE);
+        $file = file_save_data($data, 'public://' . $link[$num - 1], FILE_EXISTS_REPLACE);
       }
 
 
@@ -56,10 +57,10 @@ class TipsController extends ControllerBase {
       if ($article->Source) {
         $tips->set('field_source', $article->Source);
       }
-      if($article->Standfirst){
-        $tips->set('field_standfirst',$article->Standfirst);
+      if ($article->Standfirst) {
+        $tips->set('field_standfirst', $article->Standfirst);
       }
-      $tips->set('status',1);
+      $tips->set('status', 1);
       $tips->enforceIsNew();
       $tips->save();
     }
@@ -68,11 +69,10 @@ class TipsController extends ControllerBase {
 
   }
 
-  public function getTagId($tagid) {
+  public function getTagId ($tagid)
+  {
     $vid = 'tags';
-    $terms = \Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->loadTree($vid);
+    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
     $tid = NULL;
     foreach ($terms as $t) {
       $term = Term::load($t->tid);
@@ -83,11 +83,10 @@ class TipsController extends ControllerBase {
     return $tid;
   }
 
-  public function getCatId($catid) {
+  public function getCatId ($catid)
+  {
     $vid = 'tips';
-    $terms = \Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->loadTree($vid);
+    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
     $tid = NULL;
     foreach ($terms as $t) {
       $term = Term::load($t->tid);
@@ -98,11 +97,12 @@ class TipsController extends ControllerBase {
     return $tid;
   }
 
-  public function getTags($articleId) {
+  public function getTags ($articleId)
+  {
     $connection = \Drupal::database();
     $query = $connection->select('articletags', 'a');
     $query->fields('a');
-    $query->condition('ArticleId',$articleId);
+    $query->condition('ArticleId', $articleId);
     $result = $query->execute()->fetchAll();
     $tagids = [];
     foreach ($result as $r) {
@@ -111,39 +111,21 @@ class TipsController extends ControllerBase {
     return $tagids;
   }
 
-  public function updateCount(){
+  public function updateCount ()
+  {
     $connection = \Drupal::database();
-    $nids = \Drupal::entityQuery('node')->condition('type', 'tips')
-      ->condition('status', 1)
-      ->execute();
+    $nids = \Drupal::entityQuery('node')->condition('type', 'tips')->condition('status', 1)->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
-    foreach($nodes as $node){
+    foreach ($nodes as $node) {
       $query = $connection->select('node_counter', 'a');
       $query->fields('a');
-      $query->condition('nid',$node->id());
+      $query->condition('nid', $node->id());
       $result = $query->execute()->fetchObject();
-      if($result){
-        $connection->update('node_counter')
-          ->condition('nid' , $node->id())
-          ->fields([
-            'totalcount' => counterTips(),  // FIELD_1 NEW value./ FIELD_3 NEW value.
-          ])
-          ->execute();
-      }else{
-        $connection->insert('node_counter')
-          ->fields([
-            'nid',
-            'totalcount',
-            'daycount',
-            'timestamp',
-          ])
-          ->values(array(
-            $node->id(),
-            counterTips(),
-            0,
-            time(),
-          ))
-          ->execute();
+      if ($result) {
+        $connection->update('node_counter')->condition('nid', $node->id())->fields(['totalcount' => counterTips(),  // FIELD_1 NEW value./ FIELD_3 NEW value.
+          ])->execute();
+      } else {
+        $connection->insert('node_counter')->fields(['nid', 'totalcount', 'daycount', 'timestamp',])->values([$node->id(), counterTips(), 0, time(),])->execute();
       }
 
     }

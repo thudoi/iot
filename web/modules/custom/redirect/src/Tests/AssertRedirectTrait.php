@@ -8,11 +8,11 @@ use Drupal\Core\Url;
 /**
  * Asserts the redirect from a given path to the expected destination path.
  */
-trait AssertRedirectTrait {
+trait AssertRedirectTrait
+{
 
   /**
    * Asserts the redirect from $path to the $expected_ending_url.
-   *
    * @param string $path
    *   The request path.
    * @param $expected_ending_url
@@ -21,27 +21,22 @@ trait AssertRedirectTrait {
    * @param string $expected_ending_status
    *   The status we expect to get with the first request.
    */
-  public function assertRedirect($path, $expected_ending_url, $expected_ending_status = 'HTTP/1.1 301 Moved Permanently') {
+  public function assertRedirect ($path, $expected_ending_url, $expected_ending_status = 'HTTP/1.1 301 Moved Permanently')
+  {
     $this->drupalHead($path);
     $headers = $this->drupalGetHeaders(TRUE);
 
     $ending_url = isset($headers[0]['location']) ? $headers[0]['location'] : NULL;
-    $message = SafeMarkup::format('Testing redirect from %from to %to. Ending url: %url', [
-      '%from' => $path,
-      '%to' => $expected_ending_url,
-      '%url' => $ending_url,
-    ]);
+    $message = SafeMarkup::format('Testing redirect from %from to %to. Ending url: %url', ['%from' => $path, '%to' => $expected_ending_url, '%url' => $ending_url,]);
 
     if ($expected_ending_url == '<front>') {
       $expected_ending_url = Url::fromUri('base:')->setAbsolute()->toString();
-    }
-    elseif (!empty($expected_ending_url)) {
+    } elseif (!empty($expected_ending_url)) {
       // Check for absolute/external urls.
       if (!parse_url($expected_ending_url, PHP_URL_SCHEME)) {
         $expected_ending_url = Url::fromUri('base:' . $expected_ending_url)->setAbsolute()->toString();
       }
-    }
-    else {
+    } else {
       $expected_ending_url = NULL;
     }
 

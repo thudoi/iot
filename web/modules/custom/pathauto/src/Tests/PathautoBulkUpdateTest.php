@@ -8,37 +8,33 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Bulk update functionality tests.
- *
  * @group pathauto
  */
-class PathautoBulkUpdateTest extends WebTestBase {
+class PathautoBulkUpdateTest extends WebTestBase
+{
 
   use PathautoTestHelperTrait;
 
   /**
    * Modules to enable.
-   *
    * @var array
    */
-  public static $modules = array('node', 'pathauto', 'forum');
+  public static $modules = ['node', 'pathauto', 'forum'];
 
   /**
    * Admin user.
-   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
 
   /**
    * The created nodes.
-   *
    * @var \Drupal\node\NodeInterface
    */
   protected $nodes;
 
   /**
    * The created patterns.
-   *
    * @var \Drupal\pathauto\PathautoPatternInterface
    */
   protected $patterns;
@@ -46,28 +42,25 @@ class PathautoBulkUpdateTest extends WebTestBase {
   /**
    * {inheritdoc}
    */
-  function setUp() {
+  function setUp ()
+  {
     parent::setUp();
 
     // Allow other modules to add additional permissions for the admin user.
-    $permissions = array(
-      'administer pathauto',
-      'administer url aliases',
-      'create url aliases',
-      'administer forums',
-    );
+    $permissions = ['administer pathauto', 'administer url aliases', 'create url aliases', 'administer forums',];
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
 
-    $this->patterns = array();
+    $this->patterns = [];
     $this->patterns['node'] = $this->createPattern('node', '/content/[node:title]');
     $this->patterns['user'] = $this->createPattern('user', '/users/[user:name]');
     $this->patterns['forum'] = $this->createPattern('forum', '/forums/[term:name]');
   }
 
-  function testBulkUpdate() {
+  function testBulkUpdate ()
+  {
     // Create some nodes.
-    $this->nodes = array();
+    $this->nodes = [];
     for ($i = 1; $i <= 5; $i++) {
       $node = $this->drupalCreateNode();
       $this->nodes[$node->id()] = $node;
@@ -77,11 +70,7 @@ class PathautoBulkUpdateTest extends WebTestBase {
     $this->deleteAllAliases();
 
     // Bulk create aliases.
-    $edit = array(
-      'update[canonical_entities:node]' => TRUE,
-      'update[canonical_entities:user]' => TRUE,
-      'update[forum]' => TRUE,
-    );
+    $edit = ['update[canonical_entities:node]' => TRUE, 'update[canonical_entities:user]' => TRUE, 'update[forum]' => TRUE,];
     $this->drupalPostForm('admin/config/search/path/update_bulk', $edit, t('Update'));
 
     // This has generated 8 aliases: 5 nodes, 2 users and 1 forum.
@@ -96,7 +85,7 @@ class PathautoBulkUpdateTest extends WebTestBase {
     $this->assertAliasExists(['source' => '/taxonomy/term/1']);
 
     // Add a new node.
-    $new_node = $this->drupalCreateNode(array('path' => array('alias' => '', 'pathauto' => PathautoState::SKIP)));
+    $new_node = $this->drupalCreateNode(['path' => ['alias' => '', 'pathauto' => PathautoState::SKIP]]);
 
     // Run the update again which should not run against any nodes.
     $this->drupalPostForm('admin/config/search/path/update_bulk', $edit, t('Update'));
@@ -133,20 +122,19 @@ class PathautoBulkUpdateTest extends WebTestBase {
   /**
    * Tests alias generation for nodes that existed before installing Pathauto.
    */
-  function testBulkUpdateExistingContent() {
+  function testBulkUpdateExistingContent ()
+  {
     // Create a node.
     $node = $this->drupalCreateNode();
 
     // Delete its alias and Pathauto metadata.
     \Drupal::service('pathauto.alias_storage_helper')->deleteEntityPathAll($node);
     $node->path->first()->get('pathauto')->purge();
-    \Drupal::entityTypeManager()->getStorage('node')->resetCache(array($node->id()));
+    \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
 
     // Execute bulk generation.
     // Bulk create aliases.
-    $edit = array(
-      'update[canonical_entities:node]' => TRUE,
-    );
+    $edit = ['update[canonical_entities:node]' => TRUE,];
     $this->drupalPostForm('admin/config/search/path/update_bulk', $edit, t('Update'));
 
     // Verify that the alias was created for the node.

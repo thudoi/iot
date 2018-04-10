@@ -16,12 +16,14 @@ use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 
-class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
+class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface
+{
 
   /**
    * {@inheritdoc}
    */
-  public function applies(RouteMatchInterface $attributes) {
+  public function applies (RouteMatchInterface $attributes)
+  {
     $parameters = $attributes->getParameters()->all();
 
     return TRUE;
@@ -30,7 +32,8 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function build(RouteMatchInterface $route_match) {
+  public function build (RouteMatchInterface $route_match)
+  {
     $breadcrumb = new Breadcrumb();
 
     $breadcrumb->addLink(Link::fromTextAndUrl('Home', Url::fromUserInput('/')));
@@ -64,8 +67,7 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       $breadcrumb->addLink(Link::fromTextAndUrl($col->getTitle(), Url::fromUserInput('/collection/' . $id[0]['target_id'] . '/manage')));
       $breadcrumb->addLink(Link::fromTextAndUrl($title, Url::fromUserInput('/set/' . $setID[0]['target_id'] . '/manage')));
     }
-    if (isset($path_args[1]) && $path_args[1] == 'node' && isset($path_args[3]) && $path_args[3]=='solution' ||
-        isset($path_args[1]) && $path_args[1] == 'node' && isset($path_args[3]) && $path_args[3]=='result') {
+    if (isset($path_args[1]) && $path_args[1] == 'node' && isset($path_args[3]) && $path_args[3] == 'solution' || isset($path_args[1]) && $path_args[1] == 'node' && isset($path_args[3]) && $path_args[3] == 'result') {
       $node = Node::load($path_args[2]);
       $setID = $node->get('field_set')->getValue();
       $set = Node::load($setID[0]['target_id']);
@@ -73,7 +75,7 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       $id = $set->get('field_collection')->getValue();
       $col = Node::load($id[0]['target_id']);
       $breadcrumb->addLink(Link::fromTextAndUrl('Collection', Url::fromUserInput('/ielts-exam-library')));
-      $breadcrumb->addLink(Link::fromTextAndUrl($col->getTitle(), Url::fromUserInput('/node/'.$col->id())));
+      $breadcrumb->addLink(Link::fromTextAndUrl($col->getTitle(), Url::fromUserInput('/node/' . $col->id())));
       $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute($node->get('field_title_ui')->value, '<none>'));
     }
     if (isset($path_args[1]) && $path_args[1] == 'question') {
@@ -91,8 +93,7 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       $breadcrumb->addLink(Link::fromTextAndUrl($setTitle, Url::fromUserInput('/set/' . $setId[0]['target_id'] . '/manage')));
       $breadcrumb->addLink(Link::fromTextAndUrl($title, Url::fromUserInput('/quiz/' . $quizId[0]['target_id'] . '/manage')));
     }
-    if (isset($path_args[1]) && $path_args[1] == 'node' && isset($path_args[2]) && $path_args[2] == 'add' && isset($_GET['destination']) ||
-      isset($path_args[1]) && $path_args[1] == 'node' && isset($path_args[3]) && $path_args[3] == 'edit' && isset($_GET['destination'])) {
+    if (isset($path_args[1]) && $path_args[1] == 'node' && isset($path_args[2]) && $path_args[2] == 'add' && isset($_GET['destination']) || isset($path_args[1]) && $path_args[1] == 'node' && isset($path_args[3]) && $path_args[3] == 'edit' && isset($_GET['destination'])) {
       $des = $_GET['destination'];
       if ($des == 'user/collections') {
         $breadcrumb->addLink(Link::fromTextAndUrl('Manage Collection', Url::fromUserInput('/manage/collections')));
@@ -122,11 +123,11 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
         $col = Node::load($colId[0]['target_id']);
         $breadcrumb->addLink(Link::fromTextAndUrl('Manage Collection', Url::fromUserInput('/manage/collections')));
         $breadcrumb->addLink(Link::fromTextAndUrl($col->getTitle(), Url::fromUserInput('/collection/' . $des_arr[2] . '/manage')));
-        $breadcrumb->addLink(Link::fromTextAndUrl($setTitle, Url::fromUserInput('/set/'.$set->id().'/manage')));
+        $breadcrumb->addLink(Link::fromTextAndUrl($setTitle, Url::fromUserInput('/set/' . $set->id() . '/manage')));
         $breadcrumb->addLink(Link::fromTextAndUrl($quizTitle, Url::fromUserInput($des)));
       }
       if ($des_arr[1] == 'question' && $des_arr[3] == 'manage') {
-        $section= Node::load($des_arr[2]);
+        $section = Node::load($des_arr[2]);
         $sectionTitle = $section->get('field_title_ui')->value;
         $quizId = $section->get('field_quiz')->getValue();
         $quiz = Node::load($quizId[0]['target_id']);
@@ -138,33 +139,33 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
         $col = Node::load($colId[0]['target_id']);
         $breadcrumb->addLink(Link::fromTextAndUrl('Manage Collection', Url::fromUserInput('/manage/collections')));
         $breadcrumb->addLink(Link::fromTextAndUrl($col->getTitle(), Url::fromUserInput('/collection/' . $des_arr[2] . '/manage')));
-        $breadcrumb->addLink(Link::fromTextAndUrl($setTitle, Url::fromUserInput('/set/'.$set->id().'/manage')));
-        $breadcrumb->addLink(Link::fromTextAndUrl($quizTitle, Url::fromUserInput('/quiz/'.$quiz->id().'/manage')));
+        $breadcrumb->addLink(Link::fromTextAndUrl($setTitle, Url::fromUserInput('/set/' . $set->id() . '/manage')));
+        $breadcrumb->addLink(Link::fromTextAndUrl($quizTitle, Url::fromUserInput('/quiz/' . $quiz->id() . '/manage')));
         $breadcrumb->addLink(Link::fromTextAndUrl($sectionTitle, Url::fromUserInput($des)));
       }
     }
 
-      if(isset($node) && $node->getType()=='quiz'){
-        if($node->get('field_quiz_type')=='writing' || $node->get('field_quiz_type')=='speaking'){
-          $setID = $node->get('field_set')->getValue();
-          $set = Node::load($setID[0]['target_id']);
-          $id = $set->get('field_collection')->getValue();
-          $col = Node::load($id[0]['target_id']);
-          $breadcrumb->addLink(Link::fromTextAndUrl('Collection', Url::fromUserInput('/collections')));
-          $breadcrumb->addLink(Link::fromTextAndUrl($col->getTitle(), Url::fromUserInput('/node/'.$col->id())));
-          $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute($node->get('field_title_ui')->value, '<none>'));
-        }
+    if (isset($node) && $node->getType() == 'quiz') {
+      if ($node->get('field_quiz_type') == 'writing' || $node->get('field_quiz_type') == 'speaking') {
+        $setID = $node->get('field_set')->getValue();
+        $set = Node::load($setID[0]['target_id']);
+        $id = $set->get('field_collection')->getValue();
+        $col = Node::load($id[0]['target_id']);
+        $breadcrumb->addLink(Link::fromTextAndUrl('Collection', Url::fromUserInput('/collections')));
+        $breadcrumb->addLink(Link::fromTextAndUrl($col->getTitle(), Url::fromUserInput('/node/' . $col->id())));
+        $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute($node->get('field_title_ui')->value, '<none>'));
       }
-    if(isset($node) && $node->getType()=='tips'){
+    }
+    if (isset($node) && $node->getType() == 'tips') {
       $term = false;
       $breadcrumb->addLink(Link::fromTextAndUrl('IELTS Tips', Url::fromUserInput('/ielts-tips')));
-      if($node->get('field_category')){
+      if ($node->get('field_category')) {
         $term = Term::load($node->get('field_category')->target_id);
       }
-      if($term){
-        $breadcrumb->addLink(Link::fromTextAndUrl($term->getName(), Url::fromUserInput('/taxonomy/term/'.$term->id())));
+      if ($term) {
+        $breadcrumb->addLink(Link::fromTextAndUrl($term->getName(), Url::fromUserInput('/taxonomy/term/' . $term->id())));
       }
-     // $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute($node->getTitle(), '<none>'));
+      // $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute($node->getTitle(), '<none>'));
     }
     return $breadcrumb;
 

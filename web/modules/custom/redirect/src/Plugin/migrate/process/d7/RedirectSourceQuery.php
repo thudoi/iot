@@ -16,14 +16,15 @@ use Drupal\migrate\Row;
  *   id = "d7_redirect_source_query"
  * )
  */
-class RedirectSourceQuery extends ProcessPluginBase {
+class RedirectSourceQuery extends ProcessPluginBase
+{
 
   /**
    * {@inheritdoc}
-   *
    * Transform the field as required for an iFrame field.
    */
-  public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
+  public function transform ($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property)
+  {
 
     // Check if there are options.
     if (!empty($value)) {

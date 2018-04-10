@@ -14,42 +14,33 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 
-class CollectionController extends ControllerBase {
+class CollectionController extends ControllerBase
+{
 
   /**
    * @return array
    * Get quiz
    */
-  public function Collection(NodeInterface $node) {
+  public function Collection (NodeInterface $node)
+  {
 //    $node = $this->getNode();
-    $nids = \Drupal::entityQuery('node')
-      ->condition('type', 'quiz')
-      ->condition('field_collection', $node->id())
-      ->execute();
+    $nids = \Drupal::entityQuery('node')->condition('type', 'quiz')->condition('field_collection', $node->id())->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $sets = [];
     foreach ($nodes as $set) {
       $sets[] = $set;
     }
 
-    return [
-      '#theme' => ['iot_manage_collection'],
-      '#node' => $node,
-      '#sets' => $sets,
-    ];
+    return ['#theme' => ['iot_manage_collection'], '#node' => $node, '#sets' => $sets,];
   }
 
   /**
    * @return array
    * Get collections
    */
-  public function Collections() {
-    $nids = \Drupal::entityQuery('node')
-      ->condition('type', 'collection')
-      ->condition('status', 1)
-      ->sort('field_collection_order', 'ASC')
-      ->sort('created', 'DESC')
-      ->execute();
+  public function Collections ()
+  {
+    $nids = \Drupal::entityQuery('node')->condition('type', 'collection')->condition('status', 1)->sort('field_collection_order', 'ASC')->sort('created', 'DESC')->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $collections = [];
     $terms = $this->get_category();
@@ -57,11 +48,7 @@ class CollectionController extends ControllerBase {
     //get collection
     foreach ($nodes as $collection) {
       $vote_widget_service = \Drupal::service('rate.entity.vote_widget');
-      $vote_widget = $vote_widget_service->buildRateVotingWidget(
-        $collection->id(),
-        $collection->getEntityTypeId(),
-        $collection->bundle()
-      );
+      $vote_widget = $vote_widget_service->buildRateVotingWidget($collection->id(), $collection->getEntityTypeId(), $collection->bundle());
       $collection_data['star_rate'] = $vote_widget['votingapi_links'];
       $collection_data['collection'] = $collection;
       $collections[] = $collection_data;
@@ -70,33 +57,25 @@ class CollectionController extends ControllerBase {
     $features = [];
     $i = 1;
     foreach ($nodes as $fe) {
-      if($fe->isSticky()==1){
+      if ($fe->isSticky() == 1) {
         $vote_widget_service = \Drupal::service('rate.entity.vote_widget');
-        $vote_widget = $vote_widget_service->buildRateVotingWidget(
-          $fe->id(),
-          $fe->getEntityTypeId(),
-          $fe->bundle()
-        );
+        $vote_widget = $vote_widget_service->buildRateVotingWidget($fe->id(), $fe->getEntityTypeId(), $fe->bundle());
         $collection_data['star_rate'] = $vote_widget['votingapi_links'];
         $collection_data['collection'] = $fe;
         $features[] = $collection_data;
-        if($i ==4){
+        if ($i == 4) {
           break;
         }
-        $i ++;
+        $i++;
       }
     }
     //get collection by cate
-    foreach($terms as $term){
+    foreach ($terms as $term) {
       $cate = [];
       foreach ($nodes as $n) {
-        if($term->id()==$n->get('field_category')->target_id){
+        if ($term->id() == $n->get('field_category')->target_id) {
           $vote_widget_service = \Drupal::service('rate.entity.vote_widget');
-          $vote_widget = $vote_widget_service->buildRateVotingWidget(
-            $n->id(),
-            $n->getEntityTypeId(),
-            $n->bundle()
-          );
+          $vote_widget = $vote_widget_service->buildRateVotingWidget($n->id(), $n->getEntityTypeId(), $n->bundle());
           $collection_data['star_rate'] = $vote_widget['votingapi_links'];
           $collection_data['collection'] = $n;
           $cate[] = $collection_data;
@@ -105,16 +84,11 @@ class CollectionController extends ControllerBase {
       $category[$term->id()] = $cate;
     }
 
-    return [
-      '#theme' => ['iot_collections'],
-      '#collections' => $collections,
-      '#terms'=> $terms,
-      '#category'=> $category,
-      '#features'=>$features,
-    ];
+    return ['#theme' => ['iot_collections'], '#collections' => $collections, '#terms' => $terms, '#category' => $category, '#features' => $features,];
   }
 
-  public function Sections(NodeInterface $node) {
+  public function Sections (NodeInterface $node)
+  {
     if (isset($_GET['field'])) {
 //      $node = $this->getNode();
       $field = $_GET['field'];
@@ -124,18 +98,9 @@ class CollectionController extends ControllerBase {
         $sec = Node::load($secs_id['target_id']);
         $secs[] = $sec;
       }
-      return [
-        '#theme' => ['iot_manage_sections'],
-        '#node' => $node,
-        '#secs' => $secs,
-        '#type' => $field,
-      ];
-    }
-    else {
-      return [
-        '#type' => 'markup',
-        '#markup' => $this->t('invalid field name'),
-      ];
+      return ['#theme' => ['iot_manage_sections'], '#node' => $node, '#secs' => $secs, '#type' => $field,];
+    } else {
+      return ['#type' => 'markup', '#markup' => $this->t('invalid field name'),];
     }
   }
 
@@ -148,7 +113,8 @@ class CollectionController extends ControllerBase {
 //    return $node;
 //  }
 
-  public function get_category(){
+  public function get_category ()
+  {
     $vocabulary_name = 'quiz_category'; //name of your vocabulary
     $query = \Drupal::entityQuery('taxonomy_term');
     $query->condition('vid', $vocabulary_name);

@@ -16,18 +16,17 @@ use Drupal\simplenews\SubscriberInterface;
 /**
  * Default subscription manager.
  */
-class SubscriptionManager implements SubscriptionManagerInterface, DestructableInterface {
+class SubscriptionManager implements SubscriptionManagerInterface, DestructableInterface
+{
 
   /**
    * Whether confirmations should be combined.
-   *
    * @var bool
    */
   protected $combineConfirmations = FALSE;
 
   /**
    * Combined confirmations.
-   *
    * @var array
    */
   protected $confirmations = [];
@@ -69,7 +68,6 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
 
   /**
    * Constructs a SubscriptionManager.
-   *
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -81,7 +79,8 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
    *   The simplenews logger channel.
    */
-  public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, MailerInterface $mailer, Token $token, LoggerChannelInterface $logger, AccountInterface $current_user) {
+  public function __construct (LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, MailerInterface $mailer, Token $token, LoggerChannelInterface $logger, AccountInterface $current_user)
+  {
     $this->languageManager = $language_manager;
     $this->config = $config_factory->get('simplenews.settings');
     $this->mailer = $mailer;
@@ -93,7 +92,8 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function subscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown', $preferred_langcode = NULL) {
+  public function subscribe ($mail, $newsletter_id, $confirm = NULL, $source = 'unknown', $preferred_langcode = NULL)
+  {
     // Get current subscriptions if any.
     $subscriber = simplenews_subscriber_load_by_mail($mail);
 
@@ -116,16 +116,14 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       if ($this->languageManager->isMultilingual()) {
         if ($account) {
           $preferred_langcode = $account->getPreferredLangcode();
-        }
-        else {
+        } else {
           $preferred_langcode = isset($preferred_langcode) ? $preferred_langcode : $this->languageManager->getCurrentLanguage();
         }
-      }
-      else {
+      } else {
         $preferred_langcode = '';
       }
 
-      $subscriber = Subscriber::create(array());
+      $subscriber = Subscriber::create([]);
       $subscriber->setMail($mail);
       if ($account) {
         $subscriber->setUserId($account->id());
@@ -151,8 +149,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       }
 
       $this->addConfirmation('subscribe', $subscriber, $newsletter);
-    }
-    elseif (!$subscriber->isSubscribed($newsletter_id)) {
+    } elseif (!$subscriber->isSubscribed($newsletter_id)) {
       // Subscribe the user if not already subscribed.
       $subscriber->subscribe($newsletter_id, SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $source);
       $subscriber->save();
@@ -163,12 +160,13 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function unsubscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown') {
+  public function unsubscribe ($mail, $newsletter_id, $confirm = NULL, $source = 'unknown')
+  {
     $subscriber = simplenews_subscriber_load_by_mail($mail);
 
     // The unlikely case that a user is unsubscribed from a non existing mailing list is logged
     if (!$newsletter = simplenews_newsletter_load($newsletter_id)) {
-      $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', array('%id' => $newsletter_id));
+      $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', ['%id' => $newsletter_id]);
       return $this;
     }
 
@@ -181,13 +179,12 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
     if ($confirm) {
       // Make sure the mail address is set.
       if (empty($subscriber)) {
-        $subscriber = Subscriber::create(array());
+        $subscriber = Subscriber::create([]);
         $subscriber->setMail($mail);
         $subscriber->save();
       }
       $this->addConfirmation('unsubscribe', $subscriber, $newsletter);
-    }
-    elseif ($subscriber && $subscriber->isSubscribed($newsletter_id)) {
+    } elseif ($subscriber && $subscriber->isSubscribed($newsletter_id)) {
       // Unsubscribe the user from the mailing list.
       $subscriber->unsubscribe($newsletter_id, $source);
       $subscriber->save();
@@ -199,7 +196,8 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function isSubscribed($mail, $newsletter_id) {
+  public function isSubscribed ($mail, $newsletter_id)
+  {
     if (!isset($this->subscribedCache[$mail][$newsletter_id])) {
       $subscriber = simplenews_subscriber_load_by_mail($mail);
       // Check that a subscriber was found, he is active and subscribed to the
@@ -212,7 +210,8 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function getChangesList(SubscriberInterface $subscriber, $changes = NULL, $langcode = NULL) {
+  public function getChangesList (SubscriberInterface $subscriber, $changes = NULL, $langcode = NULL)
+  {
     if (empty($langcode)) {
       $language = $this->languageManager->getCurrentLanguage();
       $langcode = $language->getId();
@@ -222,27 +221,21 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       $changes = $subscriber->getChanges();
     }
 
-    $changes_list = array();
+    $changes_list = [];
     foreach ($changes as $newsletter_id => $action) {
       $subscribed = $subscriber->isSubscribed($newsletter_id);
       // Get text for each possible combination.
       if ($action == 'subscribe' && !$subscribed) {
         $line = $this->config->get('subscription.confirm_combined_line_subscribe_unsubscribed');
-      }
-      elseif ($action == 'subscribe' && $subscribed) {
+      } elseif ($action == 'subscribe' && $subscribed) {
         $line = $this->config->get('subscription.confirm_combined_line_subscribe_subscribed');
-      }
-      elseif ($action == 'unsubscribe' && !$subscribed) {
+      } elseif ($action == 'unsubscribe' && !$subscribed) {
         $line = $this->config->get('subscription.confirm_combined_line_unsubscribe_unsubscribed');
-      }
-      elseif ($action == 'unsubscribe' && $subscribed) {
+      } elseif ($action == 'unsubscribe' && $subscribed) {
         $line = $this->config->get('subscription.confirm_combined_line_unsubscribe_subscribed');
       }
-      $newsletter_context = array(
-        'simplenews_subscriber' => $subscriber,
-        'newsletter' => simplenews_newsletter_load($newsletter_id),
-      );
-      $changes_list[$newsletter_id] = $this->token->replace($line, $newsletter_context, array('sanitize' => FALSE));
+      $newsletter_context = ['simplenews_subscriber' => $subscriber, 'newsletter' => simplenews_newsletter_load($newsletter_id),];
+      $changes_list[$newsletter_id] = $this->token->replace($line, $newsletter_context, ['sanitize' => FALSE]);
     }
     return $changes_list;
   }
@@ -250,11 +243,12 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function sendConfirmations() {
+  public function sendConfirmations ()
+  {
     foreach ($this->confirmations as $mail => $changes) {
       $subscriber = simplenews_subscriber_load_by_mail($mail);
       if (!$subscriber) {
-        $subscriber = Subscriber::create(array());
+        $subscriber = Subscriber::create([]);
         $subscriber->setMail($mail);
         $subscriber->setLangcode($this->languageManager->getCurrentLanguage());
         $subscriber->save();
@@ -269,21 +263,23 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       }
     }
     $sent = !empty($this->confirmations);
-    $this->confirmations = array();
+    $this->confirmations = [];
     return $sent;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function reset() {
+  public function reset ()
+  {
     $this->subscribedCache = [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function destruct() {
+  public function destruct ()
+  {
     // Ensure that confirmations are always sent even if API calls did not do it
     // explicitly. It is still possible to do so, e.g. to be able to know if
     // confirmations were sent or not.
@@ -292,7 +288,6 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
 
   /**
    * Add a mail confirmation or fetch them.
-   *
    * @param string $action
    *   The confirmation type, either subscribe or unsubscribe.
    * @param \Drupal\simplenews\SubscriberInterface $subscriber
@@ -300,28 +295,27 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    * @param \Drupal\simplenews\NewsletterInterface $newsletter
    *   The newsletter object.
    */
-  protected function addConfirmation($action, SubscriberInterface $subscriber, NewsletterInterface $newsletter) {
+  protected function addConfirmation ($action, SubscriberInterface $subscriber, NewsletterInterface $newsletter)
+  {
     $this->confirmations[$subscriber->getMail()][$newsletter->id()] = $action;
   }
 
   /**
    * Checks whether confirmation is required for this newsletter and user.
-   *
    * @param \Drupal\simplenews\NewsletterInterface $newsletter
    *   The newsletter entity.
    * @param int $uid
    *   The user ID that belongs to the email.
-   *
    * @return bool
    *   TRUE if confirmation is required, FALSE if not.
    */
-  protected function requiresConfirmation(NewsletterInterface $newsletter, $uid) {
+  protected function requiresConfirmation (NewsletterInterface $newsletter, $uid)
+  {
     // If user is currently logged in, don't send confirmation.
     // Other addresses receive a confirmation if double opt-in is selected.
     if ($this->currentUser->id() && $uid && $this->currentUser->id() == $uid) {
       return FALSE;
-    }
-    else {
+    } else {
       return $newsletter->opt_inout == 'double';
     }
   }

@@ -15,39 +15,35 @@ use Drupal\Core\StringTranslation\TranslationInterface;
 /**
  * Provides a redirect deletion confirmation form.
  */
-class RedirectDeleteMultipleForm extends ConfirmFormBase {
+class RedirectDeleteMultipleForm extends ConfirmFormBase
+{
 
   /**
    * The array of redirects to delete.
-   *
    * @var string[][]
    */
   protected $redirects = [];
 
   /**
    * The private tempstore factory.
-   *
    * @var \Drupal\user\PrivateTempStoreFactory
    */
   protected $privateTempStoreFactory;
 
   /**
    * The redirect storage.
-   *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $redirectStorage;
 
   /**
    * The current user.
-   *
    * @var \Drupal\Core\Session\AccountInterface
    */
   protected $currentUser;
 
   /**
    * Constructs a RedirectDeleteMultiple form object.
-   *
    * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
    *   The tempstore factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -57,7 +53,8 @@ class RedirectDeleteMultipleForm extends ConfirmFormBase {
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The String translation.
    */
-  public function __construct(PrivateTempStoreFactory $temp_store_factory, EntityTypeManagerInterface $entity_type_manager, AccountInterface $account, TranslationInterface $string_translation) {
+  public function __construct (PrivateTempStoreFactory $temp_store_factory, EntityTypeManagerInterface $entity_type_manager, AccountInterface $account, TranslationInterface $string_translation)
+  {
     $this->privateTempStoreFactory = $temp_store_factory;
     $this->redirectStorage = $entity_type_manager->getStorage('redirect');
     $this->currentUser = $account;
@@ -67,65 +64,64 @@ class RedirectDeleteMultipleForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('user.private_tempstore'),
-      $container->get('entity_type.manager'),
-      $container->get('current_user'),
-      $container->get('string_translation')
-    );
+  public static function create (ContainerInterface $container)
+  {
+    return new static($container->get('user.private_tempstore'), $container->get('entity_type.manager'), $container->get('current_user'), $container->get('string_translation'));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId ()
+  {
     return 'redirect_multiple_delete_confirm';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getQuestion() {
+  public function getQuestion ()
+  {
     return $this->formatPlural(count($this->redirects), 'Are you sure you want to delete this redirect?', 'Are you sure you want to delete these redirects?');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCancelUrl() {
+  public function getCancelUrl ()
+  {
     return new Url('redirect.list');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getConfirmText() {
+  public function getConfirmText ()
+  {
     return t('Delete');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm (array $form, FormStateInterface $form_state)
+  {
     $this->redirects = $this->privateTempStoreFactory->get('redirect_multiple_delete_confirm')->get($this->currentUser->id());
     if (empty($this->redirects)) {
       return new RedirectResponse($this->getCancelUrl()->setAbsolute()->toString());
     }
 
-    $form['redirects'] = [
-      '#theme' => 'item_list',
-      '#items' => array_map(function ($redirect) {
-        return $redirect->label();
-      }, $this->redirects),
-    ];
+    $form['redirects'] = ['#theme' => 'item_list', '#items' => array_map(function ($redirect) {
+      return $redirect->label();
+    }, $this->redirects),];
     return parent::buildForm($form, $form_state);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm (array &$form, FormStateInterface $form_state)
+  {
 
     if ($form_state->getValue('confirm') && !empty($this->redirects)) {
       $this->redirectStorage->delete($this->redirects);

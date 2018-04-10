@@ -10,51 +10,45 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Test pathauto functionality with localization and translation.
- *
  * @group pathauto
  */
-class PathautoLocaleTest extends WebTestBase {
+class PathautoLocaleTest extends WebTestBase
+{
 
   use PathautoTestHelperTrait;
 
   /**
    * Modules to enable.
-   *
    * @var array
    */
-  public static $modules = array('node', 'pathauto', 'locale', 'content_translation');
+  public static $modules = ['node', 'pathauto', 'locale', 'content_translation'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp ()
+  {
     parent::setUp();
 
     // Create Article node type.
-    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+    $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
   }
 
   /**
    * Test that when an English node is updated, its old English alias is
    * updated and its newer French alias is left intact.
    */
-  function testLanguageAliases() {
+  function testLanguageAliases ()
+  {
 
     $this->createPattern('node', '/content/[node:title]');
 
     // Add predefined French language.
     ConfigurableLanguage::createFromLangcode('fr')->save();
 
-    $node = array(
-      'title' => 'English node',
-      'langcode' => 'en',
-      'path' => array(array(
-        'alias' => '/english-node',
-        'pathauto' => FALSE,
-      )),
-    );
+    $node = ['title' => 'English node', 'langcode' => 'en', 'path' => [['alias' => '/english-node', 'pathauto' => FALSE,]],];
     $node = $this->drupalCreateNode($node);
-    $english_alias = \Drupal::service('path.alias_storage')->load(array('alias' => '/english-node', 'langcode' => 'en'));
+    $english_alias = \Drupal::service('path.alias_storage')->load(['alias' => '/english-node', 'langcode' => 'en']);
     $this->assertTrue($english_alias, 'Alias created with proper language.');
 
     // Also save a French alias that should not be left alone, even though
@@ -72,11 +66,11 @@ class PathautoLocaleTest extends WebTestBase {
     // Check that the new English alias replaced the old one.
     $this->assertEntityAlias($node, '/content/english-node-0', 'en');
     $this->assertEntityAlias($node, '/french-node', 'fr');
-    $this->assertAliasExists(array('pid' => $english_alias['pid'], 'alias' => '/content/english-node-0'));
+    $this->assertAliasExists(['pid' => $english_alias['pid'], 'alias' => '/content/english-node-0']);
 
     // Create a new node with the same title as before but without
     // specifying a language.
-    $node = $this->drupalCreateNode(array('title' => 'English node', 'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED));
+    $node = $this->drupalCreateNode(['title' => 'English node', 'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED]);
 
     // Check that the new node had a unique alias generated with the '-0'
     // suffix.
@@ -86,63 +80,41 @@ class PathautoLocaleTest extends WebTestBase {
   /**
    * Test that patterns work on multilingual content.
    */
-  function testLanguagePatterns() {
+  function testLanguagePatterns ()
+  {
     $this->drupalLogin($this->rootUser);
 
     // Add French language.
-    $edit = array(
-      'predefined_langcode' => 'fr',
-    );
+    $edit = ['predefined_langcode' => 'fr',];
     $this->drupalPostForm('admin/config/regional/language/add', $edit, t('Add language'));
 
     $this->enableArticleTranslation();
 
     // Create a pattern for English articles.
     $this->drupalGet('admin/config/search/path/patterns/add');
-    $edit = array(
-      'type' => 'canonical_entities:node',
-    );
+    $edit = ['type' => 'canonical_entities:node',];
     $this->drupalPostAjaxForm(NULL, $edit, 'type');
-    $edit += array(
-      'pattern' => '/the-articles/[node:title]',
-      'label' => 'English articles',
-      'id' => 'english_articles',
-      'bundles[article]' => TRUE,
-      'languages[en]' => TRUE,
-    );
+    $edit += ['pattern' => '/the-articles/[node:title]', 'label' => 'English articles', 'id' => 'english_articles', 'bundles[article]' => TRUE, 'languages[en]' => TRUE,];
     $this->drupalPostForm(NULL, $edit, 'Save');
     $this->assertText('Pattern English articles saved.');
 
     // Create a pattern for French articles.
     $this->drupalGet('admin/config/search/path/patterns/add');
-    $edit = array(
-      'type' => 'canonical_entities:node',
-    );
+    $edit = ['type' => 'canonical_entities:node',];
     $this->drupalPostAjaxForm(NULL, $edit, 'type');
-    $edit += array(
-      'pattern' => '/les-articles/[node:title]',
-      'label' => 'French articles',
-      'id' => 'french_articles',
-      'bundles[article]' => TRUE,
-      'languages[fr]' => TRUE,
-    );
+    $edit += ['pattern' => '/les-articles/[node:title]', 'label' => 'French articles', 'id' => 'french_articles', 'bundles[article]' => TRUE, 'languages[fr]' => TRUE,];
     $this->drupalPostForm(NULL, $edit, 'Save');
     $this->assertText('Pattern French articles saved.');
 
     // Create a node and its translation. Assert aliases.
-    $edit = array(
-      'title[0][value]' => 'English node',
-      'langcode[0][value]' => 'en',
-    );
+    $edit = ['title[0][value]' => 'English node', 'langcode[0][value]' => 'en',];
     $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
     $english_node = $this->drupalGetNodeByTitle('English node');
     $this->assertAlias('/node/' . $english_node->id(), '/the-articles/english-node', 'en');
 
     $this->drupalGet('node/' . $english_node->id() . '/translations');
     $this->clickLink(t('Add'));
-    $edit = array(
-      'title[0][value]' => 'French node',
-    );
+    $edit = ['title[0][value]' => 'French node',];
     $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
     $this->rebuildContainer();
     $english_node = $this->drupalGetNodeByTitle('English node');
@@ -152,9 +124,7 @@ class PathautoLocaleTest extends WebTestBase {
     // Bulk delete and Bulk generate patterns. Assert aliases.
     $this->deleteAllAliases();
     // Bulk create aliases.
-    $edit = array(
-      'update[canonical_entities:node]' => TRUE,
-    );
+    $edit = ['update[canonical_entities:node]' => TRUE,];
     $this->drupalPostForm('admin/config/search/path/update_bulk', $edit, t('Update'));
     $this->assertText(t('Generated 2 URL aliases.'));
     $this->assertAlias('/node/' . $english_node->id(), '/the-articles/english-node', 'en');
@@ -164,7 +134,8 @@ class PathautoLocaleTest extends WebTestBase {
   /**
    * Tests the alias created for a node with language Not Applicable.
    */
-  public function testLanguageNotApplicable() {
+  public function testLanguageNotApplicable ()
+  {
     $this->drupalLogin($this->rootUser);
     $this->enableArticleTranslation();
 
@@ -187,14 +158,11 @@ class PathautoLocaleTest extends WebTestBase {
   /**
    * Enables content translation on articles.
    */
-  protected function enableArticleTranslation() {
+  protected function enableArticleTranslation ()
+  {
     // Enable content translation on articles.
     $this->drupalGet('admin/config/regional/content-language');
-    $edit = array(
-      'entity_types[node]' => TRUE,
-      'settings[node][article][translatable]' => TRUE,
-      'settings[node][article][settings][language][language_alterable]' => TRUE,
-    );
+    $edit = ['entity_types[node]' => TRUE, 'settings[node][article][translatable]' => TRUE, 'settings[node][article][settings][language][language_alterable]' => TRUE,];
     $this->drupalPostForm(NULL, $edit, t('Save configuration'));
   }
 

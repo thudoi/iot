@@ -13,7 +13,8 @@ use Drupal\subpathauto\PathProcessor;
  * @coversDefaultClass \Drupal\subpathauto\PathProcessor
  * @group subpathauto
  */
-class SubPathautoTest extends UnitTestCase {
+class SubPathautoTest extends UnitTestCase
+{
 
   /**
    * @var \Drupal\Core\PathProcessor\PathProcessorAlias|\PHPUnit_Framework_MockObject_MockObject
@@ -42,47 +43,34 @@ class SubPathautoTest extends UnitTestCase {
 
   /**
    * The service under testing.
-   *
    * @var \Drupal\subpathauto\PathProcessor
    */
   protected $sut;
 
   /**
    * List of aliases used in the tests.
-   *
    * @var string[]
    */
-  protected $aliases = [
-    '/content/first-node' => '/node/1',
-    '/content/first-node-test' => '/node/1/test',
-    '/malicious-path' => '/admin',
-    '' => '<front>',
-  ];
+  protected $aliases = ['/content/first-node' => '/node/1', '/content/first-node-test' => '/node/1/test', '/malicious-path' => '/admin', '' => '<front>',];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp ()
+  {
     parent::setUp();
 
-    $this->aliasProcessor = $this->getMockBuilder('Drupal\Core\PathProcessor\PathProcessorAlias')
-      ->disableOriginalConstructor()
-      ->getMock();
+    $this->aliasProcessor = $this->getMockBuilder('Drupal\Core\PathProcessor\PathProcessorAlias')->disableOriginalConstructor()->getMock();
 
     $this->languageManager = $this->getMock('Drupal\Core\Language\LanguageManagerInterface');
-    $this->languageManager->expects($this->any())
-      ->method('getCurrentLanguage')
-      ->willReturn(new Language(Language::$defaultValues));
+    $this->languageManager->expects($this->any())->method('getCurrentLanguage')->willReturn(new Language(Language::$defaultValues));
 
     $this->pathValidator = $this->getMock('Drupal\Core\Path\PathValidatorInterface');
 
     $this->subPathautoSettings = $this->getMock('Drupal\Core\Config\ConfigBase');
 
     $this->configFactory = $this->getMock('Drupal\Core\Config\ConfigFactoryInterface');
-    $this->configFactory->expects($this->any())
-      ->method('get')
-      ->with('subpathauto.settings')
-      ->willReturn($this->subPathautoSettings);
+    $this->configFactory->expects($this->any())->method('get')->with('subpathauto.settings')->willReturn($this->subPathautoSettings);
 
     $this->sut = new PathProcessor($this->aliasProcessor, $this->languageManager, $this->configFactory);
     $this->sut->setPathValidator($this->pathValidator);
@@ -91,16 +79,11 @@ class SubPathautoTest extends UnitTestCase {
   /**
    * @covers ::processInbound
    */
-  public function testInboundSubPath() {
-    $this->aliasProcessor->expects($this->any())
-      ->method('processInbound')
-      ->will($this->returnCallback([$this, 'pathAliasCallback']));
-    $this->pathValidator->expects($this->any())
-      ->method('getUrlIfValidWithoutAccessCheck')
-      ->willReturn(new Url('any_route'));
-    $this->subPathautoSettings->expects($this->atLeastOnce())
-      ->method('get')
-      ->willReturn(0);
+  public function testInboundSubPath ()
+  {
+    $this->aliasProcessor->expects($this->any())->method('processInbound')->will($this->returnCallback([$this, 'pathAliasCallback']));
+    $this->pathValidator->expects($this->any())->method('getUrlIfValidWithoutAccessCheck')->willReturn(new Url('any_route'));
+    $this->subPathautoSettings->expects($this->atLeastOnce())->method('get')->willReturn(0);
 
     // Look up a subpath of the 'content/first-node' alias.
     $processed = $this->sut->processInbound('/content/first-node/a', Request::create('/content/first-node/a'));
@@ -132,17 +115,12 @@ class SubPathautoTest extends UnitTestCase {
   /**
    * @covers ::processInbound
    */
-  public function testInboundPathProcessorMaxDepth() {
-    $this->pathValidator->expects($this->any())
-      ->method('getUrlIfValidWithoutAccessCheck')
-      ->willReturn(new Url('any_route'));
-    $this->subPathautoSettings->expects($this->exactly(2))
-      ->method('get')
-      ->willReturn(3);
+  public function testInboundPathProcessorMaxDepth ()
+  {
+    $this->pathValidator->expects($this->any())->method('getUrlIfValidWithoutAccessCheck')->willReturn(new Url('any_route'));
+    $this->subPathautoSettings->expects($this->exactly(2))->method('get')->willReturn(3);
 
-    $this->aliasProcessor->expects($this->any())
-      ->method('processInbound')
-      ->will($this->returnCallback([$this, 'pathAliasCallback']));
+    $this->aliasProcessor->expects($this->any())->method('processInbound')->will($this->returnCallback([$this, 'pathAliasCallback']));
 
     // Subpath shouldn't be processed since the iterations has been limited.
     $processed = $this->sut->processInbound('/content/first-node/first/second/third/fourth', Request::create('/content/first-node/first/second/third/fourth'));
@@ -156,7 +134,8 @@ class SubPathautoTest extends UnitTestCase {
   /**
    * @covers ::processInbound
    */
-  public function testInboundAlreadyProcessed() {
+  public function testInboundAlreadyProcessed ()
+  {
     // The subpath processor should ignore this and not pass it on to the
     // alias processor.
     $processed = $this->sut->processInbound('node/1', Request::create('/content/first-node'));
@@ -166,13 +145,10 @@ class SubPathautoTest extends UnitTestCase {
   /**
    * @covers ::processOutbound
    */
-  public function testOutboundSubPath() {
-    $this->aliasProcessor->expects($this->any())
-      ->method('processOutbound')
-      ->will($this->returnCallback([$this, 'aliasByPathCallback']));
-    $this->subPathautoSettings->expects($this->atLeastOnce())
-      ->method('get')
-      ->willReturn(0);
+  public function testOutboundSubPath ()
+  {
+    $this->aliasProcessor->expects($this->any())->method('processOutbound')->will($this->returnCallback([$this, 'aliasByPathCallback']));
+    $this->subPathautoSettings->expects($this->atLeastOnce())->method('get')->willReturn(0);
 
     // Look up a subpath of the 'content/first-node' alias.
     $processed = $this->sut->processOutbound('/node/1/a');
@@ -199,17 +175,12 @@ class SubPathautoTest extends UnitTestCase {
   /**
    * @covers ::processOutbound
    */
-  public function testOutboundPathProcessorMaxDepth() {
-    $this->pathValidator->expects($this->any())
-      ->method('getUrlIfValidWithoutAccessCheck')
-      ->willReturn(new Url('any_route'));
-    $this->subPathautoSettings->expects($this->exactly(2))
-      ->method('get')
-      ->willReturn(3);
+  public function testOutboundPathProcessorMaxDepth ()
+  {
+    $this->pathValidator->expects($this->any())->method('getUrlIfValidWithoutAccessCheck')->willReturn(new Url('any_route'));
+    $this->subPathautoSettings->expects($this->exactly(2))->method('get')->willReturn(3);
 
-    $this->aliasProcessor->expects($this->any())
-      ->method('processOutbound')
-      ->will($this->returnCallback([$this, 'aliasByPathCallback']));
+    $this->aliasProcessor->expects($this->any())->method('processOutbound')->will($this->returnCallback([$this, 'aliasByPathCallback']));
 
     // Subpath shouldn't be processed since the iterations has been limited.
     $processed = $this->sut->processOutbound('/node/1/first/second/third/fourth');
@@ -223,7 +194,8 @@ class SubPathautoTest extends UnitTestCase {
   /**
    * @covers ::processOutbound
    */
-  public function testOutboundAbsoluteUrl() {
+  public function testOutboundAbsoluteUrl ()
+  {
     // The subpath processor should ignore this and not pass it on to the
     // alias processor.
     $options = ['absolute' => TRUE];
@@ -233,29 +205,26 @@ class SubPathautoTest extends UnitTestCase {
 
   /**
    * Return value callback for getSystemPath() method on the mock alias manager.
-   *
    * Ensures that by default the call to getPathAlias() will return the first
    * argument that was passed in. We special-case the paths for which we wish it
    * to return an actual alias.
-   *
    * @param string $path
    *   The path.
-   *
    * @return string
    */
-  public function pathAliasCallback($path) {
+  public function pathAliasCallback ($path)
+  {
     return isset($this->aliases[$path]) ? $this->aliases[$path] : $path;
   }
 
   /**
    * Return value callback for getAliasByPath() method on the alias manager.
-   *
    * @param string $path
    *   The path.
-   *
    * @return string
    */
-  public function aliasByPathCallback($path) {
+  public function aliasByPathCallback ($path)
+  {
     $aliases = array_flip($this->aliases);
     return isset($aliases[$path]) ? $aliases[$path] : $path;
   }

@@ -14,7 +14,6 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Slide' Block.
- *
  * @Block(
  *   id = "slide",
  *   admin_label = @Translation("Slide"),
@@ -28,23 +27,15 @@ class Slide extends BlockBase
    * {@inheritdoc}
    * @return array
    */
-  public function build()
+  public function build ()
   {
-    $nids = \Drupal::entityQuery('node')
-        ->condition('type', 'service')
-        ->condition('status', 1)
-        ->condition('field_service_type','slide')
-        ->sort('created', 'ASC')
-        ->execute();
+    $nids = \Drupal::entityQuery('node')->condition('type', 'service')->condition('status', 1)->condition('field_service_type', 'slide')->sort('created', 'ASC')->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $services = [];
     foreach ($nodes as $node) {
       $services[] = $node;
     }
-    return [
-        '#theme' => ['iot_slide'],
-        '#nodes' => $services,
-    ];
+    return ['#theme' => ['iot_slide'], '#nodes' => $services,];
   }
 
 }

@@ -8,25 +8,23 @@ use Drupal\Core\Session\AccountInterface;
 /**
  * Provides a verbose messenger.
  */
-class VerboseMessenger implements MessengerInterface {
+class VerboseMessenger implements MessengerInterface
+{
 
   /**
    * The verbose flag.
-   *
    * @var bool
    */
   protected $isVerbose;
 
   /**
    * The config factory.
-   *
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
   /**
    * The current user account.
-   *
    * @var \Drupal\Core\Session\AccountInterface
    */
   protected $account;
@@ -34,7 +32,8 @@ class VerboseMessenger implements MessengerInterface {
   /**
    * Creates a verbose messenger.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, AccountInterface $account) {
+  public function __construct (ConfigFactoryInterface $config_factory, AccountInterface $account)
+  {
     $this->configFactory = $config_factory;
     $this->account = $account;
   }
@@ -42,14 +41,15 @@ class VerboseMessenger implements MessengerInterface {
   /**
    * {@inheritdoc}
    */
-  public function addMessage($message, $op = NULL) {
+  public function addMessage ($message, $op = NULL)
+  {
 
     if (!isset($this->isVerbose)) {
       $config = $this->configFactory->get('pathauto.settings');
       $this->isVerbose = $config->get('verbose') && $this->account->hasPermission('notify of path changes');
     }
 
-    if (!$this->isVerbose || (isset($op) && in_array($op, array('bulkupdate', 'return')))) {
+    if (!$this->isVerbose || (isset($op) && in_array($op, ['bulkupdate', 'return']))) {
       return FALSE;
     }
 

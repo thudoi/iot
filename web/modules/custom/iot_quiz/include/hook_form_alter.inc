@@ -3,8 +3,11 @@
 /**
  * Implement hook_form_alter
  */
+
 use Drupal\Core\Url;
-function iot_quiz_form_alter(&$form, &$form_state, $form_id) {
+
+function iot_quiz_form_alter (&$form, &$form_state, $form_id)
+{
 //    drupal_set_message($form_id);
   switch ($form_id) {
 //    case 'node_collection_form':
@@ -23,8 +26,8 @@ function iot_quiz_form_alter(&$form, &$form_state, $form_id) {
       $form['#theme'] = ['custom_edit_node_reading_questions'];
       break;
     case 'node_section_listening_edit_form':
-      if(isset($_GET['action'])){
-        switch ($_GET['action']){
+      if (isset($_GET['action'])) {
+        switch ($_GET['action']) {
           case 'edit':
             unset($form['field_listening_questions']);
             break;
@@ -43,8 +46,8 @@ function iot_quiz_form_alter(&$form, &$form_state, $form_id) {
       $form['#theme'] = ['custom_edit_node_listening_questions'];
       break;
     case 'node_section_reading_edit_form':
-      if(isset($_GET['action'])){
-        switch ($_GET['action']){
+      if (isset($_GET['action'])) {
+        switch ($_GET['action']) {
           case 'edit':
             unset($form['field_reading_questions']);
             break;
@@ -59,7 +62,7 @@ function iot_quiz_form_alter(&$form, &$form_state, $form_id) {
       $form['#theme'] = ['custom_edit_node_reading_questions'];
       break;
     case 'node_quiz_edit_form':
-      if(isset($_GET['edit'])){
+      if (isset($_GET['edit'])) {
         switch ($type = $_GET['edit']) {
           case 'writing':
             unset($form['field_reading_sections']);
@@ -106,12 +109,16 @@ function iot_quiz_form_alter(&$form, &$form_state, $form_id) {
       break;
   }
 }
-function iot_alter_quiz_form_submit(){
-  
+
+function iot_alter_quiz_form_submit ()
+{
+
 }
-function iot_quiz_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+
+function iot_quiz_inline_entity_form_entity_form_alter (&$entity_form, &$form_state)
+{
 //  drupal_set_message($entity_form['#ief_labels']);
-  if($entity_form['#entity_type'] == 'node'&&$entity_form['#bundle']=='quiz'){
+  if ($entity_form['#entity_type'] == 'node' && $entity_form['#bundle'] == 'quiz') {
     unset($entity_form['field_reading_sections']);
     unset($entity_form['field_listening_sections']);
     unset($entity_form['field_speaking']);
@@ -119,6 +126,7 @@ function iot_quiz_inline_entity_form_entity_form_alter(&$entity_form, &$form_sta
   }
 }
 
-function iot_quiz_inline_entity_form_reference_form_alter(&$reference_form, &$form_state) {
+function iot_quiz_inline_entity_form_reference_form_alter (&$reference_form, &$form_state)
+{
   $reference_form['entity_id']['#description'] = t('New autocomplete description');
 }

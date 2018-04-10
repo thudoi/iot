@@ -14,7 +14,6 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Facts' Block.
- *
  * @Block(
  *   id = "profile",
  *   admin_label = @Translation("Profile"),
@@ -28,16 +27,9 @@ class Profile extends BlockBase
    * {@inheritdoc}
    * @return array
    */
-  public function build()
+  public function build ()
   {
-      return [
-          '#markup'=>'<a class="use-ajax click-profile-build" data-dialog-type="modal" href="/account/build/profile"></a>',
-          '#attached' => array(
-              'library' => array(
-                  'iot_user/iot_account',
-              ),
-          )
-      ];
+    return ['#markup' => '<a class="use-ajax click-profile-build" data-dialog-type="modal" href="/account/build/profile"></a>', '#attached' => ['library' => ['iot_user/iot_account',],]];
   }
 
 }

@@ -8,40 +8,13 @@
 /**
  * Implements hook_schema().
  */
-function rate_schema() {
-  $schema = array();
+function rate_schema ()
+{
+  $schema = [];
 
-  $schema['rate_bot_agent'] = array(
-    'fields' => array(
-      'id' => array(
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'pattern' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-    ),
-    'primary key' => array('id'),
-  );
+  $schema['rate_bot_agent'] = ['fields' => ['id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE,], 'pattern' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],], 'primary key' => ['id'],];
 
-  $schema['rate_bot_ip'] = array(
-    'fields' => array(
-      'id' => array(
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'ip' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-    ),
-    'primary key' => array('id'),
-  );
+  $schema['rate_bot_ip'] = ['fields' => ['id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE,], 'ip' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],], 'primary key' => ['id'],];
 
   return $schema;
 }

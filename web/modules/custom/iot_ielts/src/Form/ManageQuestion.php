@@ -11,7 +11,7 @@ class ManageQuestion extends FormBase
   /**
    * {@inheritdoc}
    */
-  public function getFormId()
+  public function getFormId ()
   {
     return 'manage_question';
   }
@@ -19,36 +19,12 @@ class ManageQuestion extends FormBase
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $node = NULL)
+  public function buildForm (array $form, FormStateInterface $form_state, $node = NULL)
   {
     $node = Node::load($node->id());
-    $nids = \Drupal::entityQuery('node')->condition('type', 'question')
-        ->condition('field_section', $node->id())
-        ->sort('field_order','ASC')
-        ->execute();
+    $nids = \Drupal::entityQuery('node')->condition('type', 'question')->condition('field_section', $node->id())->sort('field_order', 'ASC')->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
-    $form['mytable'] = array(
-        '#type' => 'table',
-        '#caption'=>'<a class="btn btn-success" href="/node/add/question?bid='.$node->id().'&type='.$node->get('field_section_type')->value.'&destination=question/'.$node->id().'/manage">Add Question</a><a class="btn btn-success" href="/quiz/'.$node->get('field_quiz')->target_id.'/manage">Back To Quiz Manager</a>',
-        '#header' => array(
-            t('Question Title'),
-            t('Question Count'),
-            t('Answer Count'),
-            t('Explain Count'),
-            t('Front Question Type'),
-            t('Question Type'),
-            t('Weight'),
-            t('Operations')
-        ),
-        '#empty' => t('There are no questions yet. <a href="/node/add/question?bid='.$node->id().'&type='.$node->get('field_section_type')->value.'&destination=question/'.$node->id().'/manage">Add Question.</a>'),
-        '#tabledrag' => array(
-            array(
-                'action' => 'order',
-                'relationship' => 'sibling',
-                'group' => 'mytable-order-weight',
-            ),
-        ),
-    );
+    $form['mytable'] = ['#type' => 'table', '#caption' => '<a class="btn btn-success" href="/node/add/question?bid=' . $node->id() . '&type=' . $node->get('field_section_type')->value . '&destination=question/' . $node->id() . '/manage">Add Question</a><a class="btn btn-success" href="/quiz/' . $node->get('field_quiz')->target_id . '/manage">Back To Quiz Manager</a>', '#header' => [t('Question Title'), t('Question Count'), t('Answer Count'), t('Explain Count'), t('Front Question Type'), t('Question Type'), t('Weight'), t('Operations')], '#empty' => t('There are no questions yet. <a href="/node/add/question?bid=' . $node->id() . '&type=' . $node->get('field_section_type')->value . '&destination=question/' . $node->id() . '/manage">Add Question.</a>'), '#tabledrag' => [['action' => 'order', 'relationship' => 'sibling', 'group' => 'mytable-order-weight',],],];
 
 
     foreach ($nodes as $id => $entity) {
@@ -57,65 +33,38 @@ class ManageQuestion extends FormBase
       // TableDrag: Mark the table row as draggable.
       $form['mytable'][$id]['#attributes']['class'][] = 'draggable';
       // TableDrag: Sort the table row according to its existing/configured weight.
-      $form['mytable'][$id]['#weight'] =$entity->get('field_order')->value;
+      $form['mytable'][$id]['#weight'] = $entity->get('field_order')->value;
 
 
       // Some table columns containing raw markup.
-      $form['mytable'][$id]['label'] = array(
-          '#plain_text' => $entity->get('field_title_ui')->value,
-      );
+      $form['mytable'][$id]['label'] = ['#plain_text' => $entity->get('field_title_ui')->value,];
 
-      $form['mytable'][$id]['question_count'] = array(
-          '#plain_text' => $count['count_question'],
-      );
-      $form['mytable'][$id]['answer_count'] = array(
-          '#plain_text' => $count['count_answer'],
-      );
-      $form['mytable'][$id]['explain_count'] = array(
-          '#plain_text' => $count['count_explain'],
-      );
-      $form['mytable'][$id]['front_type'] = array(
-          '#plain_text' => $this->_iot_get_term_name($tid),
-      );
-      $form['mytable'][$id]['question_type'] = array(
-          '#plain_text' => $entity->get('field_question_type')->value,
-      );
+      $form['mytable'][$id]['question_count'] = ['#plain_text' => $count['count_question'],];
+      $form['mytable'][$id]['answer_count'] = ['#plain_text' => $count['count_answer'],];
+      $form['mytable'][$id]['explain_count'] = ['#plain_text' => $count['count_explain'],];
+      $form['mytable'][$id]['front_type'] = ['#plain_text' => $this->_iot_get_term_name($tid),];
+      $form['mytable'][$id]['question_type'] = ['#plain_text' => $entity->get('field_question_type')->value,];
 
-      $form['mytable'][$id]['weight'] = array(
-          '#type' => 'weight',
-          '#title' => t('Weight for @title', array('@title' => $entity->get('field_title_ui')->value)),
-          '#title_display' => 'invisible',
-          '#default_value' => $entity->get('field_order')->value,
-        // Classify the weight element for #tabledrag.
-          '#attributes' => array('class' => array('mytable-order-weight')),
-      );
+      $form['mytable'][$id]['weight'] = ['#type' => 'weight', '#title' => t('Weight for @title', ['@title' => $entity->get('field_title_ui')->value]), '#title_display' => 'invisible', '#default_value' => $entity->get('field_order')->value, // Classify the weight element for #tabledrag.
+        '#attributes' => ['class' => ['mytable-order-weight']],];
 
-      $form['mytable'][$id]['operations'] = array(
-          '#markup' => '<a class="btn btn-success" href="/node/'.$id.'/edit?destination=question/'.$node->id().'/manage">Edit</a><a class="btn btn-danger" href="/node/'.$id.'/delete?destination=question/'.$node->id().'/manage">Delete</a>',
-      );
+      $form['mytable'][$id]['operations'] = ['#markup' => '<a class="btn btn-success" href="/node/' . $id . '/edit?destination=question/' . $node->id() . '/manage">Edit</a><a class="btn btn-danger" href="/node/' . $id . '/delete?destination=question/' . $node->id() . '/manage">Delete</a>',];
 
-      $form['mytable'][$id]['id'] = array(
-          '#type'=>'hidden',
-          '#value' => $entity->id(),
-      );
+      $form['mytable'][$id]['id'] = ['#type' => 'hidden', '#value' => $entity->id(),];
     }
 
-    $form['actions'] = array('#type' => 'actions');
-    $form['actions']['submit'] = array(
-        '#type' => 'submit',
-        '#value' => t('Save changes'),
-      // TableSelect: Enable the built-in form validation for #tableselect for
+    $form['actions'] = ['#type' => 'actions'];
+    $form['actions']['submit'] = ['#type' => 'submit', '#value' => t('Save changes'), // TableSelect: Enable the built-in form validation for #tableselect for
       // this form button, so as to ensure that the bulk operations form cannot
       // be submitted without any selected items.
-        '#tableselect' => TRUE,
-    );
+      '#tableselect' => TRUE,];
     return $form;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state)
+  public function validateForm (array &$form, FormStateInterface $form_state)
   {
 
   }
@@ -123,29 +72,27 @@ class ManageQuestion extends FormBase
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state)
+  public function submitForm (array &$form, FormStateInterface $form_state)
   {
     foreach ($form_state->getValues() as $key => $value) {
-      foreach($value as $key => $val){
+      foreach ($value as $key => $val) {
         $node = Node::load($val['id']);
-        $node->set('field_order',$val['weight']);
+        $node->set('field_order', $val['weight']);
         $node->save();
       }
     }
   }
 
-  public function _iot_get_term_name($tid)
+  public function _iot_get_term_name ($tid)
   {
-    $term = \Drupal::entityTypeManager()
-        ->getStorage('taxonomy_term')
-        ->load($tid);
+    $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
     return $term->name->value;
   }
 
   /**
    * get count question
    */
-  public function _count_question($node)
+  public function _count_question ($node)
   {
     $type = $node->get('field_question_type')->value;
     $count_question = 0;
@@ -238,11 +185,7 @@ class ManageQuestion extends FormBase
       }
     }
     ///////////
-    $result = [
-        'count_question' => $count_question,
-        'count_answer' => $count_answer,
-        'count_explain' => $count_explain
-    ];
+    $result = ['count_question' => $count_question, 'count_answer' => $count_answer, 'count_explain' => $count_explain];
     return $result;
   }
 }

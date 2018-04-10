@@ -7,7 +7,8 @@ use Drupal\Core\Entity\EntityInterface;
 /**
  * Provides and interface for PathautoGenerator.
  */
-interface PathautoGeneratorInterface {
+interface PathautoGeneratorInterface
+{
 
   /**
    * "Do nothing. Leave the old alias intact."
@@ -42,36 +43,31 @@ interface PathautoGeneratorInterface {
   /**
    * Resets internal caches.
    */
-  public function resetCaches();
+  public function resetCaches ();
 
   /**
    * Load an alias pattern entity by entity, bundle, and language.
-   *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   An entity.
    * @return \Drupal\pathauto\PathautoPatternInterface|null
    */
-  public function getPatternByEntity(EntityInterface $entity);
+  public function getPatternByEntity (EntityInterface $entity);
 
   /**
    * Apply patterns to create an alias.
-   *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity.
    * @param string $op
    *   Operation being performed on the content being aliased
    *   ('insert', 'update', 'return', or 'bulkupdate').
-   *
    * @return array|string
    *   The alias that was created.
-   *
    * @see _pathauto_set_alias()
    */
-  public function createEntityAlias(EntityInterface $entity, $op);
+  public function createEntityAlias (EntityInterface $entity, $op);
 
   /**
    * Creates or updates an alias for the given entity.
-   *
    * @param EntityInterface $entity
    *   Entity for which to update the alias.
    * @param string $op
@@ -79,11 +75,10 @@ interface PathautoGeneratorInterface {
    * @param array $options
    *   - force: will force updating the path
    *   - language: the language for which to create the alias
-   *
    * @return array|null
    *   - An array with alias data in case the alias has been created or updated.
    *   - NULL if no operation performed.
    */
-  public function updateEntityAlias(EntityInterface $entity, $op, array $options = array());
+  public function updateEntityAlias (EntityInterface $entity, $op, array $options = []);
 
 }

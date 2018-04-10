@@ -13,15 +13,16 @@ use Drupal\Core\Session\AccountInterface;
 
 /**
  * Defines the access control handler for the vote type entity type.
- *
  * @see \Drupal\votingapi\Entity\VoteType
  */
-class VoteTypeAccessControlHandler extends EntityAccessControlHandler {
+class VoteTypeAccessControlHandler extends EntityAccessControlHandler
+{
 
   /**
    * {@inheritdoc}
    */
-  protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
+  protected function checkAccess (EntityInterface $entity, $operation, AccountInterface $account)
+  {
 //    if ($operation == 'delete') {
 //      if ($entity->isLocked()) {
 //        return AccessResult::forbidden()->cacheUntilEntityChanges($entity);

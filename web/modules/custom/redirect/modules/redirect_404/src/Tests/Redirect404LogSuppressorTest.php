@@ -4,28 +4,25 @@ namespace Drupal\redirect_404\Tests;
 
 /**
  * Tests suppressing 404 logs if the suppress_404 setting is enabled.
- *
  * @group redirect_404
  */
-class Redirect404LogSuppressorTest extends Redirect404TestBase {
+class Redirect404LogSuppressorTest extends Redirect404TestBase
+{
 
   /**
    * Additional modules to enable.
-   *
    * @var array
    */
   public static $modules = ['dblog'];
 
   /**
    * A user with some relevant administrative permissions.
-   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
 
   /**
    * A user without any permissions.
-   *
    * @var \Drupal\user\UserInterface
    */
   protected $webUser;
@@ -33,21 +30,20 @@ class Redirect404LogSuppressorTest extends Redirect404TestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp ()
+  {
     parent::setUp();
 
     // Create users with specific permissions.
-    $this->adminUser = $this->drupalCreateUser([
-      'administer redirect settings',
-      'administer redirects',
-    ]);
+    $this->adminUser = $this->drupalCreateUser(['administer redirect settings', 'administer redirects',]);
     $this->webUser = $this->drupalCreateUser([]);
   }
 
   /**
    * Tests the suppress_404 service.
    */
-  public function testSuppress404Events() {
+  public function testSuppress404Events ()
+  {
     // Cause a page not found and an access denied event.
     $this->drupalGet('page-not-found');
     $this->assertResponse(404);

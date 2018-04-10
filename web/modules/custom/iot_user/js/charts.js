@@ -1,7 +1,7 @@
 (function ($, Drupal, drupalSettings) {
   Drupal.behaviors.BandScore = {
     attach: function (context, settings) {
-     console.log(drupalSettings.list);
+      console.log(drupalSettings.list);
       /**Preload**/
       var bandscore_config = {
         type: 'line',
@@ -317,4 +317,4 @@
       };
     }
   }
-})(jQuery, Drupal,drupalSettings);
+})(jQuery, Drupal, drupalSettings);

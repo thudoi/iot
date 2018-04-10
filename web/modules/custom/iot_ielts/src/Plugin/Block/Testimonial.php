@@ -14,7 +14,6 @@ use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Testimonial' Block.
- *
  * @Block(
  *   id = "testimonial",
  *   admin_label = @Translation("Testimonial"),
@@ -28,13 +27,9 @@ class Testimonial extends BlockBase
    * {@inheritdoc}
    * @return array
    */
-  public function build()
+  public function build ()
   {
-    $nids = \Drupal::entityQuery('node')
-        ->condition('type', 'testimonial')
-        ->condition('status', 1)
-        ->sort('created', 'ASC')
-        ->execute();
+    $nids = \Drupal::entityQuery('node')->condition('type', 'testimonial')->condition('status', 1)->sort('created', 'ASC')->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $services = [];
     $times = [];
@@ -42,11 +37,7 @@ class Testimonial extends BlockBase
       $services[] = $node;
       $times[$node->id()] = \Drupal::service('date.formatter')->formatTimeDiffSince($node->getCreatedTime());
     }
-    return [
-        '#theme' => ['iot_testimonial'],
-        '#nodes' => $services,
-        '#times' => $times
-    ];
+    return ['#theme' => ['iot_testimonial'], '#nodes' => $services, '#times' => $times];
   }
 
 }

@@ -14,13 +14,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Validation constraint for links receiving data allowed by its settings.
- *
  * @Constraint(
  *   id = "RedirectSourceLinkType",
  *   label = @Translation("Link data valid for redirect source link type.", context = "Validation"),
  * )
  */
-class SourceLinkTypeConstraint extends Constraint implements ConstraintValidatorInterface {
+class SourceLinkTypeConstraint extends Constraint implements ConstraintValidatorInterface
+{
 
   public $message = 'The URL %url is not valid magor.';
 
@@ -32,21 +32,24 @@ class SourceLinkTypeConstraint extends Constraint implements ConstraintValidator
   /**
    * {@inheritDoc}
    */
-  public function initialize(ExecutionContextInterface $context) {
+  public function initialize (ExecutionContextInterface $context)
+  {
     $this->context = $context;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validatedBy() {
+  public function validatedBy ()
+  {
     return get_class($this);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validate($value, Constraint $constraint) {
+  public function validate ($value, Constraint $constraint)
+  {
     if (isset($value)) {
       $url_is_valid = TRUE;
       /** @var $link_item \Drupal\link\LinkItemInterface */
@@ -65,26 +68,22 @@ class SourceLinkTypeConstraint extends Constraint implements ConstraintValidator
 
             if ($url->isExternal() && !UrlHelper::isValid($url_string, TRUE)) {
               $url_is_valid = FALSE;
-            }
-            elseif ($url->isExternal() && !($link_type & LinkItemInterface::LINK_EXTERNAL)) {
+            } elseif ($url->isExternal() && !($link_type & LinkItemInterface::LINK_EXTERNAL)) {
               $url_is_valid = FALSE;
             }
           }
-        }
-        catch (NotFoundHttpException $e) {
+        } catch (NotFoundHttpException $e) {
           $url_is_valid = FALSE;
-        }
-        catch (ResourceNotFoundException $e) {
+        } catch (ResourceNotFoundException $e) {
           // User is creating a redirect from non existing path. This is not an
           // error state.
           $url_is_valid = TRUE;
-        }
-        catch (ParamNotConvertedException $e) {
+        } catch (ParamNotConvertedException $e) {
           $url_is_valid = FALSE;
         }
       }
       if (!$url_is_valid) {
-        $this->context->addViolation($this->message, array('%url' => $url_string));
+        $this->context->addViolation($this->message, ['%url' => $url_string]);
       }
     }
   }

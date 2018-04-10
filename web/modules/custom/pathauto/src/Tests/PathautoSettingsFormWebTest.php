@@ -7,99 +7,47 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests pathauto settings form.
- *
  * @group pathauto
  */
-class PathautoSettingsFormWebTest extends WebTestBase {
+class PathautoSettingsFormWebTest extends WebTestBase
+{
 
   use PathautoTestHelperTrait;
 
   /**
    * Modules to enable.
-   *
    * @var array
    */
-  public static $modules = array('node', 'pathauto');
+  public static $modules = ['node', 'pathauto'];
 
   /**
    * Admin user.
-   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
 
   /**
    * Form values that are set by default.
-   *
    * @var array
    */
-  protected $defaultFormValues = array(
-    'verbose' => FALSE,
-    'separator' => '-',
-    'case' => '1',
-    'max_length' => '100',
-    'max_component_length' => '100',
-    'update_action' => '2',
-    'transliterate' => '1',
-    'reduce_ascii' => FALSE,
-    'ignore_words' => 'a, an, as, at, before, but, by, for, from, is, in, into, like, of, off, on, onto, per, since, than, the, this, that, to, up, via, with',
-  );
+  protected $defaultFormValues = ['verbose' => FALSE, 'separator' => '-', 'case' => '1', 'max_length' => '100', 'max_component_length' => '100', 'update_action' => '2', 'transliterate' => '1', 'reduce_ascii' => FALSE, 'ignore_words' => 'a, an, as, at, before, but, by, for, from, is, in, into, like, of, off, on, onto, per, since, than, the, this, that, to, up, via, with',];
 
   /**
    * Punctuation form items with default values.
-   *
    * @var array
    */
-  protected $defaultPunctuations = array(
-    'punctuation[double_quotes]' => '0',
-    'punctuation[quotes]' => '0',
-    'punctuation[backtick]' => '0',
-    'punctuation[comma]' => '0',
-    'punctuation[period]' => '0',
-    'punctuation[hyphen]' => '1',
-    'punctuation[underscore]' => '0',
-    'punctuation[colon]' => '0',
-    'punctuation[semicolon]' => '0',
-    'punctuation[pipe]' => '0',
-    'punctuation[left_curly]' => '0',
-    'punctuation[left_square]' => '0',
-    'punctuation[right_curly]' => '0',
-    'punctuation[right_square]' => '0',
-    'punctuation[plus]' => '0',
-    'punctuation[equal]' => '0',
-    'punctuation[asterisk]' => '0',
-    'punctuation[ampersand]' => '0',
-    'punctuation[percent]' => '0',
-    'punctuation[caret]' => '0',
-    'punctuation[dollar]' => '0',
-    'punctuation[hash]' => '0',
-    'punctuation[exclamation]' => '0',
-    'punctuation[tilde]' => '0',
-    'punctuation[left_parenthesis]' => '0',
-    'punctuation[right_parenthesis]' => '0',
-    'punctuation[question_mark]' => '0',
-    'punctuation[less_than]' => '0',
-    'punctuation[greater_than]' => '0',
-    'punctuation[slash]' => '0',
-    'punctuation[back_slash]' => '0',
-  );
+  protected $defaultPunctuations = ['punctuation[double_quotes]' => '0', 'punctuation[quotes]' => '0', 'punctuation[backtick]' => '0', 'punctuation[comma]' => '0', 'punctuation[period]' => '0', 'punctuation[hyphen]' => '1', 'punctuation[underscore]' => '0', 'punctuation[colon]' => '0', 'punctuation[semicolon]' => '0', 'punctuation[pipe]' => '0', 'punctuation[left_curly]' => '0', 'punctuation[left_square]' => '0', 'punctuation[right_curly]' => '0', 'punctuation[right_square]' => '0', 'punctuation[plus]' => '0', 'punctuation[equal]' => '0', 'punctuation[asterisk]' => '0', 'punctuation[ampersand]' => '0', 'punctuation[percent]' => '0', 'punctuation[caret]' => '0', 'punctuation[dollar]' => '0', 'punctuation[hash]' => '0', 'punctuation[exclamation]' => '0', 'punctuation[tilde]' => '0', 'punctuation[left_parenthesis]' => '0', 'punctuation[right_parenthesis]' => '0', 'punctuation[question_mark]' => '0', 'punctuation[less_than]' => '0', 'punctuation[greater_than]' => '0', 'punctuation[slash]' => '0', 'punctuation[back_slash]' => '0',];
 
   /**
    * {inheritdoc}
    */
-  function setUp() {
+  function setUp ()
+  {
     parent::setUp();
 
-    $this->drupalCreateContentType(array('type' => 'article'));
+    $this->drupalCreateContentType(['type' => 'article']);
 
-    $permissions = array(
-      'administer pathauto',
-      'notify of path changes',
-      'administer url aliases',
-      'create url aliases',
-      'administer nodes',
-      'bypass node access',
-    );
+    $permissions = ['administer pathauto', 'notify of path changes', 'administer url aliases', 'create url aliases', 'administer nodes', 'bypass node access',];
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
     $this->createPattern('node', '/content/[node:title]');
@@ -108,7 +56,8 @@ class PathautoSettingsFormWebTest extends WebTestBase {
   /**
    * Test if the default values are shown correctly in the form.
    */
-  function testDefaultFormValues() {
+  function testDefaultFormValues ()
+  {
     $this->drupalGet('/admin/config/search/path/settings');
     $this->assertNoFieldChecked('edit-verbose');
     $this->assertField('edit-separator', $this->defaultFormValues['separator']);
@@ -124,8 +73,9 @@ class PathautoSettingsFormWebTest extends WebTestBase {
   /**
    * Test the verbose option.
    */
-  function testVerboseOption() {
-    $edit = array('verbose' => '1');
+  function testVerboseOption ()
+  {
+    $edit = ['verbose' => '1'];
     $this->drupalPostForm('/admin/config/search/path/settings', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'));
     $this->assertFieldChecked('edit-verbose');
@@ -133,11 +83,11 @@ class PathautoSettingsFormWebTest extends WebTestBase {
     $title = 'Verbose settings test';
     $this->drupalGet('/node/add/article');
     $this->assertFieldChecked('edit-path-0-pathauto');
-    $this->drupalPostForm(NULL, array('title[0][value]' => $title), t('Save and publish'));
+    $this->drupalPostForm(NULL, ['title[0][value]' => $title], t('Save and publish'));
     $this->assertText('Created new alias /content/verbose-settings-test for');
 
     $node = $this->drupalGetNodeByTitle($title);
-    $this->drupalPostForm('/node/' . $node->id() . '/edit', array('title[0][value]' => 'Updated title'), t('Save and keep published'));
+    $this->drupalPostForm('/node/' . $node->id() . '/edit', ['title[0][value]' => 'Updated title'], t('Save and keep published'));
     $this->assertText('Created new alias /content/updated-title for');
     $this->assertText('replacing /content/verbose-settings-test.');
   }
@@ -145,33 +95,35 @@ class PathautoSettingsFormWebTest extends WebTestBase {
   /**
    * Tests generating aliases with different settings.
    */
-  function testSettingsForm() {
+  function testSettingsForm ()
+  {
     // Ensure the separator settings apply correctly.
-    $this->checkAlias('My awesome content', '/content/my.awesome.content', array('separator' => '.'));
+    $this->checkAlias('My awesome content', '/content/my.awesome.content', ['separator' => '.']);
 
     // Ensure the character case setting works correctly.
     // Leave case the same as source token values.
-    $this->checkAlias('My awesome Content', '/content/My-awesome-Content', array('case' => FALSE));
-    $this->checkAlias('Change Lower', '/content/change-lower', array('case' => '1'));
+    $this->checkAlias('My awesome Content', '/content/My-awesome-Content', ['case' => FALSE]);
+    $this->checkAlias('Change Lower', '/content/change-lower', ['case' => '1']);
 
     // Ensure the maximum alias length is working.
-    $this->checkAlias('My awesome Content', '/content/my-awesome', array('max_length' => '23'));
+    $this->checkAlias('My awesome Content', '/content/my-awesome', ['max_length' => '23']);
 
     // Ensure the maximum component length is working.
-    $this->checkAlias('My awesome Content', '/content/my', array('max_component_length' => '2'));
+    $this->checkAlias('My awesome Content', '/content/my', ['max_component_length' => '2']);
 
     // Ensure transliteration option is working.
-    $this->checkAlias('è é àl ö äl ü', '/content/e-e-al-o-al-u', array('transliterate' => '1'));
-    $this->checkAlias('è é àl äl ö ü', '/content/è-é-àl-äl-ö-ü', array('transliterate' => FALSE));
+    $this->checkAlias('è é àl ö äl ü', '/content/e-e-al-o-al-u', ['transliterate' => '1']);
+    $this->checkAlias('è é àl äl ö ü', '/content/è-é-àl-äl-ö-ü', ['transliterate' => FALSE]);
 
     $ignore_words = 'a, new, very, should';
-    $this->checkAlias('a very new alias to test', '/content/alias-to-test', array('ignore_words' => $ignore_words));
+    $this->checkAlias('a very new alias to test', '/content/alias-to-test', ['ignore_words' => $ignore_words]);
   }
 
   /**
    * Test the punctuation setting form items.
    */
-  function testPunctuationSettings() {
+  function testPunctuationSettings ()
+  {
     // Test the replacement of punctuations.
     $settings = [];
     foreach ($this->defaultPunctuations as $key => $punctuation) {
@@ -205,7 +157,6 @@ class PathautoSettingsFormWebTest extends WebTestBase {
 
   /**
    * Helper method to check the an aliases.
-   *
    * @param string $title
    *   The node title to build the aliases from.
    * @param string $alias
@@ -213,7 +164,8 @@ class PathautoSettingsFormWebTest extends WebTestBase {
    * @param array $settings
    *   The form values the alias should be generated with.
    */
-  protected function checkAlias($title, $alias, $settings = array()) {
+  protected function checkAlias ($title, $alias, $settings = [])
+  {
     // Submit the settings form.
     $edit = array_merge($this->defaultFormValues + $this->defaultPunctuations, $settings);
     $this->drupalPostForm('/admin/config/search/path/settings', $edit, t('Save configuration'));
@@ -225,12 +177,7 @@ class PathautoSettingsFormWebTest extends WebTestBase {
     \Drupal::service('pathauto.generator')->resetCaches();
 
     // Create a node and check if the settings applied.
-    $node = $this->createNode(
-      array(
-        'title' => $title,
-        'type' => 'article',
-      )
-    );
+    $node = $this->createNode(['title' => $title, 'type' => 'article',]);
 
     $this->drupalGet($alias);
     $this->assertResponse(200);

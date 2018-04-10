@@ -13,45 +13,46 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Configure rate settings for the site.
  */
-class RateSettingsForm extends ConfigFormBase implements ContainerInjectionInterface {
+class RateSettingsForm extends ConfigFormBase implements ContainerInjectionInterface
+{
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId ()
+  {
     return 'rate_settings_form';
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
+  protected function getEditableConfigNames ()
+  {
     return ['rate.settings'];
   }
 
   /**
    * The entity type manager.
-   *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
    * The Http Client object.
-   *
    * @var \GuzzleHttp\Client
    */
   protected $httpClient;
 
   /**
    * Constructs a Vote Controller.
-   *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    * @param \GuzzleHttp\Client $http_client
    *   Http client object.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, Client $http_client) {
+  public function __construct (EntityTypeManagerInterface $entity_type_manager, Client $http_client)
+  {
     $this->entityTypeManager = $entity_type_manager;
     $this->httpClient = $http_client;
   }
@@ -59,88 +60,36 @@ class RateSettingsForm extends ConfigFormBase implements ContainerInjectionInter
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('entity_type.manager'),
-      $container->get('http_client')
-    );
+  public static function create (ContainerInterface $container)
+  {
+    return new static($container->get('entity_type.manager'), $container->get('http_client'));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm (array $form, FormStateInterface $form_state)
+  {
     $config = $this->config('rate.settings');
 
-    $widget_type_options = [
-      "fivestar" => "Fivestar",
-      "number_up_down" => "Number Up / Down",
-      "thumbs_up" => "Thumbs Up",
-      "thumbs_up_down" => "Thumbs Up / Down",
-      "yesno" => "Yes / No",
-    ];
+    $widget_type_options = ["fivestar" => "Fivestar", "number_up_down" => "Number Up / Down", "thumbs_up" => "Thumbs Up", "thumbs_up_down" => "Thumbs Up / Down", "yesno" => "Yes / No",];
 
-    $form['widget_type'] = [
-      '#type' => 'select',
-      '#title' => t('Widget Type'),
-      '#options' => $widget_type_options,
-      '#default_value' => $config->get('widget_type', 'number_up_down'),
-    ];
+    $form['widget_type'] = ['#type' => 'select', '#title' => t('Widget Type'), '#options' => $widget_type_options, '#default_value' => $config->get('widget_type', 'number_up_down'),];
 
-    $form['use_ajax'] = [
-      '#type' => 'checkbox',
-      '#title' => t('Use AJAX'),
-      '#default_value' => $config->get('use_ajax', FALSE),
-      '#description' => t('Record vote via AJAX.'),
-    ];
+    $form['use_ajax'] = ['#type' => 'checkbox', '#title' => t('Use AJAX'), '#default_value' => $config->get('use_ajax', FALSE), '#description' => t('Record vote via AJAX.'),];
 
-    $form['bot'] = [
-      '#type' => 'fieldset',
-      '#title' => t('Bot detection'),
-      '#description' => t('Bots can be automatically banned from voting if they rate more than a given amount of votes within one minute or hour. This threshold is configurable below. Votes from the same IP-address will be ignored forever after reaching this limit.'),
-      '#collapsbile' => FALSE,
-      '#collapsed' => FALSE,
-    ];
+    $form['bot'] = ['#type' => 'fieldset', '#title' => t('Bot detection'), '#description' => t('Bots can be automatically banned from voting if they rate more than a given amount of votes within one minute or hour. This threshold is configurable below. Votes from the same IP-address will be ignored forever after reaching this limit.'), '#collapsbile' => FALSE, '#collapsed' => FALSE,];
 
-    $threshold_options = array_combine([0, 10, 25, 50, 100, 250, 500, 1000], [
-      0,
-      10,
-      25,
-      50,
-      100,
-      250,
-      500,
-      1000,
-    ]);
+    $threshold_options = array_combine([0, 10, 25, 50, 100, 250, 500, 1000], [0, 10, 25, 50, 100, 250, 500, 1000,]);
     $threshold_options[0] = t('disable');
 
-    $form['bot']['bot_minute_threshold'] = [
-      '#type' => 'select',
-      '#title' => t('1 minute threshold'),
-      '#options' => $threshold_options,
-      '#default_value' => $config->get('bot_minute_threshold', 25),
-    ];
+    $form['bot']['bot_minute_threshold'] = ['#type' => 'select', '#title' => t('1 minute threshold'), '#options' => $threshold_options, '#default_value' => $config->get('bot_minute_threshold', 25),];
 
-    $form['bot']['bot_hour_threshold'] = [
-      '#type' => 'select',
-      '#title' => t('1 hour threshold'),
-      '#options' => $threshold_options,
-      '#default_value' => $config->get('bot_hour_threshold', 250),
-    ];
+    $form['bot']['bot_hour_threshold'] = ['#type' => 'select', '#title' => t('1 hour threshold'), '#options' => $threshold_options, '#default_value' => $config->get('bot_hour_threshold', 250),];
 
-    $form['bot']['botscout_key'] = [
-      '#type' => 'textfield',
-      '#title' => t('BotScout.com API key'),
-      '#default_value' => $config->get('botscout_key', ''),
-      '#description' => t('Rate will check the voters IP against the BotScout database if it has an API key. You can request a key at %url.', ['%url' => 'http://botscout.com/getkey.htm']),
-    ];
+    $form['bot']['botscout_key'] = ['#type' => 'textfield', '#title' => t('BotScout.com API key'), '#default_value' => $config->get('botscout_key', ''), '#description' => t('Rate will check the voters IP against the BotScout database if it has an API key. You can request a key at %url.', ['%url' => 'http://botscout.com/getkey.htm']),];
 
-    $form['rate_types_enabled'] = [
-      '#type' => 'details',
-      '#open' => TRUE,
-      '#title' => t('Entity types with Rate widgets enabled:'),
-      '#description' => t('If you disable any type here, already existing data will remain untouched.'),
-    ];
+    $form['rate_types_enabled'] = ['#type' => 'details', '#open' => TRUE, '#title' => t('Entity types with Rate widgets enabled:'), '#description' => t('If you disable any type here, already existing data will remain untouched.'),];
 
     $entity_types = $this->entityTypeManager->getDefinitions();
     $entity_type_ids = array_keys($entity_types);
@@ -153,33 +102,18 @@ class RateSettingsForm extends ConfigFormBase implements ContainerInjectionInter
         $bundles = $this->entityTypeManager->getStorage($entity_type_id)->loadMultiple();
         $content_entitites_with_bundles[] = $entity_type->getBundleOf();
         if (!empty($bundles)) {
-          $form['rate_types_enabled'][$entity_type_id . '_enabled'] = [
-            '#type' => 'details',
-            '#open' => FALSE,
-            '#title' => $entity_type->getBundleOf(),
-          ];
+          $form['rate_types_enabled'][$entity_type_id . '_enabled'] = ['#type' => 'details', '#open' => FALSE, '#title' => $entity_type->getBundleOf(),];
           foreach ($bundles as $bundle) {
             $default_value = 0;
             if (isset($enabled_types_bundles[$entity_type->getBundleOf()]) && in_array($bundle->id(), $enabled_types_bundles[$entity_type->getBundleOf()])) {
               $default_value = 1;
             }
-            $form['rate_types_enabled'][$entity_type_id . '_enabled']['enabled|' . $entity_type->getBundleOf() . '|' . $bundle->id()] = [
-              '#type' => 'checkbox',
-              '#title' => $bundle->label(),
-              '#default_value' => $default_value,
-            ];
+            $form['rate_types_enabled'][$entity_type_id . '_enabled']['enabled|' . $entity_type->getBundleOf() . '|' . $bundle->id()] = ['#type' => 'checkbox', '#title' => $bundle->label(), '#default_value' => $default_value,];
           }
         }
-      }
-      elseif ($entity_type->getGroup() == 'content' &&
-        !in_array($entity_type->getBundleEntityType(), $entity_type_ids) &&
-        $entity_type_id != 'vote_result') {
+      } elseif ($entity_type->getGroup() == 'content' && !in_array($entity_type->getBundleEntityType(), $entity_type_ids) && $entity_type_id != 'vote_result') {
         $default_value = (isset($enabled_types_bundles[$entity_type_id])) ? 1 : 0;
-        $form['rate_types_enabled']['enabled|' . $entity_type_id . '|' . $entity_type_id] = [
-          '#type' => 'checkbox',
-          '#title' => $entity_type_id,
-          '#default_value' => $default_value,
-        ];
+        $form['rate_types_enabled']['enabled|' . $entity_type_id . '|' . $entity_type_id] = ['#type' => 'checkbox', '#title' => $entity_type_id, '#default_value' => $default_value,];
       }
     }
 
@@ -189,29 +123,26 @@ class RateSettingsForm extends ConfigFormBase implements ContainerInjectionInter
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm (array &$form, FormStateInterface $form_state)
+  {
     if ($form_state->getValue(['botscout_key'])) {
       $uri = "http://botscout.com/test/?ip=84.16.230.111&key=" . $form_state->getValue(['botscout_key']);
       try {
         $response = $this->httpClient->get($uri, ['headers' => ['Accept' => 'text/plain']]);
-        $data = (string) $response->getBody();
+        $data = (string)$response->getBody();
         $status_code = $response->getStatusCode();
         if (empty($data)) {
           drupal_set_message(t('An empty response was returned from botscout.'), 'warning');
-        }
-        elseif ($status_code == 200) {
+        } elseif ($status_code == 200) {
           if ($data{0} == 'Y' || $data{0} == 'N') {
             drupal_set_message(t('Rate has succesfully contacted the BotScout server.'));
-          }
-          else {
+          } else {
             $form_state->setErrorByName('botscout_key', t('Invalid API-key.'));
           }
-        }
-        else {
+        } else {
           drupal_set_message(t('Rate was unable to contact the BotScout server.'), 'warning');
         }
-      }
-      catch (RequestException $e) {
+      } catch (RequestException $e) {
         drupal_set_message(t('An error occurred contacting BotScout.'), 'warning');
         watchdog_exception('rate', $e);
       }
@@ -221,7 +152,8 @@ class RateSettingsForm extends ConfigFormBase implements ContainerInjectionInter
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm (array &$form, FormStateInterface $form_state)
+  {
     $config = $this->config('rate.settings');
 
     $enabled_types_bundles = [];
@@ -233,8 +165,7 @@ class RateSettingsForm extends ConfigFormBase implements ContainerInjectionInter
         // Key on entity and create an child array of bundles.
         if (isset($enabled_types_bundles[$entity_bundle[0]])) {
           $enabled_types_bundles[$entity_bundle[0]][] = $entity_bundle[1];
-        }
-        else {
+        } else {
           $enabled_types_bundles[$entity_bundle[0]] = [];
           $enabled_types_bundles[$entity_bundle[0]][] = $entity_bundle[1];
         }
@@ -242,12 +173,7 @@ class RateSettingsForm extends ConfigFormBase implements ContainerInjectionInter
     }
     $config->set('enabled_types_bundles', $enabled_types_bundles);
 
-    $config->set('widget_type', $form_state->getValue('widget_type'))
-      ->set('bot_minute_threshold', $form_state->getValue('bot_minute_threshold'))
-      ->set('bot_hour_threshold', $form_state->getValue('bot_hour_threshold'))
-      ->set('botscout_key', $form_state->getValue('botscout_key'))
-      ->set('use_ajax', $form_state->getValue('use_ajax'))
-      ->save();
+    $config->set('widget_type', $form_state->getValue('widget_type'))->set('bot_minute_threshold', $form_state->getValue('bot_minute_threshold'))->set('bot_hour_threshold', $form_state->getValue('bot_hour_threshold'))->set('botscout_key', $form_state->getValue('botscout_key'))->set('use_ajax', $form_state->getValue('use_ajax'))->save();
 
     parent::submitForm($form, $form_state);
   }

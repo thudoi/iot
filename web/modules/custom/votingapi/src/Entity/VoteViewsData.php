@@ -13,18 +13,16 @@ use Drupal\views\EntityViewsDataInterface;
 /**
  * Provides Views data for Vote entities.
  */
-class VoteViewsData extends EntityViewsData implements EntityViewsDataInterface {
+class VoteViewsData extends EntityViewsData implements EntityViewsDataInterface
+{
   /**
    * {@inheritdoc}
    */
-  public function getViewsData() {
+  public function getViewsData ()
+  {
     $data = parent::getViewsData();
 
-    $data['votingapi_vote']['table']['base'] = array(
-      'field' => 'id',
-      'title' => $this->t('Vote'),
-      'help' => $this->t('The Vote ID.'),
-    );
+    $data['votingapi_vote']['table']['base'] = ['field' => 'id', 'title' => $this->t('Vote'), 'help' => $this->t('The Vote ID.'),];
 
     return $data;
   }

@@ -3,7 +3,6 @@
 /**
  * @file
  * Install, update, and uninstall functions for Pathauto.
- *
  * @ingroup pathauto
  */
 
@@ -15,7 +14,8 @@ use Drupal\pathauto\Entity\PathautoPattern;
 /**
  * Implements hook_install().
  */
-function pathauto_install() {
+function pathauto_install ()
+{
   // Set the weight to 1
   module_set_weight('pathauto', 1);
 
@@ -25,12 +25,11 @@ function pathauto_install() {
 
 /**
  * Helper function to ensure the url_alias table exists.
- *
  * Only necessary on Drupal 8.1.x.
- *
  * @see https://www.drupal.org/node/2704821
  */
-function _pathauto_ensure_url_alias_table_exists() {
+function _pathauto_ensure_url_alias_table_exists ()
+{
   $alias_storage = \Drupal::service('path.alias_storage');
   if (method_exists($alias_storage, 'schemaDefinition')) {
     $database_schema = \Drupal::database()->schema();
@@ -44,7 +43,8 @@ function _pathauto_ensure_url_alias_table_exists() {
 /**
  * Updates pathauto widgets to use the path widget ID.
  */
-function pathauto_update_8001() {
+function pathauto_update_8001 ()
+{
 
   // Replace values in the 'entity.definitions.installed' keyvalue collection.
   $collection = \Drupal::service('keyvalue')->get('entity.definitions.installed');
@@ -78,10 +78,11 @@ function pathauto_update_8001() {
 /**
  * Converts patterns from configuration objects to configuration entities.
  */
-function pathauto_update_8100() {
+function pathauto_update_8100 ()
+{
   \Drupal::service('module_installer')->install(['ctools']);
 
-  $messages = array();
+  $messages = [];
   /** @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_bundle_info */
   $entity_bundle_info = \Drupal::service('entity_type.bundle.info');
   $entity_type_manager = \Drupal::entityTypeManager();
@@ -98,23 +99,14 @@ function pathauto_update_8100() {
   foreach ($patterns as $entity_type => $entity_patterns) {
     if (!array_key_exists($entity_type, $entity_types)) {
       // We found an unknown entity type. Report it.
-      $messages[] = t('Entity of type @type was not processed. It defines the following patterns: @patterns', array(
-        '@type' => $entity_type,
-        '@patterns' => print_r($entity_patterns, TRUE),
-      ));
+      $messages[] = t('Entity of type @type was not processed. It defines the following patterns: @patterns', ['@type' => $entity_type, '@patterns' => print_r($entity_patterns, TRUE),]);
       continue;
     }
     $entity_label = $entity_types[$entity_type]->getLabel();
 
     if (!empty($entity_patterns['default'])) {
       // This is a pattern for an entity type, such as "node".
-      $pattern = PathautoPattern::create([
-        'id' => $entity_type,
-        'label' => $entity_label,
-        'type' => 'canonical_entities:' . $entity_type,
-        'pattern' => $entity_patterns['default'],
-        'weight' => 0,
-      ]);
+      $pattern = PathautoPattern::create(['id' => $entity_type, 'label' => $entity_label, 'type' => 'canonical_entities:' . $entity_type, 'pattern' => $entity_patterns['default'], 'weight' => 0,]);
       $pattern->save();
     }
 
@@ -130,25 +122,13 @@ function pathauto_update_8100() {
 
         if (isset($bundle_info[$bundle])) {
           // This is a pattern for a bundle, such as "node_article".
-          $pattern = PathautoPattern::create([
-            'id' => $entity_type . '_' . $bundle,
-            'label' => $entity_label . ' ' . $bundle_info[$bundle]['label'],
-            'type' => 'canonical_entities:' . $entity_type,
-            'pattern' => $bundle_patterns['default'],
-            'weight' => -5,
-          ]);
+          $pattern = PathautoPattern::create(['id' => $entity_type . '_' . $bundle, 'label' => $entity_label . ' ' . $bundle_info[$bundle]['label'], 'type' => 'canonical_entities:' . $entity_type, 'pattern' => $bundle_patterns['default'], 'weight' => -5,]);
 
           // Add the bundle condition.
-          $pattern->addSelectionCondition([
-            'id' => 'entity_bundle:' . $entity_type,
-            'bundles' => array($bundle => $bundle),
-            'negate' => FALSE,
-            'context_mapping' => [ $entity_type => $entity_type ],
-          ]);
+          $pattern->addSelectionCondition(['id' => 'entity_bundle:' . $entity_type, 'bundles' => [$bundle => $bundle], 'negate' => FALSE, 'context_mapping' => [$entity_type => $entity_type],]);
 
           $pattern->save();
-        }
-        else {
+        } else {
           // This is either a language dependent pattern such as "article_es" or
           // an unknown bundle or langcode. Let's figure it out.
           $matches = NULL;
@@ -162,41 +142,19 @@ function pathauto_update_8100() {
           }
           // Validate bundle, langcode and language.
           if (!isset($bundle_info[$extracted_bundle]) || ($langcode == NULL) || ($language == NULL)) {
-            $messages[] = t('Unrecognized entity bundle @entity:@bundle was not processed. It defines the following patterns: @patterns', array(
-              '@entity' => $entity_type,
-              '@bundle' => $bundle,
-              '@patterns' => print_r($entity_patterns, TRUE),
-            ));
+            $messages[] = t('Unrecognized entity bundle @entity:@bundle was not processed. It defines the following patterns: @patterns', ['@entity' => $entity_type, '@bundle' => $bundle, '@patterns' => print_r($entity_patterns, TRUE),]);
             continue;
           }
 
           // This is a pattern for a bundle and a language, such as "node_article_es".
-          $pattern = PathautoPattern::create([
-            'id' => $entity_type . '_' . $extracted_bundle . '_' . str_replace('-', '_', $langcode),
-            'label' => $entity_label . ' ' . $bundle_info[$extracted_bundle]['label'] . ' ' . $language->getName(),
-            'type' => 'canonical_entities:' . $entity_type,
-            'pattern' => $bundle_patterns['default'],
-            'weight' => -10,
-          ]);
+          $pattern = PathautoPattern::create(['id' => $entity_type . '_' . $extracted_bundle . '_' . str_replace('-', '_', $langcode), 'label' => $entity_label . ' ' . $bundle_info[$extracted_bundle]['label'] . ' ' . $language->getName(), 'type' => 'canonical_entities:' . $entity_type, 'pattern' => $bundle_patterns['default'], 'weight' => -10,]);
 
           // Add the bundle condition.
-          $pattern->addSelectionCondition([
-            'id' => 'entity_bundle:' . $entity_type,
-            'bundles' => array($extracted_bundle => $extracted_bundle),
-            'negate' => FALSE,
-            'context_mapping' => [ $entity_type => $entity_type ],
-          ]);
+          $pattern->addSelectionCondition(['id' => 'entity_bundle:' . $entity_type, 'bundles' => [$extracted_bundle => $extracted_bundle], 'negate' => FALSE, 'context_mapping' => [$entity_type => $entity_type],]);
 
           // Add the language condition.
           $language_mapping = $entity_type . ':' . $entity_type_manager->getDefinition($entity_type)->getKey('langcode') . ':language';
-          $pattern->addSelectionCondition([
-            'id' => 'language',
-            'langcodes' => [ $langcode => $langcode ],
-            'negate' => FALSE,
-            'context_mapping' => [
-              'language' => $language_mapping,
-            ]
-          ]);
+          $pattern->addSelectionCondition(['id' => 'language', 'langcodes' => [$langcode => $langcode], 'negate' => FALSE, 'context_mapping' => ['language' => $language_mapping,]]);
 
           // Add the context relationship for this language.
           $pattern->addRelationship($language_mapping, 'Language');
@@ -219,12 +177,13 @@ function pathauto_update_8100() {
 /**
  * Update relationship storage.
  */
-function pathauto_update_8101() {
+function pathauto_update_8101 ()
+{
   foreach (\Drupal::configFactory()->listAll('pathauto.pattern.') as $pattern_config_name) {
     $pattern_config = \Drupal::configFactory()->getEditable($pattern_config_name);
 
     $relationships = [];
-    foreach ((array) $pattern_config->get('context_definitions') as $context_definition) {
+    foreach ((array)$pattern_config->get('context_definitions') as $context_definition) {
       $relationships[$context_definition['id']] = ['label' => $context_definition['label']];
     }
 
@@ -237,7 +196,8 @@ function pathauto_update_8101() {
 /**
  * Update node type conditions from entity_bundle to node_type.
  */
-function pathauto_update_8102() {
+function pathauto_update_8102 ()
+{
   // Load all pattern configuration entities.
   foreach (\Drupal::configFactory()->listAll('pathauto.pattern.') as $pattern_config_name) {
     $pattern_config = \Drupal::configFactory()->getEditable($pattern_config_name);
@@ -261,7 +221,8 @@ function pathauto_update_8102() {
 /**
  * Fix invalid default value for ignore_words.
  */
-function pathauto_update_8103() {
+function pathauto_update_8103 ()
+{
   $config_factory = \Drupal::configFactory();
   $config = $config_factory->getEditable('pathauto.settings');
   $ignore_words = $config->get('ignore_words');
@@ -273,7 +234,8 @@ function pathauto_update_8103() {
 /**
  * Resave patterns so that lookup keys are updated.
  */
-function pathauto_update_8104() {
+function pathauto_update_8104 ()
+{
   \Drupal::entityTypeManager()->clearCachedDefinitions();
   // Load all pattern configuration entities and save them, so that the new
   // status lookup keys are saved.
@@ -286,14 +248,16 @@ function pathauto_update_8104() {
 /**
  * Ensure the url_alias table exists.
  */
-function pathauto_update_8105() {
+function pathauto_update_8105 ()
+{
   _pathauto_ensure_url_alias_table_exists();
 }
 
 /**
  * Update default configuration for enabled entity types.
  */
-function pathauto_update_8106() {
+function pathauto_update_8106 ()
+{
   $config_factory = \Drupal::configFactory();
   $config = $config_factory->getEditable('pathauto.settings');
   $config->set('enabled_entity_types', ['user']);
