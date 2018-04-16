@@ -4,8 +4,9 @@ dependencies:
   config:
     - field.storage.node.field_question
     - node.type.question
+    - paragraphs.paragraphs_type.question
   module:
-    - field_collection
+    - entity_reference_revisions
 id: node.question.field_question
 field_name: field_question
 entity_type: node
@@ -14,9 +15,34 @@ label: Question
 description: ''
 required: false
 translatable: false
-default_value:
-  - {  }
-  - {  }
+default_value: {  }
 default_value_callback: ''
-settings: {  }
-field_type: field_collection
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles:
+      question: question
+    target_bundles_drag_drop:
+      checkbox_options:
+        weight: 5
+        enabled: false
+      explanation:
+        weight: 6
+        enabled: false
+      question:
+        enabled: true
+        weight: 7
+      radios_option:
+        weight: 8
+        enabled: false
+      dropdown:
+        weight: 9
+        enabled: false
+      explain:
+        weight: 10
+        enabled: false
+      study_destination:
+        weight: 14
+        enabled: false
+field_type: entity_reference_revisions

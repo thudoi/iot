@@ -3,7 +3,8 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.user.compact
-    - field.field.user.user.field_completed
+    - field.field.user.user.field_country_rate
+    - field.field.user.user.field_data_rating
     - field.field.user.user.field_destination
     - field.field.user.user.field_dob
     - field.field.user.user.field_facebook_id
@@ -38,7 +39,8 @@ content:
     third_party_settings: {  }
     label: hidden
 hidden:
-  field_completed: true
+  field_country_rate: true
+  field_data_rating: true
   field_destination: true
   field_dob: true
   field_facebook_id: true
@@ -53,6 +55,8 @@ hidden:
   field_subscribe: true
   field_target_score: true
   field_wechat_id: true
+  langcode: true
   linked_username: true
   member_for: true
   private_message_link: true
+  simplenews: true

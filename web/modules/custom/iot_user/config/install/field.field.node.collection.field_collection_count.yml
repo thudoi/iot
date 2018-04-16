@@ -2,20 +2,21 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.body
+    - field.storage.node.field_collection_count
     - node.type.collection
-  module:
-    - text
-id: node.collection.body
-field_name: body
+id: node.collection.field_collection_count
+field_name: field_collection_count
 entity_type: node
 bundle: collection
-label: Introdution
+label: 'Collection Count'
 description: ''
 required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  display_summary: true
-field_type: text_with_summary
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

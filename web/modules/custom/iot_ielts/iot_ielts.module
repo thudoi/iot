@@ -62,7 +62,6 @@ function iot_ielts_node_presave (Drupal\Core\Entity\EntityInterface $node)
       if (isset($_GET['sid'])) {
         $title = $node->get('field_title_ui')->getValue();
         $set = Node::load($_GET['sid']);
-        //$type = $set->get('field_section_type')->getValue();
         $node->set('field_set', $_GET['sid']);
         $node->set('title', $title[0]['value'] . '_' . $set->getTitle());
         $response = new RedirectResponse('/set/' . $_GET['sid'] . '/manage');
@@ -80,7 +79,6 @@ function iot_ielts_node_presave (Drupal\Core\Entity\EntityInterface $node)
       if (isset($_GET['sid'])) {
         $title = $node->get('field_title_ui')->getValue();
         $set = Node::load($_GET['sid']);
-        //$type = $set->get('field_section_type')->getValue();
         $node->set('field_quiz', $_GET['sid']);
         $node->set('title', $title[0]['value'] . '_' . $set->getTitle());
         $response = new RedirectResponse('/quiz/' . $_GET['sid'] . '/manage');
@@ -91,7 +89,6 @@ function iot_ielts_node_presave (Drupal\Core\Entity\EntityInterface $node)
       if (isset($_GET['bid']) && $_GET['type']) {
         $title = $node->get('field_title_ui')->getValue();
         $set = Node::load($_GET['bid']);
-        //$type = $set->get('field_section_type')->getValue();
         $node->set('field_section', $_GET['bid']);
         $node->set('title', $title[0]['value'] . '_' . $set->getTitle());
         $response = new RedirectResponse('/question/' . $_GET['bid'] . '/manage');
@@ -103,7 +100,6 @@ function iot_ielts_node_presave (Drupal\Core\Entity\EntityInterface $node)
         $quiz = Node::load($node->get('field_score_quiz')->target_id);
         $set = Node::load($quiz->get('field_set')->target_id);
         $collection = Node::load($set->get('field_collection')->target_id);
-        $count = 0;
         if ($collection) {
           $count = $collection->get('field_collection_count') ? $collection->get('field_collection_count')->value : 0;
           $collection->set('field_collection_count', $count + 1);

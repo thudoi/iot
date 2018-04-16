@@ -2,20 +2,21 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.body
+    - field.storage.node.field_collection_order
     - node.type.collection
-  module:
-    - text
-id: node.collection.body
-field_name: body
+id: node.collection.field_collection_order
+field_name: field_collection_order
 entity_type: node
 bundle: collection
-label: Introdution
+label: Order
 description: ''
 required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  display_summary: true
-field_type: text_with_summary
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer
