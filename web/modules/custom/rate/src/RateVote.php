@@ -12,41 +12,46 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Returns responses for Rate routes.
  */
-class RateVote implements ContainerInjectionInterface
-{
+class RateVote implements ContainerInjectionInterface {
 
   /**
    * The entity type manager.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
    * Votingapi result manager.
+   *
    * @var \Drupal\votingapi\VoteResultFunctionManager
    */
   protected $resultManager;
 
   /**
    * Database connection object.
+   *
    * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
   /**
    * Database connection object.
+   *
    * @var \Drupal\rate\RateBotDetector
    */
   protected $botDetector;
 
   /**
    * Account proxy (the current user).
+   *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $accountProxy;
 
   /**
    * Constructor for vote service.
+   *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    * @param \Drupal\votingapi\VoteResultFunctionManager $result_manager
@@ -58,8 +63,7 @@ class RateVote implements ContainerInjectionInterface
    * @param \Drupal\Core\Session\AccountProxyInterface $account_proxy
    *   The current user.
    */
-  public function __construct (EntityTypeManagerInterface $entity_type_manager, VoteResultFunctionManager $result_manager, Connection $database, RateBotDetector $bot_detector, AccountProxyInterface $account_proxy)
-  {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, VoteResultFunctionManager $result_manager, Connection $database, RateBotDetector $bot_detector, AccountProxyInterface $account_proxy) {
     $this->entityTypeManager = $entity_type_manager;
     $this->resultManager = $result_manager;
     $this->database = $database;
@@ -70,13 +74,13 @@ class RateVote implements ContainerInjectionInterface
   /**
    * {@inheritdoc}
    */
-  public static function create (ContainerInterface $container)
-  {
+  public static function create(ContainerInterface $container) {
     return new static($container->get('entity_type.manager'), $container->get('plugin.manager.votingapi.resultfunction'), $container->get('database'), $container->get('rate.bot_detector'), $container->get('current_user'));
   }
 
   /**
    * Record a vote.
+   *
    * @param string $entity_type_id
    *   Entity type ID such as node.
    * @param string $vote_type_id
@@ -86,9 +90,9 @@ class RateVote implements ContainerInjectionInterface
    * @param bool $show_messages
    *   If TRUE, standard Drupal message will be set.
    */
-  public function vote ($entity_type_id, $vote_type_id, $entity_id, $show_messages = TRUE)
-  {
-    $entity = $this->entityTypeManager->getStorage($entity_type_id)->load($entity_id);
+  public function vote($entity_type_id, $vote_type_id, $entity_id, $show_messages = TRUE) {
+    $entity = $this->entityTypeManager->getStorage($entity_type_id)
+      ->load($entity_id);
     $is_bot_vote = $this->botDetector->checkIsBot();
 
     if (!$is_bot_vote && $this->accountProxy->hasPermission('cast rate vote on ' . $entity_type_id . ' of ' . $entity->bundle())) {
@@ -97,8 +101,10 @@ class RateVote implements ContainerInjectionInterface
 
       // If user hasn't voted, save the vote.
       if (empty($vote_ids)) {
-        $vote_type = $this->entityTypeManager->getStorage('vote_type')->load($vote_type_id);
-        $vote = $this->entityTypeManager->getStorage('vote')->create(['type' => $vote_type_id]);
+        $vote_type = $this->entityTypeManager->getStorage('vote_type')
+          ->load($vote_type_id);
+        $vote = $this->entityTypeManager->getStorage('vote')
+          ->create(['type' => $vote_type_id]);
         $vote->setVotedEntityId($entity_id);
         $vote->setVotedEntityType($entity_type_id);
         $vote->setValueType($vote_type->getValueType());
@@ -118,6 +124,7 @@ class RateVote implements ContainerInjectionInterface
 
   /**
    * Record a vote.
+   *
    * @param string $entity_type_id
    *   Entity type ID such as node.
    * @param int $entity_id
@@ -125,9 +132,9 @@ class RateVote implements ContainerInjectionInterface
    * @param bool $show_messages
    *   If TRUE, standard Drupal message will be set.
    */
-  public function undoVote ($entity_type_id, $entity_id, $show_messages = TRUE)
-  {
-    $entity = $this->entityTypeManager->getStorage($entity_type_id)->load($entity_id);
+  public function undoVote($entity_type_id, $entity_id, $show_messages = TRUE) {
+    $entity = $this->entityTypeManager->getStorage($entity_type_id)
+      ->load($entity_id);
     $is_bot_vote = $this->botDetector->checkIsBot();
 
     if (!$is_bot_vote && $this->accountProxy->hasPermission('cast rate vote on ' . $entity_type_id . ' of ' . $entity->bundle())) {
@@ -146,7 +153,8 @@ class RateVote implements ContainerInjectionInterface
         if ($show_messages) {
           drupal_set_message(t('Your vote was canceled.'), 'status');
         }
-      } elseif ($show_messages) {
+      }
+      elseif ($show_messages) {
         // Otherwise, inform user of previous vote.
         drupal_set_message(t('A previous vote was not found.'), 'warning');
       }

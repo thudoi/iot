@@ -20,17 +20,18 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Contact Message"),
  * )
  */
-class ContactMessage extends BlockBase
-{
+class ContactMessage extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
+  public function build() {
 
-    return ['#theme' => ['iot_contact_message'], '#attached' => ['library' => ['iot_ielts/contact_form',],]];
+    return [
+      '#theme' => ['iot_contact_message'],
+      '#attached' => ['library' => ['iot_ielts/contact_form',],],
+    ];
   }
 
 }

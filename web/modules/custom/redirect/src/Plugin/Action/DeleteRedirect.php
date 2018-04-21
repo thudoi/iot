@@ -17,23 +17,25 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   confirm_form_route_name = "entity.redirect.multiple_delete_confirm"
  * )
  */
-class DeleteRedirect extends ActionBase implements ContainerFactoryPluginInterface
-{
+class DeleteRedirect extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
    * The tempstore object.
+   *
    * @var \Drupal\user\SharedTempStore
    */
   protected $privateTempStore;
 
   /**
    * The current user.
+   *
    * @var \Drupal\Core\Session\AccountInterface
    */
   protected $currentUser;
 
   /**
    * Constructs a new DeleteRedirect object.
+   *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
    * @param string $plugin_id
@@ -45,8 +47,7 @@ class DeleteRedirect extends ActionBase implements ContainerFactoryPluginInterfa
    * @param AccountInterface $current_user
    *   Current user.
    */
-  public function __construct (array $configuration, $plugin_id, $plugin_definition, PrivateTempStoreFactory $temp_store_factory, AccountInterface $current_user)
-  {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PrivateTempStoreFactory $temp_store_factory, AccountInterface $current_user) {
     $this->currentUser = $current_user;
     $this->privateTempStore = $temp_store_factory->get('redirect_multiple_delete_confirm');
 
@@ -56,32 +57,28 @@ class DeleteRedirect extends ActionBase implements ContainerFactoryPluginInterfa
   /**
    * {@inheritdoc}
    */
-  public static function create (ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition)
-  {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static($configuration, $plugin_id, $plugin_definition, $container->get('user.private_tempstore'), $container->get('current_user'));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function executeMultiple (array $entities)
-  {
+  public function executeMultiple(array $entities) {
     $this->privateTempStore->set($this->currentUser->id(), $entities);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function execute ($object = NULL)
-  {
+  public function execute($object = NULL) {
     $this->executeMultiple([$object]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function access ($object, AccountInterface $account = NULL, $return_as_object = FALSE)
-  {
+  public function access($object, AccountInterface $account = NULL, $return_as_object = FALSE) {
     return $object->access('delete', $account, $return_as_object);
   }
 

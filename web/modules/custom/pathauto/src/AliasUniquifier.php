@@ -12,41 +12,46 @@ use Drupal\Core\Routing\RouteProviderInterface;
 /**
  * Provides a utility for creating a unique path alias.
  */
-class AliasUniquifier implements AliasUniquifierInterface
-{
+class AliasUniquifier implements AliasUniquifierInterface {
 
   /**
    * Config factory.
+   *
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
   /**
    * The alias storage helper.
+   *
    * @var \Drupal\pathauto\AliasStorageHelperInterface
    */
   protected $aliasStorageHelper;
 
   /**
    * The module handler.
+   *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
 
   /**
    * The route provider service.
+   *
    * @var \Drupal\Core\Routing\RouteProviderInterface.
    */
   protected $routeProvider;
 
   /**
    * The alias manager.
+   *
    * @var \Drupal\Core\Path\AliasManagerInterface
    */
   protected $aliasManager;
 
   /**
    * Creates a new AliasUniquifier.
+   *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param \Drupal\pathauto\AliasStorageHelperInterface $alias_storage_helper
@@ -56,8 +61,7 @@ class AliasUniquifier implements AliasUniquifierInterface
    * @param \Drupal\Core\Routing\RouteProviderInterface $route_provider
    *   The route provider service.
    */
-  public function __construct (ConfigFactoryInterface $config_factory, AliasStorageHelperInterface $alias_storage_helper, ModuleHandlerInterface $module_handler, RouteProviderInterface $route_provider, AliasManagerInterface $alias_manager)
-  {
+  public function __construct(ConfigFactoryInterface $config_factory, AliasStorageHelperInterface $alias_storage_helper, ModuleHandlerInterface $module_handler, RouteProviderInterface $route_provider, AliasManagerInterface $alias_manager) {
     $this->configFactory = $config_factory;
     $this->aliasStorageHelper = $alias_storage_helper;
     $this->moduleHandler = $module_handler;
@@ -68,8 +72,7 @@ class AliasUniquifier implements AliasUniquifierInterface
   /**
    * {@inheritdoc}
    */
-  public function uniquify (&$alias, $source, $langcode)
-  {
+  public function uniquify(&$alias, $source, $langcode) {
     $config = $this->configFactory->get('pathauto.settings');
 
     if (!$this->isReserved($alias, $source, $langcode)) {
@@ -93,8 +96,7 @@ class AliasUniquifier implements AliasUniquifierInterface
   /**
    * {@inheritdoc}
    */
-  public function isReserved ($alias, $source, $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED)
-  {
+  public function isReserved($alias, $source, $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED) {
     // Check if this alias already exists.
     if ($existing_source = $this->aliasManager->getPathByAlias($alias, $langcode)) {
       if ($existing_source != $alias) {
@@ -128,14 +130,15 @@ class AliasUniquifier implements AliasUniquifierInterface
 
   /**
    * Verify if the given path is a valid route.
+   *
    * @param string $path
    *   A string containing a relative path.
+   *
    * @return bool
    *   TRUE if the path already exists.
    * @throws \InvalidArgumentException
    */
-  public function isRoute ($path)
-  {
+  public function isRoute($path) {
     if (is_file(DRUPAL_ROOT . '/' . $path) || is_dir(DRUPAL_ROOT . '/' . $path)) {
       // Do not allow existing files or directories to get assigned an automatic
       // alias. Note that we do not need to use is_link() to check for symbolic

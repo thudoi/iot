@@ -8,8 +8,7 @@
 /**
  * Implements hook_requirements().
  */
-function tcpdf_requirements ($phase)
-{
+function tcpdf_requirements($phase) {
   $requirements = [];
   if ($phase == 'runtime') {
     $tcpdf_file_dir = 'temporary://tcpdf/cache';
@@ -17,8 +16,13 @@ function tcpdf_requirements ($phase)
     $cache_dir = $tcpdf_file_dir . 'cache';
     if (!file_prepare_directory($cache_dir, FILE_CREATE_DIRECTORY)) {
       $problematic_uris['cachedir'] = $cache_dir;
-    } else {
-      $requirements['tcpdf_cachedir'] = ['title' => t('TCPDF cache directory'), 'severity' => REQUIREMENT_OK, 'value' => t('Exists'),];
+    }
+    else {
+      $requirements['tcpdf_cachedir'] = [
+        'title' => t('TCPDF cache directory'),
+        'severity' => REQUIREMENT_OK,
+        'value' => t('Exists'),
+      ];
     }
 
     foreach ($problematic_uris as $uri) {
@@ -27,7 +31,11 @@ function tcpdf_requirements ($phase)
       $requirements['tcpdf_cache']['value'] = t('Unable to create');
     }
 
-    $requirements["tcpdf_available"] = ['title' => t('TCPDF library'), 'value' => class_exists('TCPDF') ? t('Available') : t('Not available'), 'severity' => class_exists('TCPDF') ? REQUIREMENT_OK : REQUIREMENT_ERROR,];
+    $requirements["tcpdf_available"] = [
+      'title' => t('TCPDF library'),
+      'value' => class_exists('TCPDF') ? t('Available') : t('Not available'),
+      'severity' => class_exists('TCPDF') ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+    ];
   }
 
   return $requirements;

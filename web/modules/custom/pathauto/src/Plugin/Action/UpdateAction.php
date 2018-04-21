@@ -14,23 +14,21 @@ use Drupal\pathauto\PathautoState;
  *   label = @Translation("Update URL alias of an entity"),
  * )
  */
-class UpdateAction extends ActionBase
-{
+class UpdateAction extends ActionBase {
 
   /**
    * {@inheritdoc}
    */
-  public function execute ($entity = NULL)
-  {
+  public function execute($entity = NULL) {
     $entity->path->pathauto = PathautoState::CREATE;
-    \Drupal::service('pathauto.generator')->updateEntityAlias($entity, 'bulkupdate', ['message' => TRUE]);
+    \Drupal::service('pathauto.generator')
+      ->updateEntityAlias($entity, 'bulkupdate', ['message' => TRUE]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function access ($object, AccountInterface $account = NULL, $return_as_object = FALSE)
-  {
+  public function access($object, AccountInterface $account = NULL, $return_as_object = FALSE) {
     $result = AccessResult::allowedIfHasPermission($account, 'create url aliases');
     return $return_as_object ? $result : $result->isAllowed();
   }

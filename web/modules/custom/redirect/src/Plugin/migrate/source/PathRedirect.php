@@ -10,16 +10,23 @@ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
  *   id = "d6_path_redirect"
  * )
  */
-class PathRedirect extends DrupalSqlBase
-{
+class PathRedirect extends DrupalSqlBase {
 
   /**
    * {@inheritdoc}
    */
-  public function query ()
-  {
+  public function query() {
     // Select path redirects.
-    $query = $this->select('path_redirect', 'p')->fields('p', ['rid', 'source', 'redirect', 'query', 'fragment', 'language', 'type', 'last_used',]);
+    $query = $this->select('path_redirect', 'p')->fields('p', [
+      'rid',
+      'source',
+      'redirect',
+      'query',
+      'fragment',
+      'language',
+      'type',
+      'last_used',
+    ]);
 
     return $query;
   }
@@ -27,17 +34,24 @@ class PathRedirect extends DrupalSqlBase
   /**
    * {@inheritdoc}
    */
-  public function fields ()
-  {
-    $fields = ['rid' => $this->t('Redirect ID'), 'source' => $this->t('Source'), 'redirect' => $this->t('Redirect'), 'query' => $this->t('Query'), 'fragment' => $this->t('Fragment'), 'language' => $this->t('Language'), 'type' => $this->t('Type'), 'last_used' => $this->t('Last Used'),];
+  public function fields() {
+    $fields = [
+      'rid' => $this->t('Redirect ID'),
+      'source' => $this->t('Source'),
+      'redirect' => $this->t('Redirect'),
+      'query' => $this->t('Query'),
+      'fragment' => $this->t('Fragment'),
+      'language' => $this->t('Language'),
+      'type' => $this->t('Type'),
+      'last_used' => $this->t('Last Used'),
+    ];
     return $fields;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getIds ()
-  {
+  public function getIds() {
     $ids['rid']['type'] = 'integer';
     return $ids;
   }

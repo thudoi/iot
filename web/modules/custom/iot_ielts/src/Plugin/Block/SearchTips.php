@@ -20,16 +20,14 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Search Tips"),
  * )
  */
-class SearchTips extends BlockBase
-{
+class SearchTips extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
-    $get = false;
+  public function build() {
+    $get = FALSE;
     if (isset($_GET['title'])) {
       $get = $_GET['title'];
     }

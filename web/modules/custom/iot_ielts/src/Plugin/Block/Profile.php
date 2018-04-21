@@ -20,16 +20,17 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Profile"),
  * )
  */
-class Profile extends BlockBase
-{
+class Profile extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
-    return ['#markup' => '<a class="use-ajax click-profile-build" data-dialog-type="modal" href="/account/build/profile"></a>', '#attached' => ['library' => ['iot_user/iot_account',],]];
+  public function build() {
+    return [
+      '#markup' => '<a class="use-ajax click-profile-build" data-dialog-type="modal" href="/account/build/profile"></a>',
+      '#attached' => ['library' => ['iot_user/iot_account',],],
+    ];
   }
 
 }

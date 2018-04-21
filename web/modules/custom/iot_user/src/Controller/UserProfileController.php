@@ -12,16 +12,15 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * Class DashboardController.
  */
-class UserProfileController extends ControllerBase
-{
+class UserProfileController extends ControllerBase {
 
   /**
    * Dashboard.
+   *
    * @return string
    *   Return Hello string.
    */
-  public function login ()
-  {
+  public function login() {
     $user = \Drupal::currentUser();
     if ($user->id() > 0) {
       $response = new RedirectResponse('/account/profile');
@@ -40,15 +39,20 @@ class UserProfileController extends ControllerBase
     if (isset($_GET['submit'])) {
       $submit = $_GET['submit'];
     }
-    return ['#theme' => 'iot_user_login', '#destination' => $return, '#submit' => $submit, '#attached' => ['library' => ['iot_user/iot_account',],],];
+    return [
+      '#theme' => 'iot_user_login',
+      '#destination' => $return,
+      '#submit' => $submit,
+      '#attached' => ['library' => ['iot_user/iot_account',],],
+    ];
   }
 
   /**
    * Implement Register
+   *
    * @return array
    */
-  public function register ()
-  {
+  public function register() {
     $user = \Drupal::currentUser();
     if ($user->id() > 0) {
       $response = new RedirectResponse('/account/profile');
@@ -58,15 +62,19 @@ class UserProfileController extends ControllerBase
     if (isset($_GET['destination'])) {
       $return = $_GET['destination'];
     }
-    return ['#theme' => 'iot_user_register', '#destination' => $return, '#attached' => ['library' => ['iot_user/iot_account',],],];
+    return [
+      '#theme' => 'iot_user_register',
+      '#destination' => $return,
+      '#attached' => ['library' => ['iot_user/iot_account',],],
+    ];
   }
 
   /**
    * Implement Register
+   *
    * @return array
    */
-  public function buildProfile ()
-  {
+  public function buildProfile() {
     $user = \Drupal::currentUser();
 
     if ($user->id() <= 0) {
@@ -82,14 +90,18 @@ class UserProfileController extends ControllerBase
     $fields['field_previous_score'] = $this->getFieldNameSetting('field_previous_score');
     $fields['field_practicing'] = $this->getFieldNameSetting('field_practicing');
     $fields['field_destination'] = $this->getFieldNameSetting('field_destination');
-    return ['#theme' => 'iot_user_build_profile', '#destination' => $return, '#fields' => $fields, '#attached' => ['library' => ['iot_user/iot_account',],],];
+    return [
+      '#theme' => 'iot_user_build_profile',
+      '#destination' => $return,
+      '#fields' => $fields,
+      '#attached' => ['library' => ['iot_user/iot_account',],],
+    ];
   }
 
   /**
    * Callback to login
    */
-  public function loginCallback ()
-  {
+  public function loginCallback() {
     $request = Request::createFromGlobals();
     $service = \Drupal::service('user.auth');
     $email = FALSE;
@@ -99,9 +111,14 @@ class UserProfileController extends ControllerBase
     if (isset($_POST['account_email'])) {
       $email = $_POST['account_email'];
       if (valid_email_address($email)) {
-        $account_search = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['mail' => $email]);
-      } else {
-        $account_search = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $email]);
+        $account_search = \Drupal::entityTypeManager()
+          ->getStorage('user')
+          ->loadByProperties(['mail' => $email]);
+      }
+      else {
+        $account_search = \Drupal::entityTypeManager()
+          ->getStorage('user')
+          ->loadByProperties(['name' => $email]);
       }
       $account = reset($account_search);
       if ($account) {
@@ -119,11 +136,13 @@ class UserProfileController extends ControllerBase
         $data = 1;
         print $data;
         exit();
-      } else {
+      }
+      else {
         print $data;
         exit();
       }
-    } else {
+    }
+    else {
       print $data;
       exit();
     }
@@ -132,15 +151,16 @@ class UserProfileController extends ControllerBase
   /**
    * Register call back
    */
-  public function registerCallback ()
-  {
+  public function registerCallback() {
     $username = FALSE;
     $email = FALSE;
     $password = FALSE;
     $data = 1;
     if (isset($_POST['account_username'])) {
       $username = $_POST['account_username'];
-      $account_search = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $username]);
+      $account_search = \Drupal::entityTypeManager()
+        ->getStorage('user')
+        ->loadByProperties(['name' => $username]);
       if ($account_search) {
         $data = $this->t('Your username is ready exist. Please try to <a class="use-ajax" data-dialog-type="modal" href="/account/login"><b>login</b></a> or <a href="/user/password"><b>forgot password</b></a>.');
         print $data;
@@ -149,7 +169,9 @@ class UserProfileController extends ControllerBase
     }
     if (isset($_POST['account_email'])) {
       $email = $_POST['account_email'];
-      $account_search = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['mail' => $email]);
+      $account_search = \Drupal::entityTypeManager()
+        ->getStorage('user')
+        ->loadByProperties(['mail' => $email]);
       if ($account_search) {
         $data = $this->t('Your email is ready exist. Please try to <a class="use-ajax" data-dialog-type="modal" href="/account/login"><b>login</b></a> or <a href="/user/password"><b>forgot password</b></a>.');
         print $data;
@@ -179,7 +201,9 @@ class UserProfileController extends ControllerBase
 
         // Save user account.
         $result = $user->save();
-        $account_search = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $username]);
+        $account_search = \Drupal::entityTypeManager()
+          ->getStorage('user')
+          ->loadByProperties(['name' => $username]);
         $account = reset($account_search);
         user_login_finalize($account);
         $data = 1;
@@ -194,19 +218,20 @@ class UserProfileController extends ControllerBase
 
   /**
    * @param $field_name
+   *
    * @return mixed
    * Get Field Name
    */
-  public function getFieldNameSetting ($field_name)
-  {
-    $fields = \Drupal::entityManager()->getStorage('field_storage_config')->loadByProperties(['field_name' => $field_name]);
+  public function getFieldNameSetting($field_name) {
+    $fields = \Drupal::entityManager()
+      ->getStorage('field_storage_config')
+      ->loadByProperties(['field_name' => $field_name]);
     $field_storage = reset($fields);
     $storage = $field_storage->toArray();
     return $storage['settings']['allowed_values'];
   }
 
-  public function buildProfileCallback ()
-  {
+  public function buildProfileCallback() {
     // var_dump($_POST);die;
     $user = \Drupal::currentUser();
     $account = User::load($user->id());
@@ -227,7 +252,8 @@ class UserProfileController extends ControllerBase
       if (isset($_POST['field_date'])) {
         $account->set('field_month_year_exam', $_POST['field_date']);
       }
-    } else {
+    }
+    else {
       $account->set('field_ielts', $field_ielts);
     }
 
@@ -247,7 +273,7 @@ class UserProfileController extends ControllerBase
         $rate[] = $des['key'] . '-' . $des['rate'];
       }
 
-//      ddl($field_data_rating);
+      //      ddl($field_data_rating);
       $account->set('field_destination', $destination);
       $account->set('field_country_rate', $rate);
     }
@@ -265,12 +291,11 @@ class UserProfileController extends ControllerBase
   /**
    * @return array
    */
-  public function loginVerify ()
-  {
+  public function loginVerify() {
     if (isset($_POST['des'])) {
       \Drupal::state()->set('destination_social', $_POST['des']);
     }
-    print true;
+    print TRUE;
     exit();
     return [];
   }

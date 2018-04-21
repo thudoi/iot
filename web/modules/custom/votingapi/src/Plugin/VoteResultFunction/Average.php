@@ -17,14 +17,12 @@ use Drupal\votingapi\VoteResultFunctionBase;
  *   description = @Translation("The average vote value.")
  * )
  */
-class Average extends VoteResultFunctionBase
-{
+class Average extends VoteResultFunctionBase {
 
   /**
    * {@inheritdoc}
    */
-  public function calculateResult ($votes)
-  {
+  public function calculateResult($votes) {
     $total = 0;
     foreach ($votes as $vote) {
       $total += $vote->getValue();

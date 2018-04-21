@@ -6,16 +6,15 @@ use Drupal\Core\Url;
 
 /**
  * UI tests for redirect_404 module.
+ *
  * @group redirect_404
  */
-class Fix404RedirectUITest extends Redirect404TestBase
-{
+class Fix404RedirectUITest extends Redirect404TestBase {
 
   /**
    * Tests the fix 404 pages workflow.
    */
-  public function testFix404Pages ()
-  {
+  public function testFix404Pages() {
     // Visit a non existing page to have the 404 redirect_error entry.
     $this->drupalGet('non-existing0');
 
@@ -27,7 +26,13 @@ class Fix404RedirectUITest extends Redirect404TestBase
     // Check if we generate correct Add redirect url and if the form is
     // pre-filled.
     $destination = Url::fromRoute('redirect_404.fix_404')->getInternalPath();
-    $options = ['query' => ['source' => 'non-existing0', 'language' => 'en', 'destination' => $destination,]];
+    $options = [
+      'query' => [
+        'source' => 'non-existing0',
+        'language' => 'en',
+        'destination' => $destination,
+      ],
+    ];
     $this->assertUrl('admin/config/search/redirect/add', $options);
     $this->assertFieldByName('redirect_source[0][path]', 'non-existing0');
     // Save the redirect.
@@ -92,7 +97,13 @@ class Fix404RedirectUITest extends Redirect404TestBase
 
     // Assign a redirect to 'non-existing2'.
     $this->clickLink('Add redirect');
-    $options = ['query' => ['source' => 'non-existing2', 'language' => 'en', 'destination' => $destination,]];
+    $options = [
+      'query' => [
+        'source' => 'non-existing2',
+        'language' => 'en',
+        'destination' => $destination,
+      ],
+    ];
     $this->assertUrl('admin/config/search/redirect/add', $options);
     $this->assertFieldByName('redirect_source[0][path]', 'non-existing2');
     $this->drupalPostForm(NULL, $edit, t('Save'));
@@ -110,8 +121,7 @@ class Fix404RedirectUITest extends Redirect404TestBase
   /**
    * Tests the redirect ignore pages.
    */
-  public function testIgnorePages ()
-  {
+  public function testIgnorePages() {
     // Create two nodes.
     $node1 = $this->drupalCreateNode(['type' => 'page']);
     $node2 = $this->drupalCreateNode(['type' => 'page']);
@@ -120,7 +130,10 @@ class Fix404RedirectUITest extends Redirect404TestBase
     $node_to_ignore = '/node/' . $node1->id() . '/test';
     $terms_to_ignore = '/term/*';
     $pages = $node_to_ignore . "\r\n" . $terms_to_ignore;
-    \Drupal::configFactory()->getEditable('redirect_404.settings')->set('pages', $pages)->save();
+    \Drupal::configFactory()
+      ->getEditable('redirect_404.settings')
+      ->set('pages', $pages)
+      ->save();
 
     // Visit ignored or non existing pages.
     $this->drupalGet('node/' . $node1->id() . '/test');

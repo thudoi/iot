@@ -13,42 +13,48 @@ use Drupal\user\Entity\User;
 /**
  * Default mail class for entities.
  */
-class MailEntity implements MailInterface
-{
+class MailEntity implements MailInterface {
+
   use DependencySerializationTrait;
 
   /**
    * The entity object.
+   *
    * @var \Drupal\Core\Entity\ContentEntityInterface
    */
   protected $entity;
 
   /**
    * The cached build render array.
+   *
    * @var array
    */
   protected $build;
 
   /**
    * The newsletter.
+   *
    * @var \Drupal\simplenews\NewsletterInterface
    */
   protected $newsletter;
 
   /**
    * The subscriber and therefore recipient of this mail.
+   *
    * @var \Drupal\simplenews\SubscriberInterface
    */
   protected $subscriber;
 
   /**
    * The mail key used for mails.
+   *
    * @var string
    */
   protected $key = 'test';
 
   /**
    * Cache implementation used for this mail.
+   *
    * @var MailCacheInterface
    */
   protected $cache;
@@ -56,8 +62,7 @@ class MailEntity implements MailInterface
   /**
    * Constructs a MailEntity object.
    */
-  public function __construct (ContentEntityInterface $entity, SubscriberInterface $subscriber, MailCacheInterface $mail_cache)
-  {
+  public function __construct(ContentEntityInterface $entity, SubscriberInterface $subscriber, MailCacheInterface $mail_cache) {
     $this->setSubscriber($subscriber);
     $this->setEntity($entity);
     $this->cache = $mail_cache;
@@ -66,11 +71,11 @@ class MailEntity implements MailInterface
 
   /**
    * Set the entity of this mail.
+   *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity of this mail.
    */
-  public function setEntity (ContentEntityInterface $entity)
-  {
+  public function setEntity(ContentEntityInterface $entity) {
     $this->entity = $entity;
     if ($this->entity->hasTranslation($this->getLanguage())) {
       $this->entity = $this->entity->getTranslation($this->getLanguage());
@@ -79,39 +84,38 @@ class MailEntity implements MailInterface
 
   /**
    * Returns the corresponding newsletter.
+   *
    * @return \Drupal\simplenews\NewsletterInterface
    *   The newsletter.
    */
-  public function getNewsletter ()
-  {
+  public function getNewsletter() {
     return $this->newsletter;
   }
 
   /**
    * Set the active subscriber.
+   *
    * @param \Drupal\simplenews\SubscriberInterface $subscriber
    *   The active subscriber.
    */
-  public function setSubscriber (SubscriberInterface $subscriber)
-  {
+  public function setSubscriber(SubscriberInterface $subscriber) {
     $this->subscriber = $subscriber;
   }
 
   /**
    * Return the subscriber object.
+   *
    * @return \Drupal\simplenews\SubscriberInterface
    *   The subscriber object.
    */
-  public function getSubscriber ()
-  {
+  public function getSubscriber() {
     return $this->subscriber;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHeaders (array $headers)
-  {
+  public function getHeaders(array $headers) {
 
     // If receipt is requested, add headers.
     if ($this->newsletter->receipt) {
@@ -150,7 +154,8 @@ class MailEntity implements MailInterface
 
     // Add user specific header data.
     $headers['From'] = $this->getFromFormatted();
-    $headers['List-Unsubscribe'] = '<' . \Drupal::token()->replace('[simplenews-subscriber:unsubscribe-url]', $this->getTokenContext(), ['sanitize' => FALSE]) . '>';
+    $headers['List-Unsubscribe'] = '<' . \Drupal::token()
+        ->replace('[simplenews-subscriber:unsubscribe-url]', $this->getTokenContext(), ['sanitize' => FALSE]) . '>';
 
     // Add general headers
     $headers['Precedence'] = 'bulk';
@@ -160,32 +165,32 @@ class MailEntity implements MailInterface
   /**
    * {@inheritdoc}
    */
-  function getTokenContext ()
-  {
-    return ['newsletter' => $this->getNewsletter(), 'simplenews_subscriber' => $this->getSubscriber(), $this->getEntity()->getEntityTypeId() => $this->getEntity(),];
+  function getTokenContext() {
+    return [
+      'newsletter' => $this->getNewsletter(),
+      'simplenews_subscriber' => $this->getSubscriber(),
+      $this->getEntity()->getEntityTypeId() => $this->getEntity(),
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
-  function setKey ($key)
-  {
+  function setKey($key) {
     $this->key = $key;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getKey ()
-  {
+  function getKey() {
     return $this->key;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getFromFormatted ()
-  {
+  function getFromFormatted() {
     // Windows based PHP systems don't accept formatted email addresses.
     if (Unicode::substr(PHP_OS, 0, 3) == 'WIN') {
       return $this->getFromAddress();
@@ -196,52 +201,50 @@ class MailEntity implements MailInterface
   /**
    * {@inheritdoc}
    */
-  function getFromAddress ()
-  {
+  function getFromAddress() {
     return $this->getNewsletter()->from_address;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getRecipient ()
-  {
+  function getRecipient() {
     return $this->getSubscriber()->getMail();
   }
 
   /**
    * {@inheritdoc}
    */
-  function getFormat ()
-  {
+  function getFormat() {
     return $this->getNewsletter()->format;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getLanguage ()
-  {
+  function getLanguage() {
     return $this->getSubscriber()->getLangcode();
   }
 
   /**
    * {@inheritdoc}
    */
-  function getEntity ()
-  {
+  function getEntity() {
     return $this->entity;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getSubject ()
-  {
+  function getSubject() {
     // Build email subject and perform some sanitizing.
     // Use the requested language if enabled.
     $langcode = $this->getLanguage();
-    $subject = \Drupal::token()->replace($this->getNewsletter()->subject, $this->getTokenContext(), ['sanitize' => FALSE, 'langcode' => $langcode]);
+    $subject = \Drupal::token()
+      ->replace($this->getNewsletter()->subject, $this->getTokenContext(), [
+        'sanitize' => FALSE,
+        'langcode' => $langcode,
+      ]);
 
     // Line breaks are removed from the email subject to prevent injection of
     // malicious data into the email header.
@@ -252,8 +255,7 @@ class MailEntity implements MailInterface
   /**
    * Set up the necessary language and user context.
    */
-  protected function setContext ()
-  {
+  protected function setContext() {
 
     // Switch to the user
     if ($this->uid = $this->getSubscriber()->getUserId()) {
@@ -277,8 +279,7 @@ class MailEntity implements MailInterface
   /**
    * Reset the context.
    */
-  protected function resetContext ()
-  {
+  protected function resetContext() {
 
     // Switch back to the previous user.
     if ($this->uid) {
@@ -298,11 +299,11 @@ class MailEntity implements MailInterface
   /**
    * Build the entity object.
    * The resulting build array is cached as it is used in multiple places.
+   *
    * @param string|null $format
    *   (Optional) Override the default format. Defaults to getFormat().
    */
-  protected function build ($format = NULL)
-  {
+  protected function build($format = NULL) {
     if (empty($format)) {
       $format = $this->getFormat();
     }
@@ -312,7 +313,10 @@ class MailEntity implements MailInterface
 
     // Build message body
     // Supported view modes: 'email_plain', 'email_html', 'email_textalt'
-    $build = \Drupal::entityManager()->getViewBuilder($this->getEntity()->getEntityTypeId())->view($this->getEntity(), 'email_' . $format, $this->getLanguage());
+    $build = \Drupal::entityManager()
+      ->getViewBuilder($this->getEntity()
+        ->getEntityTypeId())
+      ->view($this->getEntity(), 'email_' . $format, $this->getLanguage());
     $build['#entity_type'] = $this->getEntity()->getEntityTypeId();
     // @todo: Consider using render caching.
     unset($build['#cache']);
@@ -320,7 +324,8 @@ class MailEntity implements MailInterface
     // We need to prevent the standard theming hooks, but we do want to allow
     // modules such as panelizer that override it, so only clear the standard
     // entity hook and entity type hooks.
-    if ($build['#theme'] == 'entity' || $build['#theme'] == $this->getEntity()->getEntityTypeId()) {
+    if ($build['#theme'] == 'entity' || $build['#theme'] == $this->getEntity()
+        ->getEntityTypeId()) {
       unset($build['#theme']);
     }
 
@@ -330,20 +335,28 @@ class MailEntity implements MailInterface
 
   /**
    * Build the themed newsletter body.
+   *
    * @param string|null $format
    *   (Optional) Override the default format. Defaults to getFormat().
+   *
    * @return string
    *   The newsletter body.
    */
-  protected function buildBody ($format = NULL)
-  {
+  protected function buildBody($format = NULL) {
     if (empty($format)) {
       $format = $this->getFormat();
     }
     if ($cache = $this->cache->get($this, 'build', 'body:' . $format)) {
       return $cache;
     }
-    $body = $this->build($format) + ['#theme' => 'simplenews_newsletter_body', '#newsletter' => $this->getNewsletter(), '#language' => $this->getLanguage(), '#simplenews_subscriber' => $this->getSubscriber(), '#key' => $this->getKey(), '#format' => $format,];
+    $body = $this->build($format) + [
+        '#theme' => 'simplenews_newsletter_body',
+        '#newsletter' => $this->getNewsletter(),
+        '#language' => $this->getLanguage(),
+        '#simplenews_subscriber' => $this->getSubscriber(),
+        '#key' => $this->getKey(),
+        '#format' => $format,
+      ];
     $markup = \Drupal::service('renderer')->renderPlain($body);
     $this->cache->set($this, 'build', 'body:' . $format, $markup);
     return $markup;
@@ -352,28 +365,27 @@ class MailEntity implements MailInterface
   /**
    * {@inheritdoc}
    */
-  public function getBody ()
-  {
+  public function getBody() {
     return $this->getBodyWithFormat($this->getFormat());
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPlainBody ()
-  {
+  public function getPlainBody() {
     return $this->getBodyWithFormat('plain');
   }
 
   /**
    * Get the body with the requested format.
+   *
    * @param string $format
    *   Either html or plain.
+   *
    * @return string
    *   The rendered mail body as a string.
    */
-  protected function getBodyWithFormat ($format)
-  {
+  protected function getBodyWithFormat($format) {
     // Switch to correct user and language context.
     $this->setContext();
 
@@ -384,11 +396,13 @@ class MailEntity implements MailInterface
     $body = $this->buildBody($format);
 
     // Build message body, replace tokens.
-    $body = \Drupal::token()->replace($body, $this->getTokenContext(), ['langcode' => $this->getLanguage()]);
+    $body = \Drupal::token()
+      ->replace($body, $this->getTokenContext(), ['langcode' => $this->getLanguage()]);
     if ($format == 'plain') {
       // Convert HTML to text if requested to do so.
       $body = MailFormatHelper::htmlToText($body, $this->getNewsletter()->hyperlinks);
-    } else {
+    }
+    else {
       $body = Markup::create($body);
     }
     $this->cache->set($this, 'final', 'body:' . $format, $body);
@@ -399,8 +413,7 @@ class MailEntity implements MailInterface
   /**
    * {@inhertidoc}
    */
-  function getAttachments ()
-  {
+  function getAttachments() {
     if ($cache = $this->cache->get($this, 'data', 'attachments')) {
       return $cache;
     }
@@ -408,7 +421,8 @@ class MailEntity implements MailInterface
     $attachments = [];
     $build = $this->build();
     $fids = [];
-    foreach ($this->getEntity()->getFieldDefinitions() as $field_name => $field_definition) {
+    foreach ($this->getEntity()
+               ->getFieldDefinitions() as $field_name => $field_definition) {
       // @todo: Find a better way to support more field types.
       // Only add fields of type file which are enabled for the current view
       // mode as attachments.

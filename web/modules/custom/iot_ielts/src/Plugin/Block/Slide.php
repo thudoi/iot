@@ -20,16 +20,19 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Slide"),
  * )
  */
-class Slide extends BlockBase
-{
+class Slide extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
-    $nids = \Drupal::entityQuery('node')->condition('type', 'service')->condition('status', 1)->condition('field_service_type', 'slide')->sort('created', 'ASC')->execute();
+  public function build() {
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'service')
+      ->condition('status', 1)
+      ->condition('field_service_type', 'slide')
+      ->sort('created', 'ASC')
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $services = [];
     foreach ($nodes as $node) {

@@ -14,33 +14,42 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 
-class CollectionController extends ControllerBase
-{
+class CollectionController extends ControllerBase {
 
   /**
    * @return array
    * Get quiz
    */
-  public function Collection (NodeInterface $node)
-  {
-//    $node = $this->getNode();
-    $nids = \Drupal::entityQuery('node')->condition('type', 'quiz')->condition('field_collection', $node->id())->execute();
+  public function Collection(NodeInterface $node) {
+    //    $node = $this->getNode();
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'quiz')
+      ->condition('field_collection', $node->id())
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $sets = [];
     foreach ($nodes as $set) {
       $sets[] = $set;
     }
 
-    return ['#theme' => ['iot_manage_collection'], '#node' => $node, '#sets' => $sets,];
+    return [
+      '#theme' => ['iot_manage_collection'],
+      '#node' => $node,
+      '#sets' => $sets,
+    ];
   }
 
   /**
    * @return array
    * Get collections
    */
-  public function Collections ()
-  {
-    $nids = \Drupal::entityQuery('node')->condition('type', 'collection')->condition('status', 1)->sort('field_collection_order', 'ASC')->sort('created', 'DESC')->execute();
+  public function Collections() {
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'collection')
+      ->condition('status', 1)
+      ->sort('field_collection_order', 'ASC')
+      ->sort('created', 'DESC')
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $collections = [];
     $terms = $this->get_category();
@@ -84,13 +93,18 @@ class CollectionController extends ControllerBase
       $category[$term->id()] = $cate;
     }
 
-    return ['#theme' => ['iot_collections'], '#collections' => $collections, '#terms' => $terms, '#category' => $category, '#features' => $features,];
+    return [
+      '#theme' => ['iot_collections'],
+      '#collections' => $collections,
+      '#terms' => $terms,
+      '#category' => $category,
+      '#features' => $features,
+    ];
   }
 
-  public function Sections (NodeInterface $node)
-  {
+  public function Sections(NodeInterface $node) {
     if (isset($_GET['field'])) {
-//      $node = $this->getNode();
+      //      $node = $this->getNode();
       $field = $_GET['field'];
       $secs_ids = $node->get($field)->getValue();
       $secs = [];
@@ -98,23 +112,31 @@ class CollectionController extends ControllerBase
         $sec = Node::load($secs_id['target_id']);
         $secs[] = $sec;
       }
-      return ['#theme' => ['iot_manage_sections'], '#node' => $node, '#secs' => $secs, '#type' => $field,];
-    } else {
-      return ['#type' => 'markup', '#markup' => $this->t('invalid field name'),];
+      return [
+        '#theme' => ['iot_manage_sections'],
+        '#node' => $node,
+        '#secs' => $secs,
+        '#type' => $field,
+      ];
+    }
+    else {
+      return [
+        '#type' => 'markup',
+        '#markup' => $this->t('invalid field name'),
+      ];
     }
   }
 
   /**
    * @return \Drupal\Core\Entity\EntityInterface|null|static
    */
-//  public function getNode() {
-//    $nid = \Drupal::request()->get('nid');
-//    $node = Node::load($nid);
-//    return $node;
-//  }
+  //  public function getNode() {
+  //    $nid = \Drupal::request()->get('nid');
+  //    $node = Node::load($nid);
+  //    return $node;
+  //  }
 
-  public function get_category ()
-  {
+  public function get_category() {
     $vocabulary_name = 'quiz_category'; //name of your vocabulary
     $query = \Drupal::entityQuery('taxonomy_term');
     $query->condition('vid', $vocabulary_name);

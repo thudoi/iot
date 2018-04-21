@@ -11,8 +11,7 @@ namespace Drupal\iot_quiz;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\node\Entity\Node;
 
-class QuestionService
-{
+class QuestionService {
 
   /**
    * @param $node
@@ -21,10 +20,10 @@ class QuestionService
    * @param $author
    * @param $set
    * @param $collection_date
+   *
    * @return array
    */
-  public function getResultQuestion ($node, $score, $collection, $author, $set)
-  {
+  public function getResultQuestion($node, $score, $collection, $author, $set) {
     $type = $node->get('field_quiz_type')->value;
     $title = $node->get('field_title_ui')->value;
     $arr = [];
@@ -68,26 +67,49 @@ class QuestionService
         $t_spend = $this->mappArrayPercent($time_spend);
         if ($real_time > 0) {
           $spend = gmdate('i:s', $real_time);
-        } elseif ($real_time == 0) {
+        }
+        elseif ($real_time == 0) {
           $spend = gmdate('i:s', $total_second);
           $t_spend = 100;
-        } else {
+        }
+        else {
           $spend = '00:00';
         }
         $mapping['mapp'] = array_reverse($arr['listening']);
         $mapping['score'] = $mapp;
-        $test_result = ['score' => $map_score, 'correct' => $correct, 'time' => $spend, 'correct_percent' => $this->mappArrayPercent($percent_correct), 'time_spend' => $t_spend,];
+        $test_result = [
+          'score' => $map_score,
+          'correct' => $correct,
+          'time' => $spend,
+          'correct_percent' => $this->mappArrayPercent($percent_correct),
+          'time_spend' => $t_spend,
+        ];
         $data = [];
         foreach ($content['answers']['answers'] as $key => $answer) {
           switch ($answer['type']) {
             case 'blank':
-              $data[$key] = ['num' => $result[$key]['num'], 'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '', 'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0, 'correct_ans' => $answer['prefix']];
+              $data[$key] = [
+                'num' => $result[$key]['num'],
+                'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '',
+                'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0,
+                'correct_ans' => $answer['prefix'],
+              ];
               break;
             case 'radio':
-              $data[$key] = ['num' => $result[$key]['num'], 'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '', 'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0, 'correct_ans' => $answer['answer'],];
+              $data[$key] = [
+                'num' => $result[$key]['num'],
+                'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '',
+                'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0,
+                'correct_ans' => $answer['answer'],
+              ];
               break;
             case 'drop_down':
-              $data[$key] = ['num' => $result[$key]['num'], 'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '', 'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0, 'correct_ans' => $answer['answer'],];
+              $data[$key] = [
+                'num' => $result[$key]['num'],
+                'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '',
+                'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0,
+                'correct_ans' => $answer['answer'],
+              ];
               break;
             case 'checkbox':
               $c_correct = isset($result[$key]['correct']) ? $result[$key]['correct'] : 0;
@@ -96,20 +118,57 @@ class QuestionService
                 $i = 0;
                 foreach ($answer['answer'] as $as) {
                   foreach ($result[$key]['ans'] as $r) {
-                    if ($r == $as) $i++;
+                    if ($r == $as) {
+                      $i++;
+                    }
                   }
                 }
                 $c_ans .= ' (Correct ' . $i . '/' . count($answer['answer']) . ')';
               }
-              $data[$key] = ['num' => $result[$key]['num'], 'ans' => $c_ans, 'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0, 'correct_ans' => implode(',', $answer['answer']),];
+              $data[$key] = [
+                'num' => $result[$key]['num'],
+                'ans' => $c_ans,
+                'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0,
+                'correct_ans' => implode(',', $answer['answer']),
+              ];
               break;
           }
         }
-        $collection_theme = ['#theme' => 'iot_collection_header', '#collection' => $collection, '#type' => 'listening', '#title' => $title,];
+        $collection_theme = [
+          '#theme' => 'iot_collection_header',
+          '#collection' => $collection,
+          '#type' => 'listening',
+          '#title' => $title,
+        ];
         $collection_header = render($collection_theme);
-        $score_table_theme = ['#theme' => 'iot_result_question', '#result' => $data, '#type' => 'result',];
+        $score_table_theme = [
+          '#theme' => 'iot_result_question',
+          '#result' => $data,
+          '#type' => 'result',
+        ];
         $score_table = render($score_table_theme);
-        return ['#theme' => 'iot_result_listening', '#node' => $node, '#result' => $data, '#score' => $test_result, '#secs' => $content['secs'], '#audio' => $content['audio'], '#answers' => $content['answers'], '#collection_header' => $collection_header, '#author' => $author, '#set' => $set, '#mapping' => $mapping, '#score_table' => $score_table, '#leader_board' => $this->getLeaderBoard($node->id()), '#attached' => ['library' => ['iot_quiz/iot_result', 'iot_quiz/iot_frontend',], 'drupalSettings' => ['test' => $data, 'qid' => $node->id()],],];
+        return [
+          '#theme' => 'iot_result_listening',
+          '#node' => $node,
+          '#result' => $data,
+          '#score' => $test_result,
+          '#secs' => $content['secs'],
+          '#audio' => $content['audio'],
+          '#answers' => $content['answers'],
+          '#collection_header' => $collection_header,
+          '#author' => $author,
+          '#set' => $set,
+          '#mapping' => $mapping,
+          '#score_table' => $score_table,
+          '#leader_board' => $this->getLeaderBoard($node->id()),
+          '#attached' => [
+            'library' => [
+              'iot_quiz/iot_result',
+              'iot_quiz/iot_frontend',
+            ],
+            'drupalSettings' => ['test' => $data, 'qid' => $node->id()],
+          ],
+        ];
         break;
       case 'reading':
         $set_id = $node->get('field_set')->target_id;
@@ -152,14 +211,22 @@ class QuestionService
         $t_spend = $this->mappArrayPercent($time_spend);
         if ($real_time > 0) {
           $spend = gmdate('i:s', $real_time);
-        } elseif ($real_time == 0) {
+        }
+        elseif ($real_time == 0) {
           $spend = gmdate('i:s', $total_second);
           $t_spend = 100;
-        } else {
+        }
+        else {
           $spend = '00:00';
         }
         $mapping['score'] = $mapp;
-        $test_result = ['score' => $map_score, 'correct' => $correct, 'time' => $spend, 'correct_percent' => $this->mappArrayPercent($percent_correct), 'time_spend' => $t_spend,];
+        $test_result = [
+          'score' => $map_score,
+          'correct' => $correct,
+          'time' => $spend,
+          'correct_percent' => $this->mappArrayPercent($percent_correct),
+          'time_spend' => $t_spend,
+        ];
         //$sections = $service->explanation_reading($content['secs']);
         $explain = [];
         foreach ($content['secs'] as $section) {
@@ -173,13 +240,28 @@ class QuestionService
         foreach ($content['answers']['answers'] as $key => $answer) {
           switch ($answer['type']) {
             case 'blank':
-              $data[$key] = ['num' => $result[$key]['num'], 'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '', 'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0, 'correct_ans' => $answer['prefix']];
+              $data[$key] = [
+                'num' => $result[$key]['num'],
+                'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '',
+                'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0,
+                'correct_ans' => $answer['prefix'],
+              ];
               break;
             case 'radio':
-              $data[$key] = ['num' => $result[$key]['num'], 'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '', 'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0, 'correct_ans' => $answer['answer'],];
+              $data[$key] = [
+                'num' => $result[$key]['num'],
+                'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '',
+                'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0,
+                'correct_ans' => $answer['answer'],
+              ];
               break;
             case 'drop_down':
-              $data[$key] = ['num' => $result[$key]['num'], 'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '', 'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0, 'correct_ans' => $answer['answer'],];
+              $data[$key] = [
+                'num' => $result[$key]['num'],
+                'ans' => isset($result[$key]['ans']) ? $result[$key]['ans'] : '',
+                'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0,
+                'correct_ans' => $answer['answer'],
+              ];
               break;
             case 'checkbox':
               $c_correct = isset($result[$key]['correct']) ? $result[$key]['correct'] : 0;
@@ -188,30 +270,65 @@ class QuestionService
                 $i = 0;
                 foreach ($answer['answer'] as $as) {
                   foreach ($result[$key]['ans'] as $r) {
-                    if ($r == $as) $i++;
+                    if ($r == $as) {
+                      $i++;
+                    }
                   }
                 }
                 $c_ans .= ' (Correct ' . $i . '/' . count($answer['answer']) . ')';
               }
-              $data[$key] = ['num' => $result[$key]['num'], 'ans' => $c_ans, 'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0, 'correct_ans' => implode(',', $answer['answer']),];
+              $data[$key] = [
+                'num' => $result[$key]['num'],
+                'ans' => $c_ans,
+                'correct' => isset($result[$key]['correct']) ? $result[$key]['correct'] : 0,
+                'correct_ans' => implode(',', $answer['answer']),
+              ];
               break;
           }
         }
-        $collection_theme = ['#theme' => 'iot_collection_header', '#collection' => $collection, '#type' => 'reading', '#title' => $title,];
+        $collection_theme = [
+          '#theme' => 'iot_collection_header',
+          '#collection' => $collection,
+          '#type' => 'reading',
+          '#title' => $title,
+        ];
         $collection_header = render($collection_theme);
-        $score_table_theme = ['#theme' => 'iot_result_question', '#result' => $data, '#type' => 'result', '#class' => 'green',];
+        $score_table_theme = [
+          '#theme' => 'iot_result_question',
+          '#result' => $data,
+          '#type' => 'result',
+          '#class' => 'green',
+        ];
         $score_table = render($score_table_theme);
-        return ['#theme' => ['iot_result_reading'], '#node' => $node, '#result' => $data, '#score' => $test_result, '#secs' => $content['secs'], '#answers' => $content['answers'], '#explain' => $explain, '#collection_header' => $collection_header, '#author' => $author, '#set' => $set, '#mapping' => $mapping, '#score_table' => $score_table, '#leader_board' => $this->getLeaderBoard($node->id()), '#attached' => ['library' => ['iot_quiz/iot_result',], 'drupalSettings' => ['test' => $data, 'qid' => $qid],],];
+        return [
+          '#theme' => ['iot_result_reading'],
+          '#node' => $node,
+          '#result' => $data,
+          '#score' => $test_result,
+          '#secs' => $content['secs'],
+          '#answers' => $content['answers'],
+          '#explain' => $explain,
+          '#collection_header' => $collection_header,
+          '#author' => $author,
+          '#set' => $set,
+          '#mapping' => $mapping,
+          '#score_table' => $score_table,
+          '#leader_board' => $this->getLeaderBoard($node->id()),
+          '#attached' => [
+            'library' => ['iot_quiz/iot_result',],
+            'drupalSettings' => ['test' => $data, 'qid' => $qid],
+          ],
+        ];
         break;
     }
   }
 
   /**
    * @param $node
+   *
    * @return array
    */
-  public function getQuestionDetail ($node)
-  {
+  public function getQuestionDetail($node) {
     $score_service = \Drupal::service('iot_quiz.scoreservice');
     $score_id = $score_service->InitScore($node);
     $storage = [];
@@ -234,84 +351,169 @@ class QuestionService
     $logged_in = $user->isAuthenticated();
     switch ($type) {
       case 'writing':
-        return ['#theme' => ['iot_writing_speaking'], '#node' => $node, '#attached' => ['library' => ['iot_quiz/iot_frontend', 'iot_quiz/reading_front',],],];
+        return [
+          '#theme' => ['iot_writing_speaking'],
+          '#node' => $node,
+          '#attached' => [
+            'library' => [
+              'iot_quiz/iot_frontend',
+              'iot_quiz/reading_front',
+            ],
+          ],
+        ];
         break;
       case 'speaking':
-        return ['#theme' => ['iot_writing_speaking'], '#node' => $node, '#attached' => ['library' => ['iot_quiz/iot_frontend', 'iot_quiz/reading_front',],],];
+        return [
+          '#theme' => ['iot_writing_speaking'],
+          '#node' => $node,
+          '#attached' => [
+            'library' => [
+              'iot_quiz/iot_frontend',
+              'iot_quiz/reading_front',
+            ],
+          ],
+        ];
         break;
       case 'reading':
         $service = \Drupal::service('iot_quiz.quizservice');
         $content = $service->get_question($node, $type);
-        $solution_popup_data = ['#theme' => ['iot_popup_solution'], '#secs' => $content['secs'],];
+        $solution_popup_data = [
+          '#theme' => ['iot_popup_solution'],
+          '#secs' => $content['secs'],
+        ];
         $popup_solution = render($solution_popup_data);
-        $popup_expired_data = ['#theme' => ['iot_popup_expired'], '#node' => $collection,];
+        $popup_expired_data = [
+          '#theme' => ['iot_popup_expired'],
+          '#node' => $collection,
+        ];
         $popup_expired = render($popup_expired_data);
         $popup_submit_data = ['#theme' => ['iot_popup_submit'],];
         $popup_submit = render($popup_submit_data);
-        return ['#theme' => ['iot_reading'], '#node' => $node, '#logged_in' => $logged_in, '#secs' => $content['secs'], '#popup_solution' => $popup_solution, '#popup_submit' => $popup_submit, '#popup_expired' => $popup_expired, '#attached' => ['library' => ['iot_quiz/iot_frontend', 'iot_quiz/reading_front',], 'drupalSettings' => ['answers' => $content['answers'], 'score' => $score_id, 'storage' => $storage,],],];
+        return [
+          '#theme' => ['iot_reading'],
+          '#node' => $node,
+          '#logged_in' => $logged_in,
+          '#secs' => $content['secs'],
+          '#popup_solution' => $popup_solution,
+          '#popup_submit' => $popup_submit,
+          '#popup_expired' => $popup_expired,
+          '#attached' => [
+            'library' => [
+              'iot_quiz/iot_frontend',
+              'iot_quiz/reading_front',
+            ],
+            'drupalSettings' => [
+              'answers' => $content['answers'],
+              'score' => $score_id,
+              'storage' => $storage,
+            ],
+          ],
+        ];
         break;
       //default
       default:
         $service = \Drupal::service('iot_quiz.quizservice');
         $content = $service->get_question($node, $type);
-        $solution_popup_data = ['#theme' => ['iot_popup_solution'], '#secs' => $content['secs'],];
+        $solution_popup_data = [
+          '#theme' => ['iot_popup_solution'],
+          '#secs' => $content['secs'],
+        ];
         $popup_solution = render($solution_popup_data);
-        $popup_expired_data = ['#theme' => ['iot_popup_expired'], '#node' => $collection,];
+        $popup_expired_data = [
+          '#theme' => ['iot_popup_expired'],
+          '#node' => $collection,
+        ];
         $popup_expired = render($popup_expired_data);
         $popup_submit_data = ['#theme' => ['iot_popup_submit'],];
         $popup_submit = render($popup_submit_data);
-        return ['#theme' => ['iot_listening'], '#node' => $node, '#popup_solution' => $popup_solution, '#popup_submit' => $popup_submit, '#popup_expired' => $popup_expired, '#logged_in' => $logged_in, '#secs' => $content['secs'], '#audio' => $content['audio'], '#attached' => ['library' => ['iot_quiz/iot_frontend',], 'drupalSettings' => ['answers' => $content['answers'], 'score' => $score_id, 'storage' => $storage],],];
+        return [
+          '#theme' => ['iot_listening'],
+          '#node' => $node,
+          '#popup_solution' => $popup_solution,
+          '#popup_submit' => $popup_submit,
+          '#popup_expired' => $popup_expired,
+          '#logged_in' => $logged_in,
+          '#secs' => $content['secs'],
+          '#audio' => $content['audio'],
+          '#attached' => [
+            'library' => ['iot_quiz/iot_frontend',],
+            'drupalSettings' => [
+              'answers' => $content['answers'],
+              'score' => $score_id,
+              'storage' => $storage,
+            ],
+          ],
+        ];
         break;
     }
   }
 
   /**
    * @param $node
+   *
    * @return array
    */
-  public function getOtherTestWS ($node)
-  {
-    $nids = \Drupal::entityQuery('node')->condition('type', 'quiz')->condition('status', 1)->condition('nid', $node->id(), '<>')->condition('field_set', $node->get('field_set')->target_id)->execute();
+  public function getOtherTestWS($node) {
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'quiz')
+      ->condition('status', 1)
+      ->condition('nid', $node->id(), '<>')
+      ->condition('field_set', $node->get('field_set')->target_id)
+      ->execute();
     $nodes = Node::loadMultiple($nids);
     return ['#theme' => 'iot_other_test_ws', '#nodes' => $nodes,];
   }
 
   /**
    * @param $node
+   *
    * @return array
    */
-  public function getOtherCollectionWS ($node)
-  {
+  public function getOtherCollectionWS($node) {
     $collectionService = \Drupal::service('iot_quiz.collectionservice');
     $set = Node::load($node->get('field_set')->target_id);
     $col = Node::load($set->get('field_collection')->target_id);
     $collections = $collectionService->getOtherCollection($col);
-    return ['#theme' => 'iot_other_collection_ws', '#collections' => $collections,];
+    return [
+      '#theme' => 'iot_other_collection_ws',
+      '#collections' => $collections,
+    ];
   }
 
   /**
    * @param $score
+   *
    * @return array
    */
-  public function getOtherTestResult ($score)
-  {
+  public function getOtherTestResult($score) {
     $quiz = Node::load($score->get('field_score_quiz')->target_id);
-    $nids = \Drupal::entityQuery('node')->condition('type', 'quiz')->condition('status', 1)->condition('nid', $quiz->id(), '<>')->condition('field_set', $quiz->get('field_set')->target_id)->execute();
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'quiz')
+      ->condition('status', 1)
+      ->condition('nid', $quiz->id(), '<>')
+      ->condition('field_set', $quiz->get('field_set')->target_id)
+      ->execute();
     $nodes = Node::loadMultiple($nids);
     return ['#theme' => 'iot_other_result', '#nodes' => $nodes,];
   }
 
   /**
    * @param $score
+   *
    * @return array
    */
-  public function getLeaderBoard ($quiz_id)
-  {
-//    $score_service = \Drupal::service('iot_quiz.scoreservice');
-//    $tops = $score_service->get_top_score($quiz_id);
+  public function getLeaderBoard($quiz_id) {
+    //    $score_service = \Drupal::service('iot_quiz.scoreservice');
+    //    $tops = $score_service->get_top_score($quiz_id);
     $date = strtotime('now');
     $last_week = $date + (60 * 60 * 24 * -7);
-    $sids = \Drupal::entityQuery('node')->condition('type', 'score')->condition('created', $last_week, '>=')->condition('field_score_quiz', $quiz_id)->condition('status', 1)->sort('created', 'ASC')->execute();
+    $sids = \Drupal::entityQuery('node')
+      ->condition('type', 'score')
+      ->condition('created', $last_week, '>=')
+      ->condition('field_score_quiz', $quiz_id)
+      ->condition('status', 1)
+      ->sort('created', 'ASC')
+      ->execute();
     $quiz = Node::load($quiz_id);
     $nodes = Node::loadMultiple($sids);
     $data = [];
@@ -329,9 +531,11 @@ class QuestionService
         $real_time = $total_second - $time;
         if ($real_time > 0) {
           $spend = gmdate('i:s', $real_time);
-        } elseif ($real_time == 0) {
+        }
+        elseif ($real_time == 0) {
           $spend = gmdate('i:s', $total_second);
-        } else {
+        }
+        else {
           $spend = '00:00';
         }
         $arr = [];
@@ -355,7 +559,11 @@ class QuestionService
           }
         }
         if (!$data[$uid]) {
-          $data[$uid] = ['score' => $map_score, 'time' => $spend, 'user_name' => $name];
+          $data[$uid] = [
+            'score' => $map_score,
+            'time' => $spend,
+            'user_name' => $name,
+          ];
         }
       }
     }
@@ -373,11 +581,33 @@ class QuestionService
 
   /**
    * @param $value
+   *
    * @return int|mixed
    */
-  public function mappArrayPercent ($value)
-  {
-    $arrs = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+  public function mappArrayPercent($value) {
+    $arrs = [
+      0,
+      5,
+      10,
+      15,
+      20,
+      25,
+      30,
+      35,
+      40,
+      45,
+      50,
+      55,
+      60,
+      65,
+      70,
+      75,
+      80,
+      85,
+      90,
+      95,
+      100,
+    ];
     $number = 0;
     foreach ($arrs as $arr) {
       if ($value - $arr > 0 && $value - $arr < 5) {
@@ -392,16 +622,21 @@ class QuestionService
 
   /**
    * Get time start fir listening
+   *
    * @param $section
+   *
    * @return array
    */
-  public function getTimeStartListening ($question)
-  {
+  public function getTimeStartListening($question) {
     $time = [];
     $sec = Node::load($question->get('field_section')->target_id);
     $quiz = Node::load($sec->get('field_quiz')->target_id);
 
-    $section_ids = \Drupal::entityQuery('node')->condition('type', 'section')->condition('field_quiz', $quiz->id())->condition('status', 1)->execute();
+    $section_ids = \Drupal::entityQuery('node')
+      ->condition('type', 'section')
+      ->condition('field_quiz', $quiz->id())
+      ->condition('status', 1)
+      ->execute();
     $sections = \Drupal\node\Entity\Node::loadMultiple($section_ids);
     foreach ($sections as $section) {
       if (!empty($section->get('field_subtitle')->value)) {
@@ -439,14 +674,19 @@ class QuestionService
 
   /**
    * Get time start fir listening
+   *
    * @param $section
+   *
    * @return array
    */
-  public function getTimeStartListeningbyQuiz ($quiz)
-  {
+  public function getTimeStartListeningbyQuiz($quiz) {
     $time = [];
 
-    $section_ids = \Drupal::entityQuery('node')->condition('type', 'section')->condition('field_quiz', $quiz->id())->condition('status', 1)->execute();
+    $section_ids = \Drupal::entityQuery('node')
+      ->condition('type', 'section')
+      ->condition('field_quiz', $quiz->id())
+      ->condition('status', 1)
+      ->execute();
     $sections = \Drupal\node\Entity\Node::loadMultiple($section_ids);
     foreach ($sections as $section) {
       if (!empty($section->get('field_subtitle')->value)) {

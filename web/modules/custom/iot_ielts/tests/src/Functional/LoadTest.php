@@ -7,19 +7,21 @@ use Drupal\Tests\BrowserTestBase;
 
 /**
  * Simple test to ensure that main page loads with module enabled.
+ *
  * @group iot_ielts
  */
-class LoadTest extends BrowserTestBase
-{
+class LoadTest extends BrowserTestBase {
 
   /**
    * Modules to enable.
+   *
    * @var array
    */
   public static $modules = ['iot_ielts'];
 
   /**
    * A user with permission to administer site configuration.
+   *
    * @var \Drupal\user\UserInterface
    */
   protected $user;
@@ -27,8 +29,7 @@ class LoadTest extends BrowserTestBase
   /**
    * {@inheritdoc}
    */
-  protected function setUp ()
-  {
+  protected function setUp() {
     parent::setUp();
     $this->user = $this->drupalCreateUser(['administer site configuration']);
     $this->drupalLogin($this->user);
@@ -37,8 +38,7 @@ class LoadTest extends BrowserTestBase
   /**
    * Tests that the home page loads with a 200 response.
    */
-  public function testLoad ()
-  {
+  public function testLoad() {
     $this->drupalGet(Url::fromRoute('<front>'));
     $this->assertResponse(200);
   }

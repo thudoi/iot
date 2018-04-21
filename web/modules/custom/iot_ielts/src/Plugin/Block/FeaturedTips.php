@@ -19,20 +19,25 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Featured Tips"),
  * )
  */
-class FeaturedTips extends BlockBase
-{
+class FeaturedTips extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
+  public function build() {
     if (isset($_GET['page']) && $_GET['page'] != 0) {
       return ['#markup' => ''];
-    } else {
+    }
+    else {
       $vote_widget_service = \Drupal::service('rate.entity.vote_widget');
-      $nids = \Drupal::entityQuery('node')->condition('type', 'tips')->condition('field_featured', 1)->condition('status', 1)->sort('created', 'DESC')->range(0, 1)->execute();
+      $nids = \Drupal::entityQuery('node')
+        ->condition('type', 'tips')
+        ->condition('field_featured', 1)
+        ->condition('status', 1)
+        ->sort('created', 'DESC')
+        ->range(0, 1)
+        ->execute();
       $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
       $node = FALSE;
       if ($nodes) {
@@ -54,7 +59,15 @@ class FeaturedTips extends BlockBase
         $desc = shortContent($node->get('body')->value, 200);
       }
 
-      return ['#theme' => ['iot_tips_featured'], '#node' => $node, '#rate' => $vote_widget['votingapi_links'], '#views' => $views, '#term' => $cate, '#term_uri' => $term_uri, '#desc' => $desc];
+      return [
+        '#theme' => ['iot_tips_featured'],
+        '#node' => $node,
+        '#rate' => $vote_widget['votingapi_links'],
+        '#views' => $views,
+        '#term' => $cate,
+        '#term_uri' => $term_uri,
+        '#desc' => $desc,
+      ];
     }
   }
 

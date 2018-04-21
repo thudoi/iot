@@ -13,8 +13,7 @@ use Drupal\node\NodeInterface;
 /**
  * Default database spool storage.
  */
-class SpoolStorage implements SpoolStorageInterface
-{
+class SpoolStorage implements SpoolStorageInterface {
 
   /**
    * @var \Drupal\Core\Database\Connection
@@ -38,6 +37,7 @@ class SpoolStorage implements SpoolStorageInterface
 
   /**
    * Creates a SpoolStorage object.
+   *
    * @param \Drupal\Core\Database\Connection $connection
    *   The database connection.
    * @param \Drupal\Core\Lock\LockBackendInterface $lock
@@ -47,8 +47,7 @@ class SpoolStorage implements SpoolStorageInterface
    * @param \Drupal\Core\Extension\ModuleHandlerInterface
    *   The module handler.
    */
-  public function __construct (Connection $connection, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler)
-  {
+  public function __construct(Connection $connection, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
     $this->connection = $connection;
     $this->lock = $lock;
     $this->config = $config_factory->get('simplenews.settings');
@@ -58,8 +57,7 @@ class SpoolStorage implements SpoolStorageInterface
   /**
    * {@inheritdoc}
    */
-  public function getMails ($limit = self::UNLIMITED, $conditions = [])
-  {
+  public function getMails($limit = self::UNLIMITED, $conditions = []) {
     $messages = [];
 
     // Continue to support 'nid' as a condition.
@@ -71,7 +69,10 @@ class SpoolStorage implements SpoolStorageInterface
 
     // Add default status condition if not set.
     if (!isset($conditions['status'])) {
-      $conditions['status'] = [SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_IN_PROGRESS];
+      $conditions['status'] = [
+        SpoolStorageInterface::STATUS_PENDING,
+        SpoolStorageInterface::STATUS_IN_PROGRESS,
+      ];
     }
 
     // Special case for the status condition, the in progress actually only
@@ -81,14 +82,19 @@ class SpoolStorage implements SpoolStorageInterface
     $statuses = is_array($conditions['status']) ? $conditions['status'] : [$conditions['status']];
     foreach ($statuses as $status) {
       if ($status == SpoolStorageInterface::STATUS_IN_PROGRESS) {
-        $status_or->condition((new Condition('AND'))->condition('status', $status)->condition('s.timestamp', $this->getExpirationTime(), '<'));
-      } else {
+        $status_or->condition((new Condition('AND'))->condition('status', $status)
+          ->condition('s.timestamp', $this->getExpirationTime(), '<'));
+      }
+      else {
         $status_or->condition('status', $status);
       }
     }
     unset($conditions['status']);
 
-    $query = $this->connection->select('simplenews_mail_spool', 's')->fields('s')->condition($status_or)->orderBy('s.timestamp', 'ASC');
+    $query = $this->connection->select('simplenews_mail_spool', 's')
+      ->fields('s')
+      ->condition($status_or)
+      ->orderBy('s.timestamp', 'ASC');
 
     // Add conditions.
     foreach ($conditions as $field => $value) {
@@ -107,7 +113,8 @@ class SpoolStorage implements SpoolStorageInterface
       foreach ($query->execute() as $message) {
         if (Unicode::strlen($message->data)) {
           $message->data = unserialize($message->data);
-        } else {
+        }
+        else {
           $message->data = simplenews_subscriber_load_by_mail($message->mail);
         }
         $messages[$message->msid] = $message;
@@ -128,16 +135,21 @@ class SpoolStorage implements SpoolStorageInterface
   /**
    * {@inheritdoc}
    */
-  public function updateMails ($msids, array $data)
-  {
-    $this->connection->update('simplenews_mail_spool')->condition('msid', (array)$msids, 'IN')->fields(['status' => $data['status'], 'error' => isset($result['error']) ? (int)$data['error'] : 0, 'timestamp' => REQUEST_TIME,])->execute();
+  public function updateMails($msids, array $data) {
+    $this->connection->update('simplenews_mail_spool')
+      ->condition('msid', (array) $msids, 'IN')
+      ->fields([
+        'status' => $data['status'],
+        'error' => isset($result['error']) ? (int) $data['error'] : 0,
+        'timestamp' => REQUEST_TIME,
+      ])
+      ->execute();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function countMails (array $conditions = [])
-  {
+  public function countMails(array $conditions = []) {
 
     // Continue to support 'nid' as a condition.
     if (!empty($conditions['nid'])) {
@@ -148,7 +160,10 @@ class SpoolStorage implements SpoolStorageInterface
 
     // Add default status condition if not set.
     if (!isset($conditions['status'])) {
-      $conditions['status'] = [SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_IN_PROGRESS];
+      $conditions['status'] = [
+        SpoolStorageInterface::STATUS_PENDING,
+        SpoolStorageInterface::STATUS_IN_PROGRESS,
+      ];
     }
 
     $query = $this->connection->select('simplenews_mail_spool');
@@ -162,37 +177,44 @@ class SpoolStorage implements SpoolStorageInterface
         foreach ($value as $status) {
           // Do not count pending entries unless they are expired.
           if ($status == SpoolStorageInterface::STATUS_IN_PROGRESS) {
-            $status_or->condition((new Condition('AND'))->condition('status', $status)->condition('timestamp', $this->getExpirationTime(), '<'));
-          } else {
+            $status_or->condition((new Condition('AND'))->condition('status', $status)
+              ->condition('timestamp', $this->getExpirationTime(), '<'));
+          }
+          else {
             $status_or->condition('status', $status);
           }
         }
         $query->condition($status_or);
-      } else {
+      }
+      else {
         $query->condition($field, $value);
       }
     }
 
     $query->addExpression('COUNT(*)', 'count');
 
-    return (int)$query->execute()->fetchField();
+    return (int) $query->execute()->fetchField();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function clear ()
-  {
+  public function clear() {
 
     $expiration_time = REQUEST_TIME - $this->config->get('mail.spool_expire') * 86400;
-    return $this->connection->delete('simplenews_mail_spool')->condition('status', [SpoolStorageInterface::STATUS_DONE, SpoolStorageInterface::STATUS_SKIPPED], 'IN')->condition('timestamp', $expiration_time, '<=')->execute();
+    return $this->connection->delete('simplenews_mail_spool')
+      ->condition('status', [
+        SpoolStorageInterface::STATUS_DONE,
+        SpoolStorageInterface::STATUS_SKIPPED,
+      ], 'IN')
+      ->condition('timestamp', $expiration_time, '<=')
+      ->execute();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function deleteMails (array $conditions)
-  {
+  public function deleteMails(array $conditions) {
     // Continue to support 'nid'.
     if (!empty($conditions['nid'])) {
       $conditions['entity_type'] = 'node';
@@ -211,8 +233,7 @@ class SpoolStorage implements SpoolStorageInterface
   /**
    * {@inheritdoc}
    */
-  public function addFromEntity (NodeInterface $node)
-  {
+  public function addFromEntity(NodeInterface $node) {
     $newsletter = $node->simplenews_issue->entity;
     $handler = $node->simplenews_issue->handler;
     $handler_settings = $node->simplenews_issue->handler_settings;
@@ -230,7 +251,9 @@ class SpoolStorage implements SpoolStorageInterface
 
     $node->simplenews_issue->subscribers = simplenews_count_subscriptions($node->simplenews_issue->target_id);
 
-    $this->connection->insert('simplenews_mail_spool')->from($select)->execute();
+    $this->connection->insert('simplenews_mail_spool')
+      ->from($select)
+      ->execute();
 
     // Update simplenews newsletter status to send pending.
     $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PENDING;
@@ -242,22 +265,30 @@ class SpoolStorage implements SpoolStorageInterface
   /**
    * {@inheritdoc}
    */
-  public function addMail (array $spool)
-  {
+  public function addMail(array $spool) {
     $status = isset($spool['status']) ? $spool['status'] : SpoolStorageInterface::STATUS_PENDING;
     $time = isset($spool['time']) ? $spool['time'] : REQUEST_TIME;
 
-    $this->connection->insert('simplenews_mail_spool')->fields(['mail' => $spool['mail'], 'entity_type' => $spool['entity_type'], 'entity_id' => $spool['entity_id'], 'newsletter_id' => $spool['newsletter_id'], 'snid' => $spool['snid'], 'status' => $status, 'timestamp' => $time, 'data' => serialize($spool['data']),])->execute();
+    $this->connection->insert('simplenews_mail_spool')->fields([
+        'mail' => $spool['mail'],
+        'entity_type' => $spool['entity_type'],
+        'entity_id' => $spool['entity_id'],
+        'newsletter_id' => $spool['newsletter_id'],
+        'snid' => $spool['snid'],
+        'status' => $status,
+        'timestamp' => $time,
+        'data' => serialize($spool['data']),
+      ])->execute();
   }
 
   /**
    * Returns the expiration time for IN_PROGRESS status.
+   *
    * @return int
    *   A unix timestamp. Any IN_PROGRESS messages with a timestamp older than
    *   this will be re-allocated and re-sent.
    */
-  protected function getExpirationTime ()
-  {
+  protected function getExpirationTime() {
     $timeout = $this->config->get('mail.spool_progress_expiration');
     $expiration_time = REQUEST_TIME - $timeout;
     return $expiration_time;

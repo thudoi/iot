@@ -17,32 +17,50 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * Test cases for creating and sending newsletters.
+ *
  * @group simplenews
  */
-class SimplenewsSourceTest extends SimplenewsTestBase
-{
+class SimplenewsSourceTest extends SimplenewsTestBase {
 
-  function setUp ()
-  {
+  function setUp() {
     parent::setUp();
 
     // Create the filtered_html text format.
-    $filtered_html_format = entity_create('filter_format', ['format' => 'filtered_html', 'name' => 'Filtered HTML', 'weight' => 0, 'filters' => [// URL filter.
-      'filter_url' => ['weight' => 0, 'status' => 1,], // HTML filter.
-      'filter_html' => ['weight' => 1, 'status' => 1, 'allowed-values'], // Line break filter.
-      'filter_autop' => ['weight' => 2, 'status' => 1,], // HTML corrector filter.
-      'filter_htmlcorrector' => ['weight' => 10, 'status' => 1,],],]);
+    $filtered_html_format = entity_create('filter_format', [
+      'format' => 'filtered_html',
+      'name' => 'Filtered HTML',
+      'weight' => 0,
+      'filters' => [// URL filter.
+        'filter_url' => ['weight' => 0, 'status' => 1,],
+        // HTML filter.
+        'filter_html' => ['weight' => 1, 'status' => 1, 'allowed-values'],
+        // Line break filter.
+        'filter_autop' => ['weight' => 2, 'status' => 1,],
+        // HTML corrector filter.
+        'filter_htmlcorrector' => ['weight' => 10, 'status' => 1,],
+      ],
+    ]);
     $filtered_html_format->save();
 
-    $admin_user = $this->drupalCreateUser(['administer newsletters', 'send newsletter', 'administer nodes', 'administer simplenews subscriptions', 'create simplenews_issue content', 'edit any simplenews_issue content', 'view own unpublished content', 'delete any simplenews_issue content', 'administer simplenews settings', $filtered_html_format->getPermissionName()]);
+    $admin_user = $this->drupalCreateUser([
+      'administer newsletters',
+      'send newsletter',
+      'administer nodes',
+      'administer simplenews subscriptions',
+      'create simplenews_issue content',
+      'edit any simplenews_issue content',
+      'view own unpublished content',
+      'delete any simplenews_issue content',
+      'administer simplenews settings',
+      $filtered_html_format->getPermissionName(),
+    ]);
     $this->drupalLogin($admin_user);
   }
 
   /**
    * Tests that sending a minimal implementation of the source interface works.
    */
-  function testSendMinimalSourceImplementation ()
-  {
+  function testSendMinimalSourceImplementation() {
 
     // Create a basic plaintext test source and send it.
     $plain_mail = new MailTest('plain');
@@ -93,12 +111,15 @@ class SimplenewsSourceTest extends SimplenewsTestBase
   /**
    * Test sending a newsletter to 100 recipients with caching enabled.
    */
-  function testSendCaching ()
-  {
+  function testSendCaching() {
 
     $this->setUpSubscribers(100);
 
-    $edit = ['title[0][value]' => $this->randomString(10), 'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>", 'simplenews_issue' => 'default',];
+    $edit = [
+      'title[0][value]' => $this->randomString(10),
+      'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
+      'simplenews_issue' => 'default',
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -107,7 +128,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     // Unsubscribe one of the recipients to make sure that he doesn't receive
     // the mail.
-    \Drupal::service('simplenews.subscription_manager')->unsubscribe(array_shift($this->subscribers), $this->getRandomNewsletter(), FALSE, 'test');
+    \Drupal::service('simplenews.subscription_manager')
+      ->unsubscribe(array_shift($this->subscribers), $this->getRandomNewsletter(), FALSE, 'test');
 
     $before = microtime(TRUE);
     \Drupal::service('simplenews.mailer')->sendSpool();
@@ -125,7 +147,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
-      $this->assertTrue(strpos($mail['body'], (string)t('Unsubscribe from this newsletter')));
+      $this->assertTrue(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')));
       // Make sure the mail has the correct unsubscribe hash.
       $hash = simplenews_generate_hash($mail['to'], 'remove');
       $this->assertTrue(strpos($mail['body'], $hash), 'Correct hash is used');
@@ -139,8 +161,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase
   /**
    * Send a newsletter with the HTML format.
    */
-  function testSendHTML ()
-  {
+  function testSendHTML() {
     $this->setUpSubscribers(5);
 
     // Use custom testing mail system to support HTML mails.
@@ -151,16 +172,24 @@ class SimplenewsSourceTest extends SimplenewsTestBase
     // Set the format to HTML.
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
-    $edit_newsletter = ['format' => 'html', // Use umlaut to provoke mime encoding.
-      'from_name' => 'Drupäl', // @todo: This shouldn't be necessary, default value is missing. Probably
+    $edit_newsletter = [
+      'format' => 'html',
+      // Use umlaut to provoke mime encoding.
+      'from_name' => 'Drupäl',
+      // @todo: This shouldn't be necessary, default value is missing. Probably
       // should not be required.
-      'from_address' => $this->randomEmail(), // Request a confirmation receipt.
-      'receipt' => TRUE,];
+      'from_address' => $this->randomEmail(),
+      // Request a confirmation receipt.
+      'receipt' => TRUE,
+    ];
     $this->drupalPostForm(NULL, $edit_newsletter, t('Save'));
     $this->clickLink(t('Edit'));
 
     $edit = [// Always use a character that is escaped.
-      'title[0][value]' => $this->randomString() . '\'<', 'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>", 'simplenews_issue' => 'default',];
+      'title[0][value]' => $this->randomString() . '\'<',
+      'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
+      'simplenews_issue' => 'default',
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -221,18 +250,23 @@ class SimplenewsSourceTest extends SimplenewsTestBase
   /**
    * Send a issue with the newsletter set to hidden.
    */
-  function testSendHidden ()
-  {
+  function testSendHidden() {
     $this->setUpSubscribers(5);
 
     // Set the format to HTML.
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
-    $edit = ['opt_inout' => 'hidden', // @todo: This shouldn't be necessary.
-      'from_address' => $this->randomEmail(),];
+    $edit = [
+      'opt_inout' => 'hidden', // @todo: This shouldn't be necessary.
+      'from_address' => $this->randomEmail(),
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
 
-    $edit = ['title[0][value]' => $this->randomString(10), 'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>", 'simplenews_issue' => 'default',];
+    $edit = [
+      'title[0][value]' => $this->randomString(10),
+      'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
+      'simplenews_issue' => 'default',
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -248,15 +282,14 @@ class SimplenewsSourceTest extends SimplenewsTestBase
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->drupalGetMails(), 0, 3) as $mail) {
       // Verify the unsubscribe link is not displayed for hidden newsletters.
-      $this->assertFalse(strpos($mail['body'], (string)t('Unsubscribe from this newsletter')));
+      $this->assertFalse(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')));
     }
   }
 
   /**
    * Test with disabled caching.
    */
-  function testSendNoCaching ()
-  {
+  function testSendNoCaching() {
     $this->setUpSubscribers(100);
 
     // Disable caching.
@@ -269,7 +302,11 @@ class SimplenewsSourceTest extends SimplenewsTestBase
     $this->rebuildContainer();
     \Drupal::moduleHandler()->loadAll();
 
-    $edit = ['title[0][value]' => $this->randomString(10), 'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>", 'simplenews_issue' => 'default',];
+    $edit = [
+      'title[0][value]' => $this->randomString(10),
+      'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
+      'simplenews_issue' => 'default',
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -301,11 +338,14 @@ class SimplenewsSourceTest extends SimplenewsTestBase
   /**
    * Test sending when the issue node is missing.
    */
-  function testSendMissingNode ()
-  {
+  function testSendMissingNode() {
     $this->setUpSubscribers(1);
 
-    $edit = ['title[0][value]' => $this->randomString(10), 'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>", 'simplenews_issue' => 'default',];
+    $edit = [
+      'title[0][value]' => $this->randomString(10),
+      'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
+      'simplenews_issue' => 'default',
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -330,11 +370,14 @@ class SimplenewsSourceTest extends SimplenewsTestBase
   /**
    * Test sending when there are no subscribers.
    */
-  function testSendMissingSubscriber ()
-  {
+  function testSendMissingSubscriber() {
     $this->setUpSubscribers(1);
 
-    $edit = ['title[0][value]' => $this->randomString(10), 'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>", 'simplenews_issue' => 'default',];
+    $edit = [
+      'title[0][value]' => $this->randomString(10),
+      'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
+      'simplenews_issue' => 'default',
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -358,16 +401,22 @@ class SimplenewsSourceTest extends SimplenewsTestBase
   /**
    * Test handling of the skip exception.
    */
-  public function testSkip ()
-  {
+  public function testSkip() {
     $this->setUpSubscribers(1);
     // Setting the body to "Nothing interesting" provokes an exception in
     // simplenews_test_mail_alter().
-    $node = $this->drupalCreateNode(['body' => 'Nothing interesting', 'type' => 'simplenews_issue', 'simplenews_issue' => ['target_id' => 'default'],]);
+    $node = $this->drupalCreateNode([
+      'body' => 'Nothing interesting',
+      'type' => 'simplenews_issue',
+      'simplenews_issue' => ['target_id' => 'default'],
+    ]);
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     \Drupal::service('simplenews.mailer')->sendSpool();
     $this->assertEqual(0, count($this->drupalGetMails()));
-    $spool_row = db_select('simplenews_mail_spool', 'ms')->fields('ms', ['status'])->execute()->fetchAssoc();
+    $spool_row = db_select('simplenews_mail_spool', 'ms')
+      ->fields('ms', ['status'])
+      ->execute()
+      ->fetchAssoc();
     $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row['status']);
   }
 }

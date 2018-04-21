@@ -18,35 +18,39 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * request parameter to TRUE. However, this should be done before
  * onKernelRequestRedirect() method is executed.
  */
-class RouteNormalizerRequestSubscriber implements EventSubscriberInterface
-{
+class RouteNormalizerRequestSubscriber implements EventSubscriberInterface {
 
   /**
    * Module specific configuration.
+   *
    * @var \Drupal\Core\Config\Config
    */
   protected $config;
 
   /**
    * The URL generator service.
+   *
    * @var \Drupal\Core\Routing\UrlGeneratorInterface
    */
   protected $urlGenerator;
 
   /**
    * The path matcher service.
+   *
    * @var \Drupal\Core\Path\PathMatcherInterface
    */
   protected $pathMatcher;
 
   /**
    * The redirect checker service.
+   *
    * @var \Drupal\redirect\RedirectChecker
    */
   protected $redirectChecker;
 
   /**
    * Constructs a RouteNormalizerRequestSubscriber object.
+   *
    * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
    *   The URL generator service.
    * @param \Drupal\Core\Path\PathMatcherInterface $path_matcher
@@ -57,8 +61,7 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface
    *   The redirect checker service.
    *   The value of the route_normalizer_enabled container parameter.
    */
-  public function __construct (UrlGeneratorInterface $url_generator, PathMatcherInterface $path_matcher, ConfigFactoryInterface $config, RedirectChecker $redirect_checker)
-  {
+  public function __construct(UrlGeneratorInterface $url_generator, PathMatcherInterface $path_matcher, ConfigFactoryInterface $config, RedirectChecker $redirect_checker) {
     $this->urlGenerator = $url_generator;
     $this->pathMatcher = $path_matcher;
     $this->redirectChecker = $redirect_checker;
@@ -74,11 +77,11 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface
    * - A route that's set as the front page is requested: redirect to the front
    *   page.
    * - Requested path has an alias: redirect to alias.
+   *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    *   The Event to process.
    */
-  public function onKernelRequestRedirect (GetResponseEvent $event)
-  {
+  public function onKernelRequestRedirect(GetResponseEvent $event) {
 
     if (!$this->config->get('route_normalizer_enabled') || !$event->isMasterRequest()) {
       return;
@@ -136,8 +139,7 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface
   /**
    * {@inheritdoc}
    */
-  static function getSubscribedEvents ()
-  {
+  static function getSubscribedEvents() {
     $events[KernelEvents::REQUEST][] = ['onKernelRequestRedirect', 30];
     return $events;
   }

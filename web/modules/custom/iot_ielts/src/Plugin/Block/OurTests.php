@@ -18,16 +18,19 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Our Tests"),
  * )
  */
-class OurTests extends BlockBase
-{
+class OurTests extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
-    $nids = \Drupal::entityQuery('node')->condition('type', 'service')->condition('status', 1)->condition('field_service_type', 'test')->sort('created', 'ASC')->execute();
+  public function build() {
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'service')
+      ->condition('status', 1)
+      ->condition('field_service_type', 'test')
+      ->sort('created', 'ASC')
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $services = [];
     foreach ($nodes as $node) {

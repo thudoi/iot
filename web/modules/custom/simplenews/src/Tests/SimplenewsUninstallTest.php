@@ -9,21 +9,26 @@ namespace Drupal\simplenews\Tests;
 
 /**
  * Tests that Simplenews module can be uninstalled.
+ *
  * @group simplenews
  */
-class SimplenewsUninstallTest extends SimplenewsTestBase
-{
+class SimplenewsUninstallTest extends SimplenewsTestBase {
 
   /**
    * {@inheritdoc}
    */
-  public function setUp ()
-  {
+  public function setUp() {
     parent::setUp();
 
     \Drupal::service('module_installer')->uninstall(['simplenews_test']);
 
-    $admin_user = $this->drupalCreateUser(['administer nodes', 'administer simplenews settings', 'administer simplenews subscriptions', 'create simplenews_issue content', 'administer modules',]);
+    $admin_user = $this->drupalCreateUser([
+      'administer nodes',
+      'administer simplenews settings',
+      'administer simplenews subscriptions',
+      'create simplenews_issue content',
+      'administer modules',
+    ]);
     $this->drupalLogin($admin_user);
 
     // Subscribe a user.
@@ -33,11 +38,13 @@ class SimplenewsUninstallTest extends SimplenewsTestBase
   /**
    * Tests that Simplenews module can be uninstalled.
    */
-  public function testUninstall ()
-  {
+  public function testUninstall() {
 
     // Add a newsletter issue.
-    $this->drupalCreateNode(['type' => 'simplenews_issue', 'label' => $this->randomMachineName()])->save();
+    $this->drupalCreateNode([
+      'type' => 'simplenews_issue',
+      'label' => $this->randomMachineName(),
+    ])->save();
 
     // Delete Simplenews data.
     $this->drupalPostForm('admin/config/services/simplenews/settings/uninstall', [], t('Delete Simplenews data'));

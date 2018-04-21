@@ -20,20 +20,24 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Related Featured Tips"),
  * )
  */
-class RelatedFeaturedTips extends BlockBase
-{
+class RelatedFeaturedTips extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
+  public function build() {
     if (isset($_GET['page']) && $_GET['page'] != 0) {
       return ['#markup' => ''];
-    } else {
+    }
+    else {
       $vote_widget_service = \Drupal::service('rate.entity.vote_widget');
-      $nids = \Drupal::entityQuery('node')->condition('type', 'tips')->condition('sticky', 1)->condition('status', 1)->sort('created', 'DESC')->execute();
+      $nids = \Drupal::entityQuery('node')
+        ->condition('type', 'tips')
+        ->condition('sticky', 1)
+        ->condition('status', 1)
+        ->sort('created', 'DESC')
+        ->execute();
       $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
       $node = FALSE;
       $views = 0;
@@ -60,7 +64,14 @@ class RelatedFeaturedTips extends BlockBase
         }
       }
 
-      return ['#theme' => ['iot_tips_featured_related'], '#nodes' => $tips, '#rate' => $rate, '#views' => $views, '#term' => $cate, '#desc' => $desc,];
+      return [
+        '#theme' => ['iot_tips_featured_related'],
+        '#nodes' => $tips,
+        '#rate' => $rate,
+        '#views' => $views,
+        '#term' => $cate,
+        '#desc' => $desc,
+      ];
     }
   }
 

@@ -9,19 +9,21 @@ use Drupal\Tests\UnitTestCase;
 
 /**
  * Tests that overly long paths aren't logged.
+ *
  * @group redirect_404
  */
-class SqlRedirectNotFoundStorageTest extends UnitTestCase
-{
+class SqlRedirectNotFoundStorageTest extends UnitTestCase {
 
   /**
    * Mock database connection.
+   *
    * @var \Drupal\Core\Database\Connection|\PHPUnit_Framework_MockObject_MockObject
    */
   protected $database;
 
   /**
    * Mock config factory.
+   *
    * @var \Drupal\Core\Config\ConfigFactoryInterface|\PHPUnit_Framework_MockObject_MockObject
    */
   protected $configFactory;
@@ -29,17 +31,17 @@ class SqlRedirectNotFoundStorageTest extends UnitTestCase
   /**
    * {@inheritdoc}
    */
-  protected function setUp ()
-  {
+  protected function setUp() {
     parent::setUp();
-    $this->database = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
+    $this->database = $this->getMockBuilder(Connection::class)
+      ->disableOriginalConstructor()
+      ->getMock();
   }
 
   /**
    * Tests that long paths aren't stored in the database.
    */
-  public function testLongPath ()
-  {
+  public function testLongPath() {
     $this->database->expects($this->never())->method('merge');
     $storage = new SqlRedirectNotFoundStorage($this->database, $this->getConfigFactoryStub());
     $storage->logRequest($this->randomMachineName(SqlRedirectNotFoundStorage::MAX_PATH_LENGTH + 1), LanguageInterface::LANGCODE_DEFAULT);
@@ -48,8 +50,7 @@ class SqlRedirectNotFoundStorageTest extends UnitTestCase
   /**
    * Tests that invalid UTF-8 paths are not stored in the database.
    */
-  public function testInvalidUtf8Path ()
-  {
+  public function testInvalidUtf8Path() {
     $this->database->expects($this->never())->method('merge');
     $storage = new SqlRedirectNotFoundStorage($this->database, $this->getConfigFactoryStub());
     $storage->logRequest("Caf\xc3", LanguageInterface::LANGCODE_DEFAULT);
@@ -58,8 +59,7 @@ class SqlRedirectNotFoundStorageTest extends UnitTestCase
   /**
    * Tests that all logs are kept if row limit config is "All".
    */
-  public function testPurgeOldRequests ()
-  {
+  public function testPurgeOldRequests() {
     $this->configFactory = $this->getConfigFactoryStub(['redirect_404.settings' => ['row_limit' => 0,],]);
     $storage = new SqlRedirectNotFoundStorage($this->database, $this->configFactory);
     $storage->purgeOldRequests();

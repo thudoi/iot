@@ -13,7 +13,6 @@ namespace Drupal\simplenews;
  * thrown within the Drupal mail flow, for example within hook_mail() or
  * hook_mail_alter().
  */
-class SkipMailException extends \RuntimeException
-{
+class SkipMailException extends \RuntimeException {
 
 }

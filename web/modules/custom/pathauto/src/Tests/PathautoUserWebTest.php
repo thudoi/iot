@@ -8,21 +8,23 @@ use Drupal\views\Views;
 
 /**
  * Tests pathauto user UI integration.
+ *
  * @group pathauto
  */
-class PathautoUserWebTest extends WebTestBase
-{
+class PathautoUserWebTest extends WebTestBase {
 
   use PathautoTestHelperTrait;
 
   /**
    * Modules to enable.
+   *
    * @var array
    */
   public static $modules = ['pathauto', 'views'];
 
   /**
    * Admin user.
+   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
@@ -30,12 +32,16 @@ class PathautoUserWebTest extends WebTestBase
   /**
    * {inheritdoc}
    */
-  function setUp ()
-  {
+  function setUp() {
     parent::setUp();
 
     // Allow other modules to add additional permissions for the admin user.
-    $permissions = ['administer pathauto', 'administer url aliases', 'create url aliases', 'administer users',];
+    $permissions = [
+      'administer pathauto',
+      'administer url aliases',
+      'create url aliases',
+      'administer users',
+    ];
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
 
@@ -46,8 +52,7 @@ class PathautoUserWebTest extends WebTestBase
   /**
    * Basic functional testing of Pathauto with users.
    */
-  function testUserEditing ()
-  {
+  function testUserEditing() {
     // There should be no Pathauto checkbox on user forms.
     $this->drupalGet('user/' . $this->adminUser->id() . '/edit');
     $this->assertNoFieldById('path[0][pathauto]');
@@ -56,8 +61,7 @@ class PathautoUserWebTest extends WebTestBase
   /**
    * Test user operations.
    */
-  function testUserOperations ()
-  {
+  function testUserOperations() {
     $account = $this->drupalCreateUser();
 
     // Delete all current URL aliases.
@@ -75,7 +79,10 @@ class PathautoUserWebTest extends WebTestBase
       }
     }
 
-    $edit = ['action' => 'pathauto_update_alias_user', "user_bulk_form[$key]" => TRUE,];
+    $edit = [
+      'action' => 'pathauto_update_alias_user',
+      "user_bulk_form[$key]" => TRUE,
+    ];
     $this->drupalPostForm('admin/people', $edit, t('Apply to selected items'));
     $this->assertText('Update URL alias was applied to 1 item.');
 

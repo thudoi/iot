@@ -8,12 +8,14 @@ use Drupal\user\Entity\User;
 
 /**
  * Tests crucial aspects of Subscriber fieldability and User field sync.
+ *
  * @group simplenews
  */
-class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
-{
+class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
+
   /**
    * A user with administrative permissions.
+   *
    * @var \Drupal\user\UserInterface
    */
   protected $admin;
@@ -21,14 +23,18 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
   /**
    * {@inheritdoc}
    */
-  public function setUp ()
-  {
+  public function setUp() {
     parent::setUp();
     $this->addField('string', 'field_shared', 'user');
     $this->addField('string', 'field_shared', 'simplenews_subscriber');
 
-    Role::load('anonymous')->grantPermission('subscribe to newsletters')->grantPermission('access user profiles')->save();
-    Role::load('authenticated')->grantPermission('subscribe to newsletters')->save();
+    Role::load('anonymous')
+      ->grantPermission('subscribe to newsletters')
+      ->grantPermission('access user profiles')
+      ->save();
+    Role::load('authenticated')
+      ->grantPermission('subscribe to newsletters')
+      ->save();
 
     $this->admin = $this->drupalCreateUser(['administer users',]);
   }
@@ -36,8 +42,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
   /**
    * Subscribe then register: fields updated, subscription remains unconfirmed.
    */
-  public function testSynchronizeSubscribeRegister ()
-  {
+  public function testSynchronizeSubscribeRegister() {
     $email = $this->randomEmail();
 
     // Subscribe.
@@ -59,8 +64,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
   /**
    * Register then subscribe: require login, fields updated.
    */
-  public function testSynchronizeRegisterSubscribe ()
-  {
+  public function testSynchronizeRegisterSubscribe() {
     $email = $this->randomEmail();
 
     // Register.
@@ -86,8 +90,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
   /**
    * Subscribe, request password: "name is not recognized".
    */
-  public function testSubscribeRequestPassword ()
-  {
+  public function testSubscribeRequestPassword() {
     $email = $this->randomEmail();
 
     // Subscribe.
@@ -103,8 +106,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
   /**
    * Disable account, subscriptions inactive.
    */
-  public function testDisableAccount ()
-  {
+  public function testDisableAccount() {
     $email = $this->randomEmail();
 
     // Register account.
@@ -127,8 +129,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
   /**
    * Delete account, subscriptions deleted.
    */
-  public function testDeleteAccount ()
-  {
+  public function testDeleteAccount() {
     $email = $this->randomEmail();
 
     // Register account.
@@ -149,8 +150,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase
   /**
    * Blocked account subscribes, display message.
    */
-  public function testBlockedSubscribe ()
-  {
+  public function testBlockedSubscribe() {
     $email = $this->randomEmail();
 
     // Register account.

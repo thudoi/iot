@@ -12,16 +12,14 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * Class SetController.
  */
-class ReportController extends ControllerBase
-{
+class ReportController extends ControllerBase {
 
-  public function reportMistake ($node)
-  {
+  public function reportMistake($node) {
     $user = \Drupal::currentUser();
     $account = User::load($user->id());
     $set = Node::load($node->get('field_set')->target_id);
     $collection = Node::load($set->get('field_collection')->target_id);
-    $name = false;
+    $name = FALSE;
     if ($account->get('field_first_name')->value) {
       $name = $account->get('field_first_name')->value;
     }
@@ -32,7 +30,8 @@ class ReportController extends ControllerBase
       $name = $account->getAccountName();
     }
     $host = \Drupal::request()->getSchemeAndHttpHost();
-    $url = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $node->id());
+    $url = \Drupal::service('path.alias_manager')
+      ->getAliasByPath('/node/' . $node->id());
     $url = $host . $url;
     if (isset($_GET['url'])) {
       $url = $_GET['url'];
@@ -44,23 +43,33 @@ class ReportController extends ControllerBase
     $number['other'] = t('Other');
     if ($user->id() > 0) {
       $name = $name;
-    } else {
-      $name = false;
     }
-    $qid = false;
+    else {
+      $name = FALSE;
+    }
+    $qid = FALSE;
     if (isset($_GET['qid'])) {
       $qid = $_GET['qid'];
     }
 
-    return ['#theme' => ['iot_report_mistake'], '#node' => $node, '#collection' => $collection, '#name' => $name, '#user' => $account, '#number' => $number, '#url' => $url, '#qid' => $qid, '#attached' => ['library' => ['iot_ielts/report_mistake',],]];
+    return [
+      '#theme' => ['iot_report_mistake'],
+      '#node' => $node,
+      '#collection' => $collection,
+      '#name' => $name,
+      '#user' => $account,
+      '#number' => $number,
+      '#url' => $url,
+      '#qid' => $qid,
+      '#attached' => ['library' => ['iot_ielts/report_mistake',],],
+    ];
 
   }
 
   /**
    *
    */
-  public function reportMistakeCallback ()
-  {
+  public function reportMistakeCallback() {
     $node = Node::create(['type' => 'report_mistake']);
     $quiz = Node::load($_POST['quiz']);
     $collection_id = $_POST['collection'];
@@ -93,23 +102,31 @@ class ReportController extends ControllerBase
 
   }
 
-  public function reportMistakeView ($node)
-  {
+  public function reportMistakeView($node) {
     $quiz = Node::load($node->get('field_quiz')->target_id);
     $set = Node::load($quiz->get('field_set')->target_id);
     $collection = Node::load($set->get('field_collection')->target_id);
-    $name = false;
+    $name = FALSE;
     if ($node->get('field_report_name')) {
       $name = $node->get('field_report_name')->value;
     }
     $url = $node->get('field_url')->value;
     $number = $node->get('field_question_number')->value;
     $email = $node->get('field_report_email')->value;
-    return ['#theme' => ['iot_report_view'], '#node' => $node, '#quiz' => $quiz, '#collection' => $collection, '#name' => $name, '#email' => $email, '#number' => $number, '#url' => $url, '#attached' => ['library' => ['iot_ielts/report_mistake_view',],]];
+    return [
+      '#theme' => ['iot_report_view'],
+      '#node' => $node,
+      '#quiz' => $quiz,
+      '#collection' => $collection,
+      '#name' => $name,
+      '#email' => $email,
+      '#number' => $number,
+      '#url' => $url,
+      '#attached' => ['library' => ['iot_ielts/report_mistake_view',],],
+    ];
   }
 
-  public function reportMistakeResolved ($node)
-  {
+  public function reportMistakeResolved($node) {
     $node->set('status', 1);
     $node->save();
     drupal_set_message(t('The report has been resolved.'));
@@ -118,8 +135,7 @@ class ReportController extends ControllerBase
 
   }
 
-  public function reportViewCallback ()
-  {
+  public function reportViewCallback() {
     $mailManager = \Drupal::service('plugin.manager.mail');
     $params = [];
     if (isset($_POST['subject'])) {
@@ -131,11 +147,13 @@ class ReportController extends ControllerBase
     $to = $_POST['email'];
     $reply = 'hi@ieltsonlinetests.com';
     $params['body'] = [\Drupal\Core\Mail\MailFormatHelper::htmlToText($body)];
-    $sendEmail = \Drupal::service('plugin.manager.mail')->mail('smtp', 'smtp-test', $to, 'en', $params, $reply);
+    $sendEmail = \Drupal::service('plugin.manager.mail')
+      ->mail('smtp', 'smtp-test', $to, 'en', $params, $reply);
     if ($sendEmail) {
       print 'ok';
       exit();
-    } else {
+    }
+    else {
       print $sendEmail;
       exit();
     }

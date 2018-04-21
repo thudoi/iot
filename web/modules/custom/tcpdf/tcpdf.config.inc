@@ -30,6 +30,7 @@
 
 /**
  * Configuration file for TCPDF.
+ *
  * @author Nicola Asuni
  * @package com.tecnick.tcpdf
  * @version 4.9.005
@@ -40,25 +41,29 @@
 
 /**
  * Installation path (/var/www/tcpdf/).
- * By default it is automatically calculated but you can also set it as a fixed string to improve performances.
+ * By default it is automatically calculated but you can also set it as a fixed
+ * string to improve performances.
  */
 //define ('K_PATH_MAIN', '');
 
 /**
  * URL path to tcpdf installation folder (http://localhost/tcpdf/).
- * By default it is automatically set but you can also set it as a fixed string to improve performances.
+ * By default it is automatically set but you can also set it as a fixed string
+ * to improve performances.
  */
 //define ('K_PATH_URL', '');
 
 /**
  * Path for PDF fonts.
- * By default it is automatically set but you can also set it as a fixed string to improve performances.
+ * By default it is automatically set but you can also set it as a fixed string
+ * to improve performances.
  */
 //define ('K_PATH_FONTS', K_PATH_MAIN.'fonts/');
 
 /**
  * Default images directory.
- * By default it is automatically set but you can also set it as a fixed string to improve performances.
+ * By default it is automatically set but you can also set it as a fixed string
+ * to improve performances.
  */
 //define ('K_PATH_IMAGES', '');
 
@@ -199,20 +204,23 @@ define('K_TITLE_MAGNIFICATION', 1.3);
 define('K_SMALL_RATIO', 2 / 3);
 
 /**
- * Set to true to enable the special procedure used to avoid the overlappind of symbols on Thai language.
+ * Set to true to enable the special procedure used to avoid the overlappind of
+ * symbols on Thai language.
  */
-define('K_THAI_TOPCHARS', true);
+define('K_THAI_TOPCHARS', TRUE);
 
 /**
  * If true allows to call TCPDF methods using HTML syntax
- * IMPORTANT: For security reason, disable this feature if you are printing user HTML content.
+ * IMPORTANT: For security reason, disable this feature if you are printing
+ * user HTML content.
  */
-define('K_TCPDF_CALLS_IN_HTML', true);
+define('K_TCPDF_CALLS_IN_HTML', TRUE);
 
 /**
- * If true adn PHP version is greater than 5, then the Error() method throw new exception instead of terminating the execution.
+ * If true adn PHP version is greater than 5, then the Error() method throw new
+ * exception instead of terminating the execution.
  */
-define('K_TCPDF_THROW_EXCEPTION_ERROR', false);
+define('K_TCPDF_THROW_EXCEPTION_ERROR', FALSE);
 
 //============================================================+
 // END OF FILE

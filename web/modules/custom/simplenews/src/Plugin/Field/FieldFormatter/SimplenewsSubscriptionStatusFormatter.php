@@ -15,14 +15,12 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
  *   }
  * )
  */
-class SimplenewsSubscriptionStatusFormatter extends EntityReferenceFormatterBase
-{
+class SimplenewsSubscriptionStatusFormatter extends EntityReferenceFormatterBase {
 
   /**
    * {@inheritdoc}
    */
-  public function viewElements (FieldItemListInterface $items, $langcode)
-  {
+  public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = [];
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {

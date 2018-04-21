@@ -14,6 +14,7 @@ use Drupal\Component\Annotation\Plugin;
  * Plugin Namespace: Plugin\votingapi\VoteResultFunction
  * For a working example, see
  * \Drupal\votingapi\Plugin\VoteResultFunction\Sum
+ *
  * @see hook_vote_result_info_alter()
  * @see \Drupal\votingapi\VoteResultFunctionInterface
  * @see \Drupal\votingapi\VoteResultFunctionBase
@@ -21,17 +22,18 @@ use Drupal\Component\Annotation\Plugin;
  * @see plugin_api
  * @Annotation
  */
-class VoteResultFunction extends Plugin
-{
+class VoteResultFunction extends Plugin {
 
   /**
    * The plugin ID.
+   *
    * @var string
    */
   public $id;
 
   /**
    * The human-readable name of the voting result.
+   *
    * @ingroup plugin_translatable
    * @var \Drupal\Core\Annotation\Translation
    */
@@ -39,6 +41,7 @@ class VoteResultFunction extends Plugin
 
   /**
    * A brief description of the voting result.
+   *
    * @ingroup plugin_translatable
    * @var \Drupal\Core\Annotation\Translation (optional)
    */

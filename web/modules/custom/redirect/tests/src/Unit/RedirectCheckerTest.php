@@ -11,29 +11,46 @@ use Symfony\Component\Routing\Route;
 
 /**
  * Tests the redirect logic.
+ *
  * @group redirect
  */
-class RedirectCheckerTest extends UnitTestCase
-{
+class RedirectCheckerTest extends UnitTestCase {
 
   /**
    * Tests the can redirect check.
    */
-  public function testCanRedirect ()
-  {
+  public function testCanRedirect() {
 
-    $config = ['redirect.settings' => ['ignore_admin_path' => FALSE, 'access_check' => TRUE]];
+    $config = [
+      'redirect.settings' => [
+        'ignore_admin_path' => FALSE,
+        'access_check' => TRUE,
+      ],
+    ];
 
-    $state = $this->getMockBuilder('Drupal\Core\State\StateInterface')->getMock();
-    $state->expects($this->any())->method('get')->with('system.maintenance_mode')->will($this->returnValue(FALSE));
-    $access = $this->getMockBuilder('Drupal\Core\Access\AccessManager')->disableOriginalConstructor()->getMock();
-    $account = $this->getMockBuilder('Drupal\Core\Session\AccountInterface')->getMock();
-    $route_provider = $this->getMockBuilder('Drupal\Core\Routing\RouteProviderInterface')->getMock();
+    $state = $this->getMockBuilder('Drupal\Core\State\StateInterface')
+      ->getMock();
+    $state->expects($this->any())
+      ->method('get')
+      ->with('system.maintenance_mode')
+      ->will($this->returnValue(FALSE));
+    $access = $this->getMockBuilder('Drupal\Core\Access\AccessManager')
+      ->disableOriginalConstructor()
+      ->getMock();
+    $account = $this->getMockBuilder('Drupal\Core\Session\AccountInterface')
+      ->getMock();
+    $route_provider = $this->getMockBuilder('Drupal\Core\Routing\RouteProviderInterface')
+      ->getMock();
 
     $route = new Route('/example');
-    $route_provider->expects($this->any())->method('getRouteByName')->willReturn($route);
+    $route_provider->expects($this->any())
+      ->method('getRouteByName')
+      ->willReturn($route);
 
-    $access->expects($this->any())->method('checkNamedRoute')->willReturnMap([['denied_route', [], $account, FALSE, FALSE], ['allowed_route', [], $account, FALSE, TRUE],]);
+    $access->expects($this->any())->method('checkNamedRoute')->willReturnMap([
+        ['denied_route', [], $account, FALSE, FALSE],
+        ['allowed_route', [], $account, FALSE, TRUE],
+      ]);
 
     $checker = new RedirectChecker($this->getConfigFactoryStub($config), $state, $access, $account, $route_provider);
 
@@ -63,8 +80,12 @@ class RedirectCheckerTest extends UnitTestCase
     $this->assertFalse($checker->canRedirect($request), 'Cannot redirect');
 
     // Maintenance mode is on.
-    $state = $this->getMockBuilder('Drupal\Core\State\StateInterface')->getMock();
-    $state->expects($this->any())->method('get')->with('system.maintenance_mode')->will($this->returnValue(TRUE));
+    $state = $this->getMockBuilder('Drupal\Core\State\StateInterface')
+      ->getMock();
+    $state->expects($this->any())
+      ->method('get')
+      ->with('system.maintenance_mode')
+      ->will($this->returnValue(TRUE));
 
     $checker = new RedirectChecker($this->getConfigFactoryStub($config), $state, $access, $account, $route_provider);
 
@@ -72,34 +93,39 @@ class RedirectCheckerTest extends UnitTestCase
     $this->assertFalse($checker->canRedirect($request), 'Cannot redirect if maintenance mode is on');
 
     // We are at a admin path.
-    $state = $this->getMockBuilder('Drupal\Core\State\StateInterface')->getMock();
-    $state->expects($this->any())->method('get')->with('system.maintenance_mode')->will($this->returnValue(FALSE));
+    $state = $this->getMockBuilder('Drupal\Core\State\StateInterface')
+      ->getMock();
+    $state->expects($this->any())
+      ->method('get')
+      ->with('system.maintenance_mode')
+      ->will($this->returnValue(FALSE));
 
-//    $checker = new RedirectChecker($this->getConfigFactoryStub($config), $state);
-//
-//    $route = $this->getMockBuilder('Symfony\Component\Routing\Route')
-//      ->disableOriginalConstructor()
-//      ->getMock();
-//    $route->expects($this->any())
-//      ->method('getOption')
-//      ->with('_admin_route')
-//      ->will($this->returnValue('system.admin_config_search'));
-//
-//    $request = $this->getRequestStub('index.php', 'GET',
-//      array(RouteObjectInterface::ROUTE_OBJECT => $route));
-//    $this->assertFalse($checker->canRedirect($request), 'Cannot redirect if we are requesting a admin path');
-//
-//    // We are at admin path with ignore_admin_path set to TRUE.
-//    $config['redirect.settings']['ignore_admin_path'] = TRUE;
-//    $checker = new RedirectChecker($this->getConfigFactoryStub($config), $state);
-//
-//    $request = $this->getRequestStub('index.php', 'GET',
-//      array(RouteObjectInterface::ROUTE_OBJECT => $route));
-//    $this->assertTrue($checker->canRedirect($request), 'Can redirect a admin with ignore_admin_path set to TRUE');
+    //    $checker = new RedirectChecker($this->getConfigFactoryStub($config), $state);
+    //
+    //    $route = $this->getMockBuilder('Symfony\Component\Routing\Route')
+    //      ->disableOriginalConstructor()
+    //      ->getMock();
+    //    $route->expects($this->any())
+    //      ->method('getOption')
+    //      ->with('_admin_route')
+    //      ->will($this->returnValue('system.admin_config_search'));
+    //
+    //    $request = $this->getRequestStub('index.php', 'GET',
+    //      array(RouteObjectInterface::ROUTE_OBJECT => $route));
+    //    $this->assertFalse($checker->canRedirect($request), 'Cannot redirect if we are requesting a admin path');
+    //
+    //    // We are at admin path with ignore_admin_path set to TRUE.
+    //    $config['redirect.settings']['ignore_admin_path'] = TRUE;
+    //    $checker = new RedirectChecker($this->getConfigFactoryStub($config), $state);
+    //
+    //    $request = $this->getRequestStub('index.php', 'GET',
+    //      array(RouteObjectInterface::ROUTE_OBJECT => $route));
+    //    $this->assertTrue($checker->canRedirect($request), 'Can redirect a admin with ignore_admin_path set to TRUE');
   }
 
   /**
    * Gets request mock object.
+   *
    * @param string $script_name
    *   The result of the getScriptName() method.
    * @param string $method
@@ -108,14 +134,21 @@ class RedirectCheckerTest extends UnitTestCase
    *   Attributes to be passed into request->attributes.
    * @param array $query
    *   Query paramter to be passed into request->query.
+   *
    * @return PHPUnit_Framework_MockObject_MockObject
    *   Mocked request object.
    */
-  protected function getRequestStub ($script_name, $method, array $attributes = [], array $query = [])
-  {
-    $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')->disableOriginalConstructor()->getMock();
-    $request->expects($this->any())->method('getScriptName')->will($this->returnValue($script_name));
-    $request->expects($this->any())->method('isMethod')->with($this->anything())->will($this->returnValue($method == 'GET'));
+  protected function getRequestStub($script_name, $method, array $attributes = [], array $query = []) {
+    $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')
+      ->disableOriginalConstructor()
+      ->getMock();
+    $request->expects($this->any())
+      ->method('getScriptName')
+      ->will($this->returnValue($script_name));
+    $request->expects($this->any())
+      ->method('isMethod')
+      ->with($this->anything())
+      ->will($this->returnValue($method == 'GET'));
     $request->query = new ParameterBag($query);
     $request->attributes = new ParameterBag($attributes);
 

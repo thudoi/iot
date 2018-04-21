@@ -11,15 +11,20 @@ use Drupal\Core\Url;
 /**
  * Implement hook_form_alter()
  */
-function iot_user_form_alter (&$form, &$form_state, $form_id)
-{
+function iot_user_form_alter(&$form, &$form_state, $form_id) {
   switch ($form_id) {
     //profile form
     case 'user_form':
       $user = \Drupal::currentUser();
       if ($user->id() > 1) {
-        $form['username'] = ['#markup' => $form['account']['name']['#default_value'], '#title' => t('Username'),];
-        $form['email_address'] = ['#markup' => $form['account']['mail']['#default_value'], '#title' => t('Email'),];
+        $form['username'] = [
+          '#markup' => $form['account']['name']['#default_value'],
+          '#title' => t('Username'),
+        ];
+        $form['email_address'] = [
+          '#markup' => $form['account']['mail']['#default_value'],
+          '#title' => t('Email'),
+        ];
         $form['#theme'] = ['iot_user_edit_profile'];
       }
 

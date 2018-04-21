@@ -15,8 +15,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 /**
  * Implements hook_help().
  */
-function votingapi_help ($route_name, RouteMatchInterface $route_match)
-{
+function votingapi_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     // Main module help for the votingapi module.
     case 'help.page.votingapi':
@@ -32,8 +31,7 @@ function votingapi_help ($route_name, RouteMatchInterface $route_match)
 /**
  * Implements hook_entity_delete().
  */
-function votingapi_entity_delete (Drupal\Core\Entity\EntityInterface $entity)
-{
+function votingapi_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
   // Only act on content entities.
   if (!($entity instanceof \Drupal\Core\Entity\FieldableEntityInterface)) {
     return;
@@ -50,9 +48,9 @@ function votingapi_entity_delete (Drupal\Core\Entity\EntityInterface $entity)
  * Recalculate results for any entities that have gotten votes since the last
  * run.
  */
-function votingapi_cron ()
-{
-  if (Drupal::config('votingapi.settings')->get('calculation_schedule') == 'cron') {
+function votingapi_cron() {
+  if (Drupal::config('votingapi.settings')
+      ->get('calculation_schedule') == 'cron') {
     $vote_storage = \Drupal::entityManager()->getStorage('vote');
     $results = $vote_storage->getVotesSinceMoment();
     $manager = Drupal::service('plugin.manager.votingapi.resultfunction');

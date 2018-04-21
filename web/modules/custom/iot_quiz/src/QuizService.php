@@ -13,29 +13,36 @@ use Drupal\node\Entity\Node;
 use Drupal\media_entity\Entity\Media;
 use Drupal\taxonomy\Entity\Term;
 
-class QuizService
-{
+class QuizService {
 
   /**
    * @param $node
    * @param $type
    * @param string $solution
+   *
    * @return array
    */
-  public function get_question ($node, $type, $solution = '', $print = NULL)
-  {
+  public function get_question($node, $type, $solution = '', $print = NULL) {
     switch ($type) {
       case 'writing':
         break;
       case 'speaking':
         break;
       case 'reading':
-        $sids = \Drupal::entityQuery('node')->condition('type', 'section')->condition('field_quiz', $node->id())->condition('field_section_type', 'reading')->execute();
+        $sids = \Drupal::entityQuery('node')
+          ->condition('type', 'section')
+          ->condition('field_quiz', $node->id())
+          ->condition('field_section_type', 'reading')
+          ->execute();
         $sections = [];
         $answers = [];
         $total = 0;
         foreach ($sids as $key => $sid) {
-          $bids = \Drupal::entityQuery('node')->condition('type', 'question')->condition('field_section', $sid)->sort('field_order', 'ASC')->execute();
+          $bids = \Drupal::entityQuery('node')
+            ->condition('type', 'question')
+            ->condition('field_section', $sid)
+            ->sort('field_order', 'ASC')
+            ->execute();
           $sids[$key] = ['id' => $sid, 'block' => $bids];
           $q_nodes = Node::loadMultiple($bids);
           $section = Node::load($sid);
@@ -72,9 +79,18 @@ class QuizService
           $number = $section->get('field_question_range')->value;
           $number = str_replace('Questions ', '', $number);
           $arr = explode('-', $number);
-          $sections[$sid] = ['title' => $section->getTitle(), 'questions' => $questions, 'section' => $section, 'number' => $arr,];
+          $sections[$sid] = [
+            'title' => $section->getTitle(),
+            'questions' => $questions,
+            'section' => $section,
+            'number' => $arr,
+          ];
         }
-        $js_data = ['total' => $total, 'sec_id' => $node->id(), 'answers' => $answers,];
+        $js_data = [
+          'total' => $total,
+          'sec_id' => $node->id(),
+          'answers' => $answers,
+        ];
         return ['secs' => $sections, 'answers' => $js_data,];
         break;
         break;
@@ -86,12 +102,20 @@ class QuizService
         if ($entity) {
           $yt_link = $this->process_media($entity);
         }
-        $sids = \Drupal::entityQuery('node')->condition('type', 'section')->condition('field_quiz', $node->id())->condition('field_section_type', 'listening')->execute();
+        $sids = \Drupal::entityQuery('node')
+          ->condition('type', 'section')
+          ->condition('field_quiz', $node->id())
+          ->condition('field_section_type', 'listening')
+          ->execute();
         $sections = [];
         $answers = [];
         $total = 0;
         foreach ($sids as $key => $sid) {
-          $bids = \Drupal::entityQuery('node')->condition('type', 'question')->condition('field_section', $sid)->sort('field_order', 'ASC')->execute();
+          $bids = \Drupal::entityQuery('node')
+            ->condition('type', 'question')
+            ->condition('field_section', $sid)
+            ->sort('field_order', 'ASC')
+            ->execute();
           $sids[$key] = ['id' => $sid, 'block' => $bids];
           $q_nodes = Node::loadMultiple($bids);
           $section = Node::load($sid);
@@ -107,7 +131,11 @@ class QuizService
             $listenHere = $service->getTimeStartListening($q_node);
             $qstart = str_replace('Questions ', '', $title);
             $qstart = explode('-', $qstart);
-            $listen = ['#theme' => 'iot_listen_here', '#node' => $q_node, '#listen' => $listenHere[$qstart[0]],];
+            $listen = [
+              '#theme' => 'iot_listen_here',
+              '#node' => $q_node,
+              '#listen' => $listenHere[$qstart[0]],
+            ];
             $content = '<h3>' . $title . '</h3>';
             if ($solution == '') {
               $content .= render($listen);
@@ -135,10 +163,23 @@ class QuizService
           }
 
 
-          $sections[$sid] = ['title' => $section->getTitle(), 'audio' => $audio, 'questions' => $questions, 'section' => $section,];
+          $sections[$sid] = [
+            'title' => $section->getTitle(),
+            'audio' => $audio,
+            'questions' => $questions,
+            'section' => $section,
+          ];
         }
-        $js_data = ['total' => $total, 'sec_id' => $node->id(), 'answers' => $answers,];
-        return ['audio' => $yt_link, 'secs' => $sections, 'answers' => $js_data,];
+        $js_data = [
+          'total' => $total,
+          'sec_id' => $node->id(),
+          'answers' => $answers,
+        ];
+        return [
+          'audio' => $yt_link,
+          'secs' => $sections,
+          'answers' => $js_data,
+        ];
         break;
     }
   }
@@ -154,8 +195,7 @@ class QuizService
    * @param null $type
    * @param $name
    */
-  private function process_question_radio ($qids, &$content, $kb, &$questions, &$answers, &$total, $solution, $type = NULL, $name, $print = NULL)
-  {
+  private function process_question_radio($qids, &$content, $kb, &$questions, &$answers, &$total, $solution, $type = NULL, $name, $print = NULL) {
     $service = \Drupal::service('iot_quiz.quizservice');
     $questionService = \Drupal::service('iot_quiz.questionservice');
     $node = Node::load($kb);
@@ -178,16 +218,53 @@ class QuizService
         if ($opt->get('field_correct')->value == 1) {
           $correct = $opt->get('field_value')->value;
         }
-        $data_template[] = ['id' => $kb . $q_key, 'ext_attr' => $ext_attr, 'opt_value' => $opt->get('field_value')->value, 'opt_option' => $opt->get('field_option')->value,];
+        $data_template[] = [
+          'id' => $kb . $q_key,
+          'ext_attr' => $ext_attr,
+          'opt_value' => $opt->get('field_value')->value,
+          'opt_option' => $opt->get('field_option')->value,
+        ];
       }
-      $explain_template = ['#theme' => 'iot_explain', '#explain' => $this->explanation($node), '#node' => $node, '#qid' => $number, '#type' => $type, '#listen' => $questionService->getTimeStartListening($node), '#print' => $print, '#quiz' => $this->getLocateCondition($node), '#nodequiz' => $this->getQuizByQuestion($node)];
-      $radio_template = ['#theme' => 'iot_radio', '#q_num' => $number, '#q_type' => $name, '#data' => $data_template, '#question' => $question, '#answer' => $solution ? $correct : '', '#explain' => render($explain_template), '#print' => $print,];
+      $explain_template = [
+        '#theme' => 'iot_explain',
+        '#explain' => $this->explanation($node),
+        '#node' => $node,
+        '#qid' => $number,
+        '#type' => $type,
+        '#listen' => $questionService->getTimeStartListening($node),
+        '#print' => $print,
+        '#quiz' => $this->getLocateCondition($node),
+        '#nodequiz' => $this->getQuizByQuestion($node),
+      ];
+      $radio_template = [
+        '#theme' => 'iot_radio',
+        '#q_num' => $number,
+        '#q_type' => $name,
+        '#data' => $data_template,
+        '#question' => $question,
+        '#answer' => $solution ? $correct : '',
+        '#explain' => render($explain_template),
+        '#print' => $print,
+      ];
       $content .= render($radio_template);
-      $answers[$number] = ['type' => 'radio', 'number' => $number, 'answer' => $correct,];
-      $data[$kb][$number] = ['q_number' => $number, 'explain' => $explain, 'question' => $question, 'options' => $o_data,];
+      $answers[$number] = [
+        'type' => 'radio',
+        'number' => $number,
+        'answer' => $correct,
+      ];
+      $data[$kb][$number] = [
+        'q_number' => $number,
+        'explain' => $explain,
+        'question' => $question,
+        'options' => $o_data,
+      ];
       $pallete[$kb][$number] = ['q_number' => $number,];
     }
-    $questions[$kb] = ['type' => 'radio', 'content' => $content, 'question' => $pallete[$kb],];
+    $questions[$kb] = [
+      'type' => 'radio',
+      'content' => $content,
+      'question' => $pallete[$kb],
+    ];
   }
 
   /**
@@ -202,8 +279,7 @@ class QuizService
    * @param null $type
    * @param $name
    */
-  private function process_question_drop ($qids, &$content, $kb, &$questions, &$answers, &$total, $solution, $q_node, $type = NULL, $name, $print = NULL)
-  {
+  private function process_question_drop($qids, &$content, $kb, &$questions, &$answers, &$total, $solution, $q_node, $type = NULL, $name, $print = NULL) {
     $q_data = [];
     foreach ($qids as $q_key => $qid) {
       $qnode = Paragraph::load($qid['target_id']);
@@ -220,11 +296,20 @@ class QuizService
       if ($question) {
         $process = $this->iot_preprocess_dropdown($question, $o_data, $answers, $total, $solution, $q_node, $qnode, $type, $name, $print);
       }
-      $data[$qid['target_id']] = ['q_num' => $number, 'explain' => $explain, 'question' => $question, 'options' => $o_data,];
+      $data[$qid['target_id']] = [
+        'q_num' => $number,
+        'explain' => $explain,
+        'question' => $question,
+        'options' => $o_data,
+      ];
       $content .= $process['content'];
       $q_data = $process['question'];
     }
-    $questions[$kb] = ['type' => 'drop_down', 'content' => $content, 'question' => $q_data,];
+    $questions[$kb] = [
+      'type' => 'drop_down',
+      'content' => $content,
+      'question' => $q_data,
+    ];
   }
 
   /**
@@ -238,8 +323,7 @@ class QuizService
    * @param null $type
    * @param $name
    */
-  private function process_question_checkbox ($qids, &$content, $kb, &$questions, &$answers, &$total, $solution, $type = NULL, $name, $print = NULL)
-  {
+  private function process_question_checkbox($qids, &$content, $kb, &$questions, &$answers, &$total, $solution, $type = NULL, $name, $print = NULL) {
     $node = Node::load($kb);
     $service = \Drupal::service('iot_quiz.quizservice');
     $questionService = \Drupal::service('iot_quiz.questionservice');
@@ -252,7 +336,8 @@ class QuizService
       if (strpos($number, '-') !== FALSE) {
         $last = explode('-', $number);
         $total = $last[1] >= $total ? $last[1] : $total;
-      } else {
+      }
+      else {
         $total = $number >= $total ? $number : $total;
         $prefix_number = '<b>' . $number . '</b>';
       }
@@ -272,24 +357,55 @@ class QuizService
         if ($opt->get('field_correct_checkbox')->value == 1) {
           $correct[] = $opt->get('field_value')->value;
         }
-        $checkboxes_template = ['#theme' => 'iot_checkboxes', '#q_num' => $number, '#q_type' => $name, '#ext_attr' => $ext_attr, '#id' => $kb . $q_key, '#opt_value' => $opt->get('field_value')->value, '#opt_option' => $opt->get('field_option')->value,];
+        $checkboxes_template = [
+          '#theme' => 'iot_checkboxes',
+          '#q_num' => $number,
+          '#q_type' => $name,
+          '#ext_attr' => $ext_attr,
+          '#id' => $kb . $q_key,
+          '#opt_value' => $opt->get('field_value')->value,
+          '#opt_option' => $opt->get('field_option')->value,
+        ];
         $content .= render($checkboxes_template);
       }
       $content .= '</ul>';
       $c_solution = implode(',', $correct);
 
-      $explain_template = ['#theme' => 'iot_explain', '#explain' => $service->explanation($node), '#node' => $node, '#qid' => $number, '#type' => $type, '#listen' => $questionService->getTimeStartListening($node), '#print' => $print, '#quiz' => $this->getLocateCondition($node), '#nodequiz' => $this->getQuizByQuestion($node)];
+      $explain_template = [
+        '#theme' => 'iot_explain',
+        '#explain' => $service->explanation($node),
+        '#node' => $node,
+        '#qid' => $number,
+        '#type' => $type,
+        '#listen' => $questionService->getTimeStartListening($node),
+        '#print' => $print,
+        '#quiz' => $this->getLocateCondition($node),
+        '#nodequiz' => $this->getQuizByQuestion($node),
+      ];
       if ($print == NULL) {
         $ans .= $solution ? '<li class="answer"><span>' . $number . '</span> Answer: <span class="b-r">' . $c_solution . '</span></li>' . render($explain_template) : '';
       }
 
       $content .= '<ul>' . $ans . '</ul>';
       $content .= '</div></div>';
-      $answers[$number] = ['type' => 'checkbox', 'number' => $number, 'answer' => $correct,];
-      $data[$qid['target_id']] = ['q_number' => $number, 'explain' => $explain, 'question' => $question, 'options' => $o_data,];
+      $answers[$number] = [
+        'type' => 'checkbox',
+        'number' => $number,
+        'answer' => $correct,
+      ];
+      $data[$qid['target_id']] = [
+        'q_number' => $number,
+        'explain' => $explain,
+        'question' => $question,
+        'options' => $o_data,
+      ];
       $pallete[$qid['target_id']] = ['q_number' => $number,];
     }
-    $questions[$kb] = ['type' => 'checkbox', 'content' => $content, 'question' => $data,];
+    $questions[$kb] = [
+      'type' => 'checkbox',
+      'content' => $content,
+      'question' => $data,
+    ];
   }
 
   /**
@@ -303,8 +419,7 @@ class QuizService
    * @param null $type
    * @param $name
    */
-  private function process_question_blank ($qids, &$content, $kb, &$questions, &$answers, &$total, $solution, $type = NULL, $name, $print = NULL)
-  {
+  private function process_question_blank($qids, &$content, $kb, &$questions, &$answers, &$total, $solution, $type = NULL, $name, $print = NULL) {
     $node = Node::load($kb);
     foreach ($qids as $q_key => $qid) {
       $qnode = Paragraph::load($qid['target_id']);
@@ -314,7 +429,11 @@ class QuizService
       $content .= $question['content'];
       $content .= '</div>';
     }
-    $questions[$kb] = ['type' => 'blank', 'content' => $content, 'question' => $question['question'],];
+    $questions[$kb] = [
+      'type' => 'blank',
+      'content' => $content,
+      'question' => $question['question'],
+    ];
   }
 
   /**
@@ -327,10 +446,10 @@ class QuizService
    * @param null $qnode
    * @param null $type
    * @param $name
+   *
    * @return array
    */
-  private function iot_preprocess_dropdown ($text, $options, &$answers, &$total, $solution, $q_node, $qnode = NULL, $type = NULL, $name, $print = NULL)
-  {
+  private function iot_preprocess_dropdown($text, $options, &$answers, &$total, $solution, $q_node, $qnode = NULL, $type = NULL, $name, $print = NULL) {
     $service = \Drupal::service('iot_quiz.quizservice');
     $questionService = \Drupal::service('iot_quiz.questionservice');
     $content = $text;
@@ -343,10 +462,27 @@ class QuizService
     $as = '';
     foreach ($matches[1] as $key => $match) {
       $end = explode(':', $match);
-      $questions[$key] = ['q_number' => $match, 'correct' => $matches[2][$key],];
+      $questions[$key] = [
+        'q_number' => $match,
+        'correct' => $matches[2][$key],
+      ];
       $total = $match >= $total ? $match : $total;
-      $answers[$end[0]] = ['type' => 'drop_down', 'number' => $match, 'answer' => $matches[2][$key],];
-      $explain_template = ['#theme' => 'iot_explain', '#explain' => $service->explanation($q_node), '#node' => $q_node, '#qid' => $match, '#type' => $type, '#listen' => $questionService->getTimeStartListening($q_node), '#print' => $print, '#quiz' => $this->getLocateCondition($q_node), '#nodequiz' => $this->getQuizByQuestion($q_node)];
+      $answers[$end[0]] = [
+        'type' => 'drop_down',
+        'number' => $match,
+        'answer' => $matches[2][$key],
+      ];
+      $explain_template = [
+        '#theme' => 'iot_explain',
+        '#explain' => $service->explanation($q_node),
+        '#node' => $q_node,
+        '#qid' => $match,
+        '#type' => $type,
+        '#listen' => $questionService->getTimeStartListening($q_node),
+        '#print' => $print,
+        '#quiz' => $this->getLocateCondition($q_node),
+        '#nodequiz' => $this->getQuizByQuestion($q_node),
+      ];
       $ext_attr = $solution ? 'disabled="disabled"' : '';
       if ($print == NULL) {
         $as .= $solution ? '<li class="answer"><span>' . $match . '</span> Answer: <span class="b-r">' . $matches[2][$key] . '</span></li>' . render($explain_template) : '';
@@ -355,16 +491,25 @@ class QuizService
       //check TFNG and YNNG.
       if ($q_node->get('field_qtype_front')->target_id == 11 || $q_node->get('field_qtype_front')->target_id == 12) {
         $surfix = $this->get_option_value_dropdown($q_node->get('field_qtype_front')->target_id);
-      } else {
+      }
+      else {
         $surfix = $opts;
       }
-      $blank_template = ['#theme' => 'iot_dropdown', '#q_num' => $match, '#q_type' => $name, '#ext_attr' => $ext_attr, '#opt' => $surfix, '#as' => '',];
+      $blank_template = [
+        '#theme' => 'iot_dropdown',
+        '#q_num' => $match,
+        '#q_type' => $name,
+        '#ext_attr' => $ext_attr,
+        '#opt' => $surfix,
+        '#as' => '',
+      ];
       $replace = render($blank_template);
       $content = str_replace($matches[0][$key], $replace, $content);
     }
     if ($q_node->get('field_qtype_front')->target_id == 11 || $q_node->get('field_qtype_front')->target_id == 12) {
       $table_dropdown = $this->_set_table_dropdown($options, $qnode, TRUE, $q_node->get('field_qtype_front')->target_id);
-    } else {
+    }
+    else {
       $table_dropdown = $this->_set_table_dropdown($options, $qnode, FALSE, $q_node->get('field_qtype_front')->target_id);
     }
     $content = str_replace('{OPTION}', $table_dropdown, $content);
@@ -381,10 +526,10 @@ class QuizService
    * @param null $node
    * @param null $type
    * @param $name
+   *
    * @return array
    */
-  private function iot_preprocess_question ($text, &$answers, &$total, $solution, $node = NULL, $type = NULL, $name, $print = NULL)
-  {
+  private function iot_preprocess_question($text, &$answers, &$total, $solution, $node = NULL, $type = NULL, $name, $print = NULL) {
     $service = \Drupal::service('iot_quiz.quizservice');
     $questionService = \Drupal::service('iot_quiz.questionservice');
     $content = $text;
@@ -395,35 +540,62 @@ class QuizService
       $pattern = '/[0-9]{1,2}/';
       preg_match($pattern, $match, $q_num);
       $prefix = explode($q_num[0], $match);
-      $questions[$key] = ['q_number' => $q_num[0], 'id' => 'q-' . $q_num[0], 'prefix' => $prefix[0], 'Capital' => $prefix[1],];
+      $questions[$key] = [
+        'q_number' => $q_num[0],
+        'id' => 'q-' . $q_num[0],
+        'prefix' => $prefix[0],
+        'Capital' => $prefix[1],
+      ];
       $as = explode('@', $matches[2][$key]);
       $arr = explode('|', $as[0]);
       $ans = [];
       if (isset($arr[1])) {
         foreach ($arr as $a) {
-//          $p = '/\s/';
-//          $ans[] = strtolower(preg_replace($p, '', $a));
+          //          $p = '/\s/';
+          //          $ans[] = strtolower(preg_replace($p, '', $a));
           $ans[] = $a;
         }
         if (isset($as[1])) {
           $pre_a = $as[1];
-        } else {
+        }
+        else {
           $pre_a = implode(',', $ans);
         }
-      } else {
+      }
+      else {
         $pre_a = $matches[2][$key];
         $ans[] = $matches[2][$key];
       }
       $total = $q_num[0] >= $total ? $q_num[0] : $total;
-      $answers[$q_num[0]] = ['type' => 'blank', 'number' => $q_num[0], 'answer' => $ans, 'prefix' => $pre_a,];
+      $answers[$q_num[0]] = [
+        'type' => 'blank',
+        'number' => $q_num[0],
+        'answer' => $ans,
+        'prefix' => $pre_a,
+      ];
 
-      $explain_template = ['#theme' => 'iot_explain', '#explain' => $service->explanation($node), '#node' => $node, '#qid' => $q_num[0], '#type' => $type, '#listen' => $questionService->getTimeStartListening($node), '#print' => $print, '#quiz' => $this->getLocateCondition($node), '#nodequiz' => $this->getQuizByQuestion($node)];
+      $explain_template = [
+        '#theme' => 'iot_explain',
+        '#explain' => $service->explanation($node),
+        '#node' => $node,
+        '#qid' => $q_num[0],
+        '#type' => $type,
+        '#listen' => $questionService->getTimeStartListening($node),
+        '#print' => $print,
+        '#quiz' => $this->getLocateCondition($node),
+        '#nodequiz' => $this->getQuizByQuestion($node),
+      ];
       if ($print == NULL) {
         $ext .= $solution ? '<li class="answer"><b>' . $q_num[0] . '</b> Answer: <span class="b-r">' . $pre_a . '</span></li>' . render($explain_template) : '';
       }
 
       $ext_attr = $solution ? 'readonly' : '';
-      $blank_template = ['#theme' => 'iot_blank', '#q_num' => $q_num[0], '#q_type' => $name, '#ext_attr' => $ext_attr,];
+      $blank_template = [
+        '#theme' => 'iot_blank',
+        '#q_num' => $q_num[0],
+        '#q_type' => $name,
+        '#ext_attr' => $ext_attr,
+      ];
       $replace = render($blank_template);
       $content = str_replace($matches[0][$key], $replace, $content);
     }
@@ -437,10 +609,10 @@ class QuizService
 
   /**
    * get dropdown list
+   *
    * @return string
    */
-  private function get_option_value_dropdown ($type)
-  {
+  private function get_option_value_dropdown($type) {
     $value = '';
     if ($type == '11') {
       $value = 'TFNG';
@@ -448,7 +620,11 @@ class QuizService
     if ($type == '12') {
       $value = 'YNNG';
     }
-    $nids = \Drupal::entityQuery('node')->condition('type', 'option')->condition('field_option_type', $value)->condition('status', 1)->execute();
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'option')
+      ->condition('field_option_type', $value)
+      ->condition('status', 1)
+      ->execute();
     $nodes = Node::loadMultiple($nids);
     $option = '<option value=""></option>';
     foreach ($nodes as $node) {
@@ -459,12 +635,13 @@ class QuizService
 
   /**
    * Get table option dropdown
+   *
    * @param $cell
    * @param $node
+   *
    * @return mixed|null
    */
-  private function _set_table_dropdown ($cell, $node, $type = FALSE, $dtype)
-  {
+  private function _set_table_dropdown($cell, $node, $type = FALSE, $dtype) {
     $arr = [];
     //        $caption = '';
     if (!empty($node->get('field_dropdown_title')->value)) {
@@ -479,29 +656,40 @@ class QuizService
       $value = 'YNNG';
     }
     if ($type) {
-      $nids = \Drupal::entityQuery('node')->condition('type', 'option')->condition('field_option_type', $value)->condition('status', 1)->execute();
+      $nids = \Drupal::entityQuery('node')
+        ->condition('type', 'option')
+        ->condition('field_option_type', $value)
+        ->condition('status', 1)
+        ->execute();
       $nodes = Node::loadMultiple($nids);
       foreach ($nodes as $node) {
-        $arr[] = [$node->get('field_value')->value, $node->get('field_option')->value,];
+        $arr[] = [
+          $node->get('field_value')->value,
+          $node->get('field_option')->value,
+        ];
       }
-    } else {
+    }
+    else {
       foreach ($cell as $data) {
         $arr[] = [$data['value'], $data['option']];
       }
     }
     $header = [];
-    $table = ['#theme' => 'table', //'#cache' => ['disabled' => TRUE],
+    $table = [
+      '#theme' => 'table', //'#cache' => ['disabled' => TRUE],
       //            '#caption' => $caption,
-      '#header' => $header, '#rows' => $arr,];
+      '#header' => $header,
+      '#rows' => $arr,
+    ];
     return render($table);
   }
 
   /**
    * Explanation on result page for reading question
+   *
    * @param $sections
    */
-  public function explanation ($node)
-  {
+  public function explanation($node) {
     $explain = [];
     // $section = $sec['section'];
     $questions = $node->get('field_question')->getValue();
@@ -536,10 +724,10 @@ class QuizService
 
   /**
    * Mapping explian to token
+   *
    * @param $explain
    */
-  public function explain_reading_mapping ($qnode)
-  {
+  public function explain_reading_mapping($qnode) {
     $return = '';
     $questions = $qnode->get('field_question')->getValue();
     foreach ($questions as $question) {
@@ -575,12 +763,12 @@ class QuizService
 
   /**
    * @param $link
+   *
    * @return mixed
    */
-  private function process_media ($entity)
-  {
+  private function process_media($entity) {
     $audio_link = FALSE;
-//    $country = ip2country_get_country(\Drupal::request()->getClientIp());
+    //    $country = ip2country_get_country(\Drupal::request()->getClientIp());
     $country = 'VN';
     if ($country == 'CN') {
       $cdn = 'http://cdn.intergreat.com';
@@ -590,7 +778,8 @@ class QuizService
       if ($audio_link) {
         return $audio_link;
       }
-    } else {
+    }
+    else {
       if (!empty($entity->get('field_youtube_link')->value)) {
         $link = $entity->get('field_youtube_link')->value;
         $api = 'http://audioapi.ieltsonlinetests.com?v=' . $link;
@@ -599,7 +788,8 @@ class QuizService
       }
       if ($audio_link) {
         return $audio_link;
-      } else {
+      }
+      else {
         if (!empty($entity->get('field_soundcloud_link')->value)) {
           $link = $entity->get('field_soundcloud_link')->value;
           $link = explode("//", $link);
@@ -621,11 +811,16 @@ class QuizService
    * @param $url
    * @param array $get
    * @param array $options
+   *
    * @return mixed
    */
-  public function curl_get ($url, array $get = [], array $options = [])
-  {
-    $defaults = [CURLOPT_URL => $url . (strpos($url, '?') === FALSE ? '?' : '') . http_build_query($get), CURLOPT_HEADER => 0, CURLOPT_RETURNTRANSFER => TRUE, CURLOPT_TIMEOUT => 4,];
+  public function curl_get($url, array $get = [], array $options = []) {
+    $defaults = [
+      CURLOPT_URL => $url . (strpos($url, '?') === FALSE ? '?' : '') . http_build_query($get),
+      CURLOPT_HEADER => 0,
+      CURLOPT_RETURNTRANSFER => TRUE,
+      CURLOPT_TIMEOUT => 4,
+    ];
 
     $ch = curl_init();
     curl_setopt_array($ch, ($options + $defaults));
@@ -639,11 +834,14 @@ class QuizService
   /**
    * Implement check locate button
    */
-  public function getLocateCondition ($question)
-  {
+  public function getLocateCondition($question) {
     $setion = Node::load($question->get('field_section')->target_id);
     $quiz = Node::load($setion->get('field_quiz')->target_id);
-    $section_ids = \Drupal::entityQuery('node')->condition('type', 'section')->condition('field_quiz', $quiz->id())->condition('status', 1)->execute();
+    $section_ids = \Drupal::entityQuery('node')
+      ->condition('type', 'section')
+      ->condition('field_quiz', $quiz->id())
+      ->condition('status', 1)
+      ->execute();
     $sections = \Drupal\node\Entity\Node::loadMultiple($section_ids);
     $ex = [];
     foreach ($sections as $section) {
@@ -667,8 +865,7 @@ class QuizService
     return $ex;
   }
 
-  public function getQuizByQuestion ($question)
-  {
+  public function getQuizByQuestion($question) {
     $setion = Node::load($question->get('field_section')->target_id);
     $quiz = Node::load($setion->get('field_quiz')->target_id);
     return $quiz;

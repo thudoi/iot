@@ -9,18 +9,18 @@ use Drupal\node\NodeInterface;
 /**
  * Returns responses for Rate routes.
  */
-class ResultsController extends ControllerBase
-{
+class ResultsController extends ControllerBase {
 
   /**
    * Display rate voting results views.
+   *
    * @param \Drupal\node\NodeInterface $node
    *   The node for which to display results.
+   *
    * @return array
    *   The render array.
    */
-  public function results (NodeInterface $node)
-  {
+  public function results(NodeInterface $node) {
     // First, make sure the data is fresh.
     $cache_bins = Cache::getBins();
     $cache_bins['data']->deleteAll();

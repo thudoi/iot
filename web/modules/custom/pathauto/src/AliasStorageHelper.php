@@ -13,43 +13,48 @@ use Drupal\Core\StringTranslation\TranslationInterface;
 /**
  * Provides helper methods for accessing alias storage.
  */
-class AliasStorageHelper implements AliasStorageHelperInterface
-{
+class AliasStorageHelper implements AliasStorageHelperInterface {
 
   use StringTranslationTrait;
 
   /**
    * Alias schema max length.
+   *
    * @var int
    */
   protected $aliasSchemaMaxLength = 255;
 
   /**
    * Config factory.
+   *
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
   /**
    * The alias storage.
+   *
    * @var \Drupal\Core\Path\AliasStorageInterface
    */
   protected $aliasStorage;
 
   /**
    * The database connection.
+   *
    * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
   /**
    * The messenger.
+   *
    * @var \Drupal\pathauto\MessengerInterface
    */
   protected $messenger;
 
   /**
    * The config factory.
+   *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param \Drupal\Core\Path\AliasStorageInterface $alias_storage
@@ -61,8 +66,7 @@ class AliasStorageHelper implements AliasStorageHelperInterface
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
-  public function __construct (ConfigFactoryInterface $config_factory, AliasStorageInterface $alias_storage, Connection $database, MessengerInterface $messenger, TranslationInterface $string_translation)
-  {
+  public function __construct(ConfigFactoryInterface $config_factory, AliasStorageInterface $alias_storage, Connection $database, MessengerInterface $messenger, TranslationInterface $string_translation) {
     $this->configFactory = $config_factory;
     $this->aliasStorage = $alias_storage;
     $this->database = $database;
@@ -73,16 +77,14 @@ class AliasStorageHelper implements AliasStorageHelperInterface
   /**
    * {@inheritdoc}
    */
-  public function getAliasSchemaMaxLength ()
-  {
+  public function getAliasSchemaMaxLength() {
     return $this->aliasSchemaMaxLength;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function save (array $path, $existing_alias = NULL, $op = NULL)
-  {
+  public function save(array $path, $existing_alias = NULL, $op = NULL) {
     $config = $this->configFactory->get('pathauto.settings');
 
     // Alert users if they are trying to create an alias that is the same as the
@@ -94,7 +96,11 @@ class AliasStorageHelper implements AliasStorageHelperInterface
 
     // Skip replacing the current alias with an identical alias.
     if (empty($existing_alias) || $existing_alias['alias'] != $path['alias']) {
-      $path += ['pathauto' => TRUE, 'original' => $existing_alias, 'pid' => NULL,];
+      $path += [
+        'pathauto' => TRUE,
+        'original' => $existing_alias,
+        'pid' => NULL,
+      ];
 
       // If there is already an alias, respect some update actions.
       if (!empty($existing_alias)) {
@@ -119,9 +125,17 @@ class AliasStorageHelper implements AliasStorageHelperInterface
       $this->aliasStorage->save($path['source'], $path['alias'], $path['language'], $path['pid']);
 
       if (!empty($existing_alias['pid'])) {
-        $this->messenger->addMessage($this->t('Created new alias %alias for %source, replacing %old_alias.', ['%alias' => $path['alias'], '%source' => $path['source'], '%old_alias' => $existing_alias['alias'],]));
-      } else {
-        $this->messenger->addMessage($this->t('Created new alias %alias for %source.', ['%alias' => $path['alias'], '%source' => $path['source'],]));
+        $this->messenger->addMessage($this->t('Created new alias %alias for %source, replacing %old_alias.', [
+          '%alias' => $path['alias'],
+          '%source' => $path['source'],
+          '%old_alias' => $existing_alias['alias'],
+        ]));
+      }
+      else {
+        $this->messenger->addMessage($this->t('Created new alias %alias for %source.', [
+          '%alias' => $path['alias'],
+          '%source' => $path['source'],
+        ]));
       }
 
       return $path;
@@ -131,13 +145,18 @@ class AliasStorageHelper implements AliasStorageHelperInterface
   /**
    * {@inheritdoc}
    */
-  public function loadBySource ($source, $language = LanguageInterface::LANGCODE_NOT_SPECIFIED)
-  {
-    $alias = $this->aliasStorage->load(['source' => $source, 'langcode' => $language,]);
+  public function loadBySource($source, $language = LanguageInterface::LANGCODE_NOT_SPECIFIED) {
+    $alias = $this->aliasStorage->load([
+      'source' => $source,
+      'langcode' => $language,
+    ]);
     // If no alias was fetched and if a language was specified, fallbacks to
     // undefined language.
     if (!$alias && ($language !== LanguageInterface::LANGCODE_NOT_SPECIFIED)) {
-      $alias = $this->aliasStorage->load(['source' => $source, 'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,]);
+      $alias = $this->aliasStorage->load([
+        'source' => $source,
+        'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
+      ]);
     }
     return $alias;
   }
@@ -145,8 +164,7 @@ class AliasStorageHelper implements AliasStorageHelperInterface
   /**
    * {@inheritdoc}
    */
-  public function deleteBySourcePrefix ($source)
-  {
+  public function deleteBySourcePrefix($source) {
     $pids = $this->loadBySourcePrefix($source);
     if ($pids) {
       $this->deleteMultiple($pids);
@@ -156,18 +174,18 @@ class AliasStorageHelper implements AliasStorageHelperInterface
   /**
    * {@inheritdoc}
    */
-  public function deleteAll ()
-  {
+  public function deleteAll() {
     $this->database->truncate('url_alias')->execute();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function deleteEntityPathAll (EntityInterface $entity, $default_uri = NULL)
-  {
-    $this->deleteBySourcePrefix('/' . $entity->toUrl('canonical')->getInternalPath());
-    if (isset($default_uri) && $entity->toUrl('canonical')->toString() != $default_uri) {
+  public function deleteEntityPathAll(EntityInterface $entity, $default_uri = NULL) {
+    $this->deleteBySourcePrefix('/' . $entity->toUrl('canonical')
+        ->getInternalPath());
+    if (isset($default_uri) && $entity->toUrl('canonical')
+        ->toString() != $default_uri) {
       $this->deleteBySourcePrefix($default_uri);
     }
   }
@@ -175,11 +193,12 @@ class AliasStorageHelper implements AliasStorageHelperInterface
   /**
    * {@inheritdoc}
    */
-  public function loadBySourcePrefix ($source)
-  {
+  public function loadBySourcePrefix($source) {
     $select = $this->database->select('url_alias', 'u')->fields('u', ['pid']);
 
-    $or_group = $select->orConditionGroup()->condition('source', $source)->condition('source', rtrim($source, '/') . '/%', 'LIKE');
+    $or_group = $select->orConditionGroup()
+      ->condition('source', $source)
+      ->condition('source', rtrim($source, '/') . '/%', 'LIKE');
 
     return $select->condition($or_group)->execute()->fetchCol();
   }
@@ -187,11 +206,12 @@ class AliasStorageHelper implements AliasStorageHelperInterface
   /**
    * {@inheritdoc}
    */
-  public function countBySourcePrefix ($source)
-  {
+  public function countBySourcePrefix($source) {
     $select = $this->database->select('url_alias', 'u')->fields('u', ['pid']);
 
-    $or_group = $select->orConditionGroup()->condition('source', $source)->condition('source', rtrim($source, '/') . '/%', 'LIKE');
+    $or_group = $select->orConditionGroup()
+      ->condition('source', $source)
+      ->condition('source', rtrim($source, '/') . '/%', 'LIKE');
 
     return $select->condition($or_group)->countQuery()->execute()->fetchField();
   }
@@ -199,20 +219,22 @@ class AliasStorageHelper implements AliasStorageHelperInterface
   /**
    * {@inheritdoc}
    */
-  public function countAll ()
-  {
-    return $this->database->select('url_alias')->countQuery()->execute()->fetchField();
+  public function countAll() {
+    return $this->database->select('url_alias')
+      ->countQuery()
+      ->execute()
+      ->fetchField();
   }
 
   /**
    * Delete multiple URL aliases.
    * Intent of this is to abstract a potential path_delete_multiple() function
    * for Drupal 7 or 8.
+   *
    * @param int[] $pids
    *   An array of path IDs to delete.
    */
-  public function deleteMultiple ($pids)
-  {
+  public function deleteMultiple($pids) {
     foreach ($pids as $pid) {
       $this->aliasStorage->delete(['pid' => $pid]);
     }

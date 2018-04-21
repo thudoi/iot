@@ -11,30 +11,39 @@ use Drupal\redirect\Tests\AssertRedirectTrait;
  * UI tests for redirect_404 module with language and content translation.
  * This runs the exact same tests as Fix404RedirectUITest, but with both
  * language and content translation modules enabled.
+ *
  * @group redirect_404
  */
-class Fix404RedirectUILanguageTest extends Redirect404TestBase
-{
+class Fix404RedirectUILanguageTest extends Redirect404TestBase {
 
   use AssertRedirectTrait;
 
   /**
    * Additional modules to enable.
+   *
    * @var array
    */
   public static $modules = ['language'];
 
   /**
    * Admin user's permissions for this test.
+   *
    * @var array
    */
-  protected $adminPermissions = ['administer redirects', 'administer redirect settings', 'access content', 'bypass node access', 'create url aliases', 'administer url aliases', 'administer languages',];
+  protected $adminPermissions = [
+    'administer redirects',
+    'administer redirect settings',
+    'access content',
+    'bypass node access',
+    'create url aliases',
+    'administer url aliases',
+    'administer languages',
+  ];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp ()
-  {
+  public function setUp() {
     parent::setUp();
 
     // Enable some languages for this test.
@@ -49,12 +58,16 @@ class Fix404RedirectUILanguageTest extends Redirect404TestBase
   /**
    * Tests the fix 404 pages workflow with language and content translation.
    */
-  public function testFix404RedirectList ()
-  {
+  public function testFix404RedirectList() {
     // Visit a non existing page to have the 404 redirect_error entry.
     $this->drupalGet('fr/testing');
 
-    $redirect = \Drupal::database()->select('redirect_404')->fields('redirect_404')->condition('path', '/testing')->execute()->fetchAll();
+    $redirect = \Drupal::database()
+      ->select('redirect_404')
+      ->fields('redirect_404')
+      ->condition('path', '/testing')
+      ->execute()
+      ->fetchAll();
     if (count($redirect) == 0) {
       $this->fail('No record was added');
     }
@@ -75,7 +88,13 @@ class Fix404RedirectUILanguageTest extends Redirect404TestBase
     // Check if we generate correct Add redirect url and if the form is
     // pre-filled.
     $destination = Url::fromRoute('redirect_404.fix_404')->getInternalPath();
-    $options = ['query' => ['source' => 'testing', 'language' => 'fr', 'destination' => $destination,]];
+    $options = [
+      'query' => [
+        'source' => 'testing',
+        'language' => 'fr',
+        'destination' => $destination,
+      ],
+    ];
     $this->assertUrl('admin/config/search/redirect/add', $options);
     $this->assertFieldByName('redirect_source[0][path]', 'testing');
     $this->assertOptionSelected('edit-language-0-value', 'fr');
@@ -158,7 +177,13 @@ class Fix404RedirectUILanguageTest extends Redirect404TestBase
 
     // Assign a redirect to 'testing1'.
     $this->clickLink('Add redirect');
-    $options = ['query' => ['source' => 'testing1', 'language' => 'en', 'destination' => $destination,]];
+    $options = [
+      'query' => [
+        'source' => 'testing1',
+        'language' => 'en',
+        'destination' => $destination,
+      ],
+    ];
     $this->assertUrl('admin/config/search/redirect/add', $options);
     $this->assertFieldByName('redirect_source[0][path]', 'testing1');
     $this->assertOptionSelected('edit-language-0-value', 'en');

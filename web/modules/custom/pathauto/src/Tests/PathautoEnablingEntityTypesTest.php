@@ -7,22 +7,24 @@ use Drupal\comment\Tests\CommentTestTrait;
 
 /**
  * Tests pathauto settings form.
+ *
  * @group pathauto
  */
-class PathautoEnablingEntityTypesTest extends WebTestBase
-{
+class PathautoEnablingEntityTypesTest extends WebTestBase {
 
   use PathautoTestHelperTrait;
   use CommentTestTrait;
 
   /**
    * Modules to enable.
+   *
    * @var array
    */
   public static $modules = ['node', 'pathauto', 'comment'];
 
   /**
    * Admin user.
+   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
@@ -30,14 +32,19 @@ class PathautoEnablingEntityTypesTest extends WebTestBase
   /**
    * {inheritdoc}
    */
-  function setUp ()
-  {
+  function setUp() {
     parent::setUp();
 
     $this->drupalCreateContentType(['type' => 'article']);
     $this->addDefaultCommentField('node', 'article');
 
-    $permissions = ['administer pathauto', 'administer url aliases', 'create url aliases', 'administer nodes', 'post comments',];
+    $permissions = [
+      'administer pathauto',
+      'administer url aliases',
+      'create url aliases',
+      'administer nodes',
+      'post comments',
+    ];
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
   }
@@ -47,8 +54,7 @@ class PathautoEnablingEntityTypesTest extends WebTestBase
    * ability to define alias patterns for a given entity type works. Test with
    * the comment module, as it is not enabled by default.
    */
-  function testEnablingEntityTypes ()
-  {
+  function testEnablingEntityTypes() {
     // Verify that the comment entity type is not available when trying to add
     // a new pattern, nor "broken".
     $this->drupalGet('/admin/config/search/path/patterns/add');

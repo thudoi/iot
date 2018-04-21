@@ -9,25 +9,33 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Do a mass subscription for a list of email addresses.
  */
-class SubscriberMassUnsubscribeForm extends FormBase
-{
+class SubscriberMassUnsubscribeForm extends FormBase {
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId ()
-  {
+  public function getFormId() {
     return 'simplenews_subscriber_mass_unsubscribe';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm (array $form, FormStateInterface $form_state)
-  {
-    $form['emails'] = ['#type' => 'textarea', '#title' => t('Email addresses'), '#cols' => 60, '#rows' => 5, '#description' => t('Email addresses must be separated by comma, space or newline.'),];
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['emails'] = [
+      '#type' => 'textarea',
+      '#title' => t('Email addresses'),
+      '#cols' => 60,
+      '#rows' => 5,
+      '#description' => t('Email addresses must be separated by comma, space or newline.'),
+    ];
 
-    $form['newsletters'] = ['#type' => 'checkboxes', '#title' => t('Unsubscribe from'), '#options' => simplenews_newsletter_list(), '#required' => TRUE,];
+    $form['newsletters'] = [
+      '#type' => 'checkboxes',
+      '#title' => t('Unsubscribe from'),
+      '#options' => simplenews_newsletter_list(),
+      '#required' => TRUE,
+    ];
 
     foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
       $form['newsletters'][$id]['#description'] = SafeMarkup::checkPlain($newsletter->description);
@@ -40,16 +48,14 @@ class SubscriberMassUnsubscribeForm extends FormBase
   /**
    * {@inheritdoc}
    */
-  public function validateForm (array &$form, FormStateInterface $form_state)
-  {
+  public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm (array &$form, FormStateInterface $form_state)
-  {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $removed = [];
     $invalid = [];
     $checked_lists = array_keys(array_filter($form_state->getValue('newsletters')));
@@ -64,7 +70,8 @@ class SubscriberMassUnsubscribeForm extends FormBase
           $subscription_manager->unsubscribe($email, $newsletter_id, FALSE, 'mass unsubscribe');
           $removed[] = $email;
         }
-      } else {
+      }
+      else {
         $invalid[] = $email;
       }
     }
@@ -78,7 +85,8 @@ class SubscriberMassUnsubscribeForm extends FormBase
         $list_names[] = $newsletters[$newsletter_id]->label();
       }
       drupal_set_message(t('The addresses were unsubscribed from the following newsletters: %newsletters.', ['%newsletters' => implode(', ', $list_names)]));
-    } else {
+    }
+    else {
       drupal_set_message(t('No addresses were removed.'));
     }
     if ($invalid) {

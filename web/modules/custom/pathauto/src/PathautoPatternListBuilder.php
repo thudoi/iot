@@ -8,8 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 /**
  * Provides a listing of Pathauto pattern entities.
  */
-class PathautoPatternListBuilder extends DraggableListBuilder
-{
+class PathautoPatternListBuilder extends DraggableListBuilder {
 
   /**
    * {@inheritdoc}
@@ -19,16 +18,14 @@ class PathautoPatternListBuilder extends DraggableListBuilder
   /**
    * {@inheritdoc}
    */
-  public function getFormId ()
-  {
+  public function getFormId() {
     return 'pathauto_pattern_list';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildHeader ()
-  {
+  public function buildHeader() {
     $header['label'] = $this->t('Label');
     $header['pattern'] = $this->t('Pattern');
     $header['type'] = $this->t('Pattern type');
@@ -39,8 +36,7 @@ class PathautoPatternListBuilder extends DraggableListBuilder
   /**
    * {@inheritdoc}
    */
-  public function buildRow (EntityInterface $entity)
-  {
+  public function buildRow(EntityInterface $entity) {
     /* @var \Drupal\pathauto\PathautoPatternInterface $entity */
     $row['label'] = $entity->label();
     $row['patern']['#markup'] = $entity->getPattern();

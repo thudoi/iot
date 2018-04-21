@@ -26,9 +26,19 @@ use Drupal\redirect\Entity\Redirect;
 /**
  * Implements hook_hook_info().
  */
-function redirect_hook_info ()
-{
-  $hooks = ['redirect_load', 'redirect_load_by_source_alter', 'redirect_access', 'redirect_prepare', 'redirect_validate', 'redirect_presave', 'redirect_insert', 'redirect_update', 'redirect_delete', 'redirect_alter',];
+function redirect_hook_info() {
+  $hooks = [
+    'redirect_load',
+    'redirect_load_by_source_alter',
+    'redirect_access',
+    'redirect_prepare',
+    'redirect_validate',
+    'redirect_presave',
+    'redirect_insert',
+    'redirect_update',
+    'redirect_delete',
+    'redirect_alter',
+  ];
 
   return array_fill_keys($hooks, ['group' => 'redirect']);
 }
@@ -36,8 +46,7 @@ function redirect_hook_info ()
 /**
  * Implements hook_help().
  */
-function redirect_help ($route_name, RouteMatchInterface $route_match)
-{
+function redirect_help($route_name, RouteMatchInterface $route_match) {
   $output = '';
   switch ($route_name) {
     case 'help.page.redirect':
@@ -45,18 +54,37 @@ function redirect_help ($route_name, RouteMatchInterface $route_match)
       $output .= '<p>' . t('The Redirect module allows users to redirect from old URLs to new URLs.   For more information, see the <a href=":online">online documentation for Redirect</a>.', [':online' => 'https://www.drupal.org/documentation/modules/path-redirect']) . '</p>';
       $output .= '<dl>';
       $output .= '<h3>' . t('Uses') . '</h3>';
-      $output .= '<dd>' . t('Redirect is accessed from three tabs that help you manage <a href=":list">URL Redirects</a>.', [':list' => Url::fromRoute('redirect.list')->toString()]) . '</dd>';
+      $output .= '<dd>' . t('Redirect is accessed from three tabs that help you manage <a href=":list">URL Redirects</a>.', [
+          ':list' => Url::fromRoute('redirect.list')
+            ->toString(),
+        ]) . '</dd>';
       $output .= '<dt>' . t('Manage URL Redirects') . '</dt>';
-      $output .= '<dd>' . t('The <a href=":redirect">"URL Redirects"</a> page is used to setup and manage URL Redirects.  New redirects are created here using the <a href=":add_form">Add redirect</a> button which presents a form to simplify the creation of redirects . The URL redirects page provides a list of all redirects on the site and allows you to edit them.', [':redirect' => Url::fromRoute('redirect.list')->toString(), ':add_form' => Url::fromRoute('redirect.add')->toString()]) . '</dd>';
+      $output .= '<dd>' . t('The <a href=":redirect">"URL Redirects"</a> page is used to setup and manage URL Redirects.  New redirects are created here using the <a href=":add_form">Add redirect</a> button which presents a form to simplify the creation of redirects . The URL redirects page provides a list of all redirects on the site and allows you to edit them.', [
+          ':redirect' => Url::fromRoute('redirect.list')
+            ->toString(),
+          ':add_form' => Url::fromRoute('redirect.add')->toString(),
+        ]) . '</dd>';
       if (\Drupal::moduleHandler()->moduleExists('redirect_404')) {
         $output .= '<dt>' . t('Fix 404 pages') . '</dt>';
-        $output .= '<dd>' . t('<a href=":fix_404">"Fix 404 pages"</a> lists all paths that have resulted in 404 errors and do not yet have any redirects assigned to them. This 404 (or Not Found) error message is an HTTP standard response code indicating that the client was able to communicate with a given server, but the server could not find what was requested.', [':fix_404' => Url::fromRoute('redirect_404.fix_404')->toString()]) . '</dd>';
-      } elseif (!\Drupal::moduleHandler()->moduleExists('redirect_404') && \Drupal::currentUser()->hasPermission('administer modules')) {
+        $output .= '<dd>' . t('<a href=":fix_404">"Fix 404 pages"</a> lists all paths that have resulted in 404 errors and do not yet have any redirects assigned to them. This 404 (or Not Found) error message is an HTTP standard response code indicating that the client was able to communicate with a given server, but the server could not find what was requested.', [
+            ':fix_404' => Url::fromRoute('redirect_404.fix_404')
+              ->toString(),
+          ]) . '</dd>';
+      }
+      elseif (!\Drupal::moduleHandler()
+          ->moduleExists('redirect_404') && \Drupal::currentUser()
+          ->hasPermission('administer modules')) {
         $output .= '<dt>' . t('Fix 404 pages') . '</dt>';
-        $output .= '<dd>' . t('404 (or Not Found) error message is an HTTP standard response code indicating that the client was able to communicate with a given server, but the server could not find what was requested. Please install the <a href=":extend">Redirect 404</a> submodule to be able to log all paths that have resulted in 404 errors.', [':extend' => Url::fromRoute('system.modules_list')->toString()]) . '</dd>';
+        $output .= '<dd>' . t('404 (or Not Found) error message is an HTTP standard response code indicating that the client was able to communicate with a given server, but the server could not find what was requested. Please install the <a href=":extend">Redirect 404</a> submodule to be able to log all paths that have resulted in 404 errors.', [
+            ':extend' => Url::fromRoute('system.modules_list')
+              ->toString(),
+          ]) . '</dd>';
       }
       $output .= '<dt>' . t('Configure Global Redirects') . '</dt>';
-      $output .= '<dd>' . t('The <a href=":settings">"Settings"</a> page presents you with a number of means to adjust redirect settings.', [':settings' => Url::fromRoute('redirect.settings')->toString()]) . '</dd>';
+      $output .= '<dd>' . t('The <a href=":settings">"Settings"</a> page presents you with a number of means to adjust redirect settings.', [
+          ':settings' => Url::fromRoute('redirect.settings')
+            ->toString(),
+        ]) . '</dd>';
       $output .= '</dl>';
       return $output;
       break;
@@ -67,10 +95,10 @@ function redirect_help ($route_name, RouteMatchInterface $route_match)
  * Implements hook_entity_delete().
  * Will delete redirects based on the entity URL.
  */
-function redirect_entity_delete (EntityInterface $entity)
-{
+function redirect_entity_delete(EntityInterface $entity) {
   if ($entity->getEntityType()->hasLinkTemplate('canonical')) {
-    redirect_delete_by_path('internal:/' . $entity->toUrl('canonical')->getInternalPath());
+    redirect_delete_by_path('internal:/' . $entity->toUrl('canonical')
+        ->getInternalPath());
     redirect_delete_by_path('entity:' . $entity->getEntityTypeId() . '/' . $entity->id());
   }
 }
@@ -79,8 +107,7 @@ function redirect_entity_delete (EntityInterface $entity)
  * Implements hook_path_update().
  * Will create redirect from the old path alias to the new one.
  */
-function redirect_path_update (array $path)
-{
+function redirect_path_update(array $path) {
   if (!\Drupal::config('redirect.settings')->get('auto_redirect')) {
     return;
   }
@@ -94,7 +121,8 @@ function redirect_path_update (array $path)
       $redirect->setSource($original_path['alias']);
       $redirect->setRedirect($path['source']);
       $redirect->setLanguage($original_path['langcode']);
-      $redirect->setStatusCode(\Drupal::config('redirect.settings')->get('default_status_code'));
+      $redirect->setStatusCode(\Drupal::config('redirect.settings')
+        ->get('default_status_code'));
       $redirect->save();
     }
   }
@@ -103,8 +131,7 @@ function redirect_path_update (array $path)
 /**
  * Implements hook_path_insert().
  */
-function redirect_path_insert (array $path)
-{
+function redirect_path_insert(array $path) {
   // Delete all redirects having the same source as this alias.
   redirect_delete_by_path($path['alias'], $path['langcode'], FALSE);
 }
@@ -112,13 +139,14 @@ function redirect_path_insert (array $path)
 /**
  * Implements hook_path_delete().
  */
-function redirect_path_delete ($path)
-{
+function redirect_path_delete($path) {
   if (!\Drupal::config('redirect.settings')->get('auto_redirect')) {
     return;
-  } elseif (isset($path['redirect']) && !$path['redirect']) {
+  }
+  elseif (isset($path['redirect']) && !$path['redirect']) {
     return;
-  } elseif (empty($path)) {
+  }
+  elseif (empty($path)) {
     // @todo Remove this condition and allow $path to use an array type hint
     // when http://drupal.org/node/1025904 is fixed.
     return;
@@ -138,30 +166,40 @@ function redirect_path_delete ($path)
 /**
  * Implements hook_page_build().
  * Adds an action on 404 pages to create a redirect.
+ *
  * @todo hook_page_build() can no longer be used for this. Find a different way.
  */
-function redirect_page_build (&$page)
-{
-  if (redirect_is_current_page_404() && \Drupal::currentUser()->hasPermission('administer redirects')) {
+function redirect_page_build(&$page) {
+  if (redirect_is_current_page_404() && \Drupal::currentUser()
+      ->hasPermission('administer redirects')) {
     if (!isset($page['content']['system_main']['actions'])) {
-      $page['content']['system_main']['actions'] = ['#theme' => 'links', '#links' => [], '#attributes' => ['class' => ['action-links']], '#weight' => -100,];
+      $page['content']['system_main']['actions'] = [
+        '#theme' => 'links',
+        '#links' => [],
+        '#attributes' => ['class' => ['action-links']],
+        '#weight' => -100,
+      ];
     }
     // We cannot simply use current_path() because if a 404 path is set, then
     // that value overrides whatever is in $_GET['q']. The
     // drupal_deliver_html_page() function thankfully puts the original current
     // path into $_GET['destination'].
     $destination = drupal_get_destination();
-    $page['content']['system_main']['actions']['#links']['add_redirect'] = ['title' => t('Add URL redirect from this page to another location'), 'href' => 'admin/config/search/redirect/add', 'query' => ['source' => $destination['destination']] + drupal_get_destination(),];
+    $page['content']['system_main']['actions']['#links']['add_redirect'] = [
+      'title' => t('Add URL redirect from this page to another location'),
+      'href' => 'admin/config/search/redirect/add',
+      'query' => ['source' => $destination['destination']] + drupal_get_destination(),
+    ];
   }
 }
 
 /**
  * Gets the redirect repository service.
+ *
  * @return \Drupal\redirect\RedirectRepository
  *   The repository service.
  */
-function redirect_repository ()
-{
+function redirect_repository() {
   return \Drupal::service('redirect.repository');
 }
 
@@ -169,6 +207,7 @@ function redirect_repository ()
  * Delete any redirects associated with a path or any of its sub-paths.
  * Given a source like 'node/1' this function will delete any redirects that
  * have that specific source or any sources that match 'node/1/%'.
+ *
  * @param string $path
  *   An string with an internal Drupal path.
  * @param string $langcode
@@ -177,10 +216,10 @@ function redirect_repository ()
  * @param bool $match_subpaths_and_redirect
  *   (optional) Whether redirects with a destination to the given path and
  *   sub-paths should also be deleted.
+ *
  * @ingroup redirect_api
  */
-function redirect_delete_by_path ($path, $langcode = NULL, $match_subpaths_and_redirect = TRUE)
-{
+function redirect_delete_by_path($path, $langcode = NULL, $match_subpaths_and_redirect = TRUE) {
   $path = ltrim($path, '/');
   $database = \Drupal::database();
   $query = $database->select('redirect');
@@ -209,15 +248,16 @@ function redirect_delete_by_path ($path, $langcode = NULL, $match_subpaths_and_r
 
 /**
  * Sort an array recusively.
+ *
  * @param $array
  *   The array to sort, by reference.
  * @param $callback
  *   The sorting callback to use (e.g. 'sort', 'ksort', 'asort').
+ *
  * @return
  *   TRUE on success or FALSE on failure.
  */
-function redirect_sort_recursive (&$array, $callback = 'sort')
-{
+function redirect_sort_recursive(&$array, $callback = 'sort') {
   $result = $callback($array);
   foreach ($array as $key => $value) {
     if (is_array($value)) {
@@ -230,8 +270,7 @@ function redirect_sort_recursive (&$array, $callback = 'sort')
 /**
  * Build the URL of a redirect for display purposes only.
  */
-function redirect_url ($path, array $options = [], $clean_url = NULL)
-{
+function redirect_url($path, array $options = [], $clean_url = NULL) {
   // @todo - deal with removal of clean_url config. See
   //    https://drupal.org/node/1659580
   if (!isset($clean_url)) {
@@ -253,18 +292,21 @@ function redirect_url ($path, array $options = [], $clean_url = NULL)
       if ($options['https'] === TRUE) {
         $options['base_url'] = $GLOBALS['base_secure_url'];
         $options['absolute'] = TRUE;
-      } elseif ($options['https'] === FALSE) {
+      }
+      elseif ($options['https'] === FALSE) {
         $options['base_url'] = $GLOBALS['base_insecure_url'];
         $options['absolute'] = TRUE;
       }
-    } else {
+    }
+    else {
       $options['base_url'] = $GLOBALS['base_url'];
     }
   }
 
   if (empty($options['absolute']) || url_is_external($path)) {
     $url = $path;
-  } else {
+  }
+  else {
     $url = $options['base_url'] . base_path() . $path;
   }
 
@@ -279,40 +321,49 @@ function redirect_url ($path, array $options = [], $clean_url = NULL)
   return $url;
 }
 
-function redirect_status_code_options ($code = NULL)
-{
-  $codes = [300 => t('300 Multiple Choices'), 301 => t('301 Moved Permanently'), 302 => t('302 Found'), 303 => t('303 See Other'), 304 => t('304 Not Modified'), 305 => t('305 Use Proxy'), 307 => t('307 Temporary Redirect'),];
+function redirect_status_code_options($code = NULL) {
+  $codes = [
+    300 => t('300 Multiple Choices'),
+    301 => t('301 Moved Permanently'),
+    302 => t('302 Found'),
+    303 => t('303 See Other'),
+    304 => t('304 Not Modified'),
+    305 => t('305 Use Proxy'),
+    307 => t('307 Temporary Redirect'),
+  ];
   return isset($codes[$code]) ? $codes[$code] : $codes;
 }
 
 /**
  * Returns if the current page request is a page not found (404 status error).
  * Why the fuck do we have to do this? Why is there not an easier way???
+ *
  * @return
  *   TRUE if the current page is a 404, or FALSE otherwise.
  */
-function redirect_is_current_page_404 ()
-{
+function redirect_is_current_page_404() {
   return drupal_get_http_header('Status') == '404 Not Found';
 }
 
 /**
  * uasort callback; Compare redirects based on language neutrality and rids.
  */
-function _redirect_uasort ($a, $b)
-{
+function _redirect_uasort($a, $b) {
   $a_weight = isset($a->weight) ? $a->weight : 0;
   $b_weight = isset($b->weight) ? $b->weight : 0;
   if ($a_weight != $b_weight) {
     // First sort by weight (case sensitivity).
     return $a_weight > $b_weight;
-  } elseif ($a->language != $b->language) {
+  }
+  elseif ($a->language != $b->language) {
     // Then sort by language specific over language neutral.
     return $a->language == Language::LANGCODE_NOT_SPECIFIED;
-  } elseif (!empty($a->source_options['query']) != !empty($b->source_options['query'])) {
+  }
+  elseif (!empty($a->source_options['query']) != !empty($b->source_options['query'])) {
     // Then sort by redirects that do not have query strings over ones that do.
     return empty($a->source_options['query']);
-  } else {
+  }
+  else {
     // Lastly sort by the highest redirect ID.
     return $a->rid < $b->rid;
   }
@@ -321,18 +372,24 @@ function _redirect_uasort ($a, $b)
 /**
  * Implements hook_form_FORM_ID_alter() on behalf of locale.module.
  */
-function locale_form_redirect_edit_form_alter (array &$form, FormStateInterface $form_state)
-{
-  $form['language'] = ['#type' => 'select', '#title' => t('Language'), '#options' => [Language::LANGCODE_NOT_SPECIFIED => t('All languages')] + \Drupal::languageManager()->getLanguages(), '#default_value' => $form['language']['#value'], '#description' => t('A redirect set for a specific language will always be used when requesting this page in that language, and takes precedence over redirects set for <em>All languages</em>.'),];
+function locale_form_redirect_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  $form['language'] = [
+    '#type' => 'select',
+    '#title' => t('Language'),
+    '#options' => [Language::LANGCODE_NOT_SPECIFIED => t('All languages')] + \Drupal::languageManager()
+        ->getLanguages(),
+    '#default_value' => $form['language']['#value'],
+    '#description' => t('A redirect set for a specific language will always be used when requesting this page in that language, and takes precedence over redirects set for <em>All languages</em>.'),
+  ];
 }
 
 /**
  * Fetch an array of redirect bulk operations.
+ *
  * @see hook_redirect_operations()
  * @see hook_redirect_operations_alter()
  */
-function redirect_get_redirect_operations ()
-{
+function redirect_get_redirect_operations() {
   $operations = &drupal_static(__FUNCTION__);
 
   if (!isset($operations)) {
@@ -346,32 +403,40 @@ function redirect_get_redirect_operations ()
 /**
  * Implements hook_redirect_operations().
  */
-function redirect_redirect_operations ()
-{
-  $operations['delete'] = ['action' => t('Delete'), 'action_past' => t('Deleted'), 'callback' => 'redirect_delete_multiple', 'confirm' => TRUE,];
+function redirect_redirect_operations() {
+  $operations['delete'] = [
+    'action' => t('Delete'),
+    'action_past' => t('Deleted'),
+    'callback' => 'redirect_delete_multiple',
+    'confirm' => TRUE,
+  ];
   return $operations;
 }
 
 /**
  * Ajax callback for the redirect link widget.
  */
-function redirect_source_link_get_status_messages (array $form, FormStateInterface $form_state)
-{
+function redirect_source_link_get_status_messages(array $form, FormStateInterface $form_state) {
   return $form['redirect_source']['widget'][0]['status_box'];
 }
 
 /**
  * Implements hook_entity_extra_field_info().
  */
-function redirect_entity_extra_field_info ()
-{
+function redirect_entity_extra_field_info() {
   $extra = [];
 
   if (\Drupal::service('module_handler')->moduleExists('node')) {
-    $node_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
+    $node_types = \Drupal::entityTypeManager()
+      ->getStorage('node_type')
+      ->loadMultiple();
 
     foreach ($node_types as $node_type) {
-      $extra['node'][$node_type->id()]['form']['url_redirects'] = ['label' => t('URL redirects'), 'description' => t('Redirect module form elements'), 'weight' => 50,];
+      $extra['node'][$node_type->id()]['form']['url_redirects'] = [
+        'label' => t('URL redirects'),
+        'description' => t('Redirect module form elements'),
+        'weight' => 50,
+      ];
     }
   }
 
@@ -381,36 +446,67 @@ function redirect_entity_extra_field_info ()
 /**
  * Implements hook_form_node_form_alter().
  */
-function redirect_form_node_form_alter (&$form, FormStateInterface $form_state, $form_id)
-{
+function redirect_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   /** @var \Drupal\node\NodeInterface $node */
   $node = $form_state->getFormObject()->getEntity();
-  if (!$node->isNew() && \Drupal::currentUser()->hasPermission('administer redirects')) {
+  if (!$node->isNew() && \Drupal::currentUser()
+      ->hasPermission('administer redirects')) {
 
     $nid = $node->id();
 
     // Find redirects to this node.
-    $redirects = \Drupal::service('redirect.repository')->findByDestinationUri(["internal:/node/$nid", "entity:node/$nid"]);
+    $redirects = \Drupal::service('redirect.repository')
+      ->findByDestinationUri(["internal:/node/$nid", "entity:node/$nid"]);
 
     // Assemble the rows for the table.
     $rows = [];
     /** @var \Drupal\Core\Entity\EntityListBuilder $list_builder */
-    $list_builder = \Drupal::service('entity.manager')->getListBuilder('redirect');
+    $list_builder = \Drupal::service('entity.manager')
+      ->getListBuilder('redirect');
     /** @var \Drupal\redirect\Entity\Redirect[] $redirects */
     foreach ($redirects as $redirect) {
       $row = [];
       $path = $redirect->getSourcePathWithQuery();
-      $row['path'] = ['class' => ['redirect-table__path'], 'data' => ['#plain_text' => $path], 'title' => $path,];
-      $row['operations'] = ['data' => ['#type' => 'operations', '#links' => $list_builder->getOperations($redirect),],];
+      $row['path'] = [
+        'class' => ['redirect-table__path'],
+        'data' => ['#plain_text' => $path],
+        'title' => $path,
+      ];
+      $row['operations'] = [
+        'data' => [
+          '#type' => 'operations',
+          '#links' => $list_builder->getOperations($redirect),
+        ],
+      ];
       $rows[] = $row;
     }
 
     // Add the list to the vertical tabs section of the form.
-    $header = [['class' => ['redirect-table__path'], 'data' => t('From')], ['class' => ['redirect-table__operations'], 'data' => t('Operations')],];
-    $form['url_redirects'] = ['#type' => 'details', '#title' => t('URL redirects'), '#group' => 'advanced', '#open' => FALSE, 'table' => ['#type' => 'table', '#header' => $header, '#rows' => $rows, '#empty' => t('No URL redirects available.'), '#attributes' => ['class' => ['redirect-table']],], '#attached' => ['library' => ['redirect/drupal.redirect.admin',],],];
+    $header = [
+      ['class' => ['redirect-table__path'], 'data' => t('From')],
+      ['class' => ['redirect-table__operations'], 'data' => t('Operations')],
+    ];
+    $form['url_redirects'] = [
+      '#type' => 'details',
+      '#title' => t('URL redirects'),
+      '#group' => 'advanced',
+      '#open' => FALSE,
+      'table' => [
+        '#type' => 'table',
+        '#header' => $header,
+        '#rows' => $rows,
+        '#empty' => t('No URL redirects available.'),
+        '#attributes' => ['class' => ['redirect-table']],
+      ],
+      '#attached' => ['library' => ['redirect/drupal.redirect.admin',],],
+    ];
 
     if (!empty($rows)) {
-      $form['url_redirects']['warning'] = ['#markup' => t('Note: links open in the current window.'), '#prefix' => '<p>', '#suffix' => '</p>',];
+      $form['url_redirects']['warning'] = [
+        '#markup' => t('Note: links open in the current window.'),
+        '#prefix' => '<p>',
+        '#suffix' => '</p>',
+      ];
     }
   }
 }

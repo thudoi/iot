@@ -6,21 +6,23 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests pathauto taxonomy UI integration.
+ *
  * @group pathauto
  */
-class PathautoTaxonomyWebTest extends WebTestBase
-{
+class PathautoTaxonomyWebTest extends WebTestBase {
 
   use PathautoTestHelperTrait;
 
   /**
    * Modules to enable.
+   *
    * @var array
    */
   public static $modules = ['taxonomy', 'pathauto', 'views'];
 
   /**
    * Admin user.
+   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
@@ -28,12 +30,16 @@ class PathautoTaxonomyWebTest extends WebTestBase
   /**
    * {inheritdoc}
    */
-  function setUp ()
-  {
+  function setUp() {
     parent::setUp();
 
     // Allow other modules to add additional permissions for the admin user.
-    $permissions = ['administer pathauto', 'administer url aliases', 'create url aliases', 'administer taxonomy',];
+    $permissions = [
+      'administer pathauto',
+      'administer url aliases',
+      'create url aliases',
+      'administer taxonomy',
+    ];
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
 
@@ -44,8 +50,7 @@ class PathautoTaxonomyWebTest extends WebTestBase
   /**
    * Basic functional testing of Pathauto with taxonomy terms.
    */
-  function testTermEditing ()
-  {
+  function testTermEditing() {
     $this->drupalGet('admin/structure');
     $this->drupalGet('admin/structure/taxonomy');
 

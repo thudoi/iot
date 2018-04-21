@@ -10,9 +10,96 @@ use Drupal\simplenews\Entity\Newsletter;
 /**
  * Implements hook_schema().
  */
-function simplenews_schema ()
-{
-  $schema['simplenews_mail_spool'] = ['description' => 'Spool for temporary storage of newsletter emails.', 'fields' => ['msid' => ['description' => 'The primary identifier for a mail spool record.', 'type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE,], 'mail' => ['description' => 'The formatted email address of mail message recipient.', 'type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => '',], 'entity_type' => ['description' => 'The entity type of this newsletter issue.', 'type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => '',], 'entity_id' => ['description' => 'The entity id of this newsletter issue.', 'type' => 'int', 'not null' => TRUE, 'default' => 0,], 'newsletter_id' => ['description' => 'The {simplenews_newsletter}.id this issue belongs to.', 'type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => '',], 'status' => ['description' => 'The sent status of the email (0 = hold, 1 = pending, 2 = done).', 'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny',], 'error' => ['description' => 'A boolean indicating whether an error occured while sending the email.', 'type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0,], 'timestamp' => ['description' => 'The time status was set or changed.', 'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0,], 'data' => ['type' => 'text', 'not null' => FALSE, 'size' => 'big', 'serialize' => TRUE, 'description' => 'A serialized array of name value pairs that are related to the email address.',], 'snid' => ['description' => 'Foreign key for subscriber table ({simplenews_subscriber}.id)', 'type' => 'int', 'not null' => TRUE, 'default' => 0,],], 'primary key' => ['msid'], 'indexes' => ['newsletter_id' => ['newsletter_id'], 'status' => ['status'], 'snid_newsletter_id' => ['snid', 'newsletter_id'],], 'foreign keys' => ['newsletter_id' => ['table' => 'simplenews_newsletter', 'columns' => ['newsletter_id'],], 'snid_newsletter_id' => ['table' => 'simplenews_subscription', 'columns' => ['snid' => 'snid', 'newsletter_id' => 'newsletter_id',],],],];
+function simplenews_schema() {
+  $schema['simplenews_mail_spool'] = [
+    'description' => 'Spool for temporary storage of newsletter emails.',
+    'fields' => [
+      'msid' => [
+        'description' => 'The primary identifier for a mail spool record.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'mail' => [
+        'description' => 'The formatted email address of mail message recipient.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'entity_type' => [
+        'description' => 'The entity type of this newsletter issue.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'entity_id' => [
+        'description' => 'The entity id of this newsletter issue.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'newsletter_id' => [
+        'description' => 'The {simplenews_newsletter}.id this issue belongs to.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'status' => [
+        'description' => 'The sent status of the email (0 = hold, 1 = pending, 2 = done).',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ],
+      'error' => [
+        'description' => 'A boolean indicating whether an error occured while sending the email.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'timestamp' => [
+        'description' => 'The time status was set or changed.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'data' => [
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of name value pairs that are related to the email address.',
+      ],
+      'snid' => [
+        'description' => 'Foreign key for subscriber table ({simplenews_subscriber}.id)',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['msid'],
+    'indexes' => [
+      'newsletter_id' => ['newsletter_id'],
+      'status' => ['status'],
+      'snid_newsletter_id' => ['snid', 'newsletter_id'],
+    ],
+    'foreign keys' => [
+      'newsletter_id' => [
+        'table' => 'simplenews_newsletter',
+        'columns' => ['newsletter_id'],
+      ],
+      'snid_newsletter_id' => [
+        'table' => 'simplenews_subscription',
+        'columns' => ['snid' => 'snid', 'newsletter_id' => 'newsletter_id',],
+      ],
+    ],
+  ];
 
   return $schema;
 }
@@ -20,8 +107,7 @@ function simplenews_schema ()
 /**
  * Implements hook_install().
  */
-function simplenews_install ()
-{
+function simplenews_install() {
   if (\Drupal::service('config.installer')->isSyncing()) {
     return;
   }
@@ -30,7 +116,8 @@ function simplenews_install ()
   $site_mail = \Drupal::config('system.site')->get('mail');
   $site_name = \Drupal::config('system.site')->get('name');
 
-  $config = $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+  $config = $config = \Drupal::configFactory()
+    ->getEditable('simplenews.settings');
   if (empty($site_mail)) {
     $site_mail = ini_get('sendmail_from');
   }

@@ -12,17 +12,16 @@ use Drupal\Core\Mail\MailInterface;
  * @Mail(
  *   id = "test_simplenews_html_mail",
  *   label = @Translation("HTML test mailer"),
- *   description = @Translation("Sends the message as plain text, using PHP's native mail() function.")
+ *   description = @Translation("Sends the message as plain text, using PHP's
+ *   native mail() function.")
  * )
  */
-class HTMLTestingMailSystem implements MailInterface
-{
+class HTMLTestingMailSystem implements MailInterface {
 
   /**
    * Implements MailSystemInterface::format().
    */
-  public function format (array $message)
-  {
+  public function format(array $message) {
     // Join the body array into one string.
     $message['body'] = implode("\n\n", $message['body']);
     // Wrap the mail body for sending.
@@ -33,9 +32,9 @@ class HTMLTestingMailSystem implements MailInterface
   /**
    * Implements MailSystemInterface::mail().
    */
-  public function mail (array $message)
-  {
-    $captured_emails = \Drupal::state()->get('system.test_mail_collector') ?: [];
+  public function mail(array $message) {
+    $captured_emails = \Drupal::state()
+      ->get('system.test_mail_collector') ?: [];
     $captured_emails[] = $message;
     \Drupal::state()->set('system.test_mail_collector', $captured_emails);
     return TRUE;

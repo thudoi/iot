@@ -16,14 +16,12 @@ use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 
-class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface
-{
+class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function applies (RouteMatchInterface $attributes)
-  {
+  public function applies(RouteMatchInterface $attributes) {
     $parameters = $attributes->getParameters()->all();
 
     return TRUE;
@@ -32,8 +30,7 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface
   /**
    * {@inheritdoc}
    */
-  public function build (RouteMatchInterface $route_match)
-  {
+  public function build(RouteMatchInterface $route_match) {
     $breadcrumb = new Breadcrumb();
 
     $breadcrumb->addLink(Link::fromTextAndUrl('Home', Url::fromUserInput('/')));
@@ -157,7 +154,7 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface
       }
     }
     if (isset($node) && $node->getType() == 'tips') {
-      $term = false;
+      $term = FALSE;
       $breadcrumb->addLink(Link::fromTextAndUrl('IELTS Tips', Url::fromUserInput('/ielts-tips')));
       if ($node->get('field_category')) {
         $term = Term::load($node->get('field_category')->target_id);

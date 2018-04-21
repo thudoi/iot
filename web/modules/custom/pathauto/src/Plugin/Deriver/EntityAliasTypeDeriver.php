@@ -16,8 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Deriver that exposes content entities as alias type plugins.
  */
-class EntityAliasTypeDeriver extends DeriverBase implements ContainerDeriverInterface
-{
+class EntityAliasTypeDeriver extends DeriverBase implements ContainerDeriverInterface {
 
   use StringTranslationTrait;
 
@@ -38,6 +37,7 @@ class EntityAliasTypeDeriver extends DeriverBase implements ContainerDeriverInte
 
   /**
    * Constructs new EntityAliasTypeDeriver.
+   *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
@@ -47,8 +47,7 @@ class EntityAliasTypeDeriver extends DeriverBase implements ContainerDeriverInte
    * @apram \Drupal\Token\TokenEntityMapperInterface $token_entity_mapper
    *   The token entity mapper.
    */
-  public function __construct (EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, TranslationInterface $string_translation, TokenEntityMapperInterface $token_entity_mapper)
-  {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, TranslationInterface $string_translation, TokenEntityMapperInterface $token_entity_mapper) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->stringTranslation = $string_translation;
@@ -58,16 +57,14 @@ class EntityAliasTypeDeriver extends DeriverBase implements ContainerDeriverInte
   /**
    * {@inheritdoc}
    */
-  public static function create (ContainerInterface $container, $base_plugin_id)
-  {
+  public static function create(ContainerInterface $container, $base_plugin_id) {
     return new static($container->get('entity_type.manager'), $container->get('entity_field.manager'), $container->get('string_translation'), $container->get('token.entity_mapper'));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDerivativeDefinitions ($base_plugin_definition)
-  {
+  public function getDerivativeDefinitions($base_plugin_definition) {
     foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
       // An entity type must have a canonical link template and support fields.
       if ($entity_type->hasLinkTemplate('canonical') && is_subclass_of($entity_type->getClass(), FieldableEntityInterface::class)) {

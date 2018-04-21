@@ -10,24 +10,181 @@
 /**
  * Implements hook_rules_action_info().
  */
-function simplenews_rules_rules_action_info ()
-{
-  return ['simplenews_rules_action_send' => ['label' => t('Send newsletter'), 'group' => t('Simplenews'), 'parameter' => ['node' => ['type' => 'node', 'label' => t('The newsletter node to be sent.'), 'description' => t('The newsletter node that should be sent.'),]]], 'simplenews_rules_action_subscribe' => ['label' => t('Subscribe an e-mail adress to a newsletter'), 'group' => t('Simplenews'), 'named parameter' => TRUE, 'parameter' => ['mail' => ['type' => 'text', 'label' => t('E-mail'), 'description' => t('The e-mail address that should be subscribed.'),], 'newsletter_id' => ['type' => 'integer', 'label' => t('Simplenews newsletter'), 'descrption' => t('For which newsletter the subscription should happen.'), 'options list' => 'simplenews_newsletter_list',], 'confirmation' => ['type' => 'integer', 'label' => t('Confirmation required'), 'description' => t('Select if a confirmation is required. Default uses the default setting from the chosen newsletter.'), 'options list' => 'simplenews_rules_confirmation_list', 'default value' => SIMPLENEWS_RULES_CONFIRMATION_DEFAULT,], 'source' => ['type' => 'string', 'label' => t('Source'), 'description' => t('A string to identify the source of this subscription'), 'optional' => TRUE,], 'source' => ['type' => 'text', 'label' => t('Source'), 'description' => t('A string to identify the source of this subscription'), 'optional' => TRUE, 'default value' => 'rules',], 'language' => ['type' => 'token', 'label' => t('Language'), 'description' => t('If specified, the language to use for the subscription. Defaults to the default language.'), 'options list' => 'entity_metadata_language_list', 'optional' => TRUE, 'default value' => LANGUAGE_NONE,],],], 'simplenews_rules_action_unsubscribe' => ['label' => t('Unsubscribe an e-mail adress from a newsletter'), 'group' => t('Simplenews'), 'named parameter' => TRUE, 'parameter' => ['mail' => ['type' => 'text', 'label' => t('E-mail'), 'description' => t('The e-mail address that should be unsubscribed.'),], 'newsletter' => ['type' => 'simplenews_newsletter', 'label' => t('Simplenews newsletter'), 'descrption' => t('For which newsletter the subscription should happen.'), 'options list' => 'simplenews_newsletter_list',], 'confirmation' => ['type' => 'integer', 'label' => t('Confirmation required'), 'description' => t('Select if a confirmation is required. Default uses the default setting from the chosen newsletter.'), 'options list' => 'simplenews_rules_confirmation_list', 'default value' => SIMPLENEWS_RULES_CONFIRMATION_DEFAULT,], 'source' => ['type' => 'text', 'label' => t('Source'), 'description' => t('A string to identify the source of this subscription'), 'optional' => TRUE, 'default value' => 'rules',], 'language' => ['type' => 'token', 'label' => t('Language'), 'description' => t('If specified, the language to use for the subscription. Defaults to the default language.'), 'options list' => 'entity_metadata_language_list', 'optional' => TRUE, 'default value' => LANGUAGE_NONE,],],], 'simplenews_rules_action_subscription_delete' => ['label' => t('Delete an e-mail address from a newsletter'), 'group' => t('Simplenews'), 'named parameter' => TRUE, 'parameter' => ['mail' => ['type' => 'text', 'label' => t('E-mail'), 'description' => t('The e-mail address that should be permanently deleted from the newsletter. Note, use the unsubscribe action to temporarily unsubscribe an email address.'),], 'newsletter' => ['type' => 'simplenews_newsletter', 'label' => t('Simplenews newsletter'), 'descrption' => t('For which newsletter the subscription should happen.'),],],], 'simplenews_rules_action_subscriber_delete' => ['label' => t('Delete an e-mail address from all newsletters'), 'group' => t('Simplenews'), 'named parameter' => TRUE, 'parameter' => ['mail' => ['type' => 'text', 'label' => t('E-mail'), 'description' => t('The e-mail address that should be permanently deleted from all newsletters. Note, use the unsubscribe action to temporarily unsubscribe an email address.'),],],],];
+function simplenews_rules_rules_action_info() {
+  return [
+    'simplenews_rules_action_send' => [
+      'label' => t('Send newsletter'),
+      'group' => t('Simplenews'),
+      'parameter' => [
+        'node' => [
+          'type' => 'node',
+          'label' => t('The newsletter node to be sent.'),
+          'description' => t('The newsletter node that should be sent.'),
+        ],
+      ],
+    ],
+    'simplenews_rules_action_subscribe' => [
+      'label' => t('Subscribe an e-mail adress to a newsletter'),
+      'group' => t('Simplenews'),
+      'named parameter' => TRUE,
+      'parameter' => [
+        'mail' => [
+          'type' => 'text',
+          'label' => t('E-mail'),
+          'description' => t('The e-mail address that should be subscribed.'),
+        ],
+        'newsletter_id' => [
+          'type' => 'integer',
+          'label' => t('Simplenews newsletter'),
+          'descrption' => t('For which newsletter the subscription should happen.'),
+          'options list' => 'simplenews_newsletter_list',
+        ],
+        'confirmation' => [
+          'type' => 'integer',
+          'label' => t('Confirmation required'),
+          'description' => t('Select if a confirmation is required. Default uses the default setting from the chosen newsletter.'),
+          'options list' => 'simplenews_rules_confirmation_list',
+          'default value' => SIMPLENEWS_RULES_CONFIRMATION_DEFAULT,
+        ],
+        'source' => [
+          'type' => 'string',
+          'label' => t('Source'),
+          'description' => t('A string to identify the source of this subscription'),
+          'optional' => TRUE,
+        ],
+        'source' => [
+          'type' => 'text',
+          'label' => t('Source'),
+          'description' => t('A string to identify the source of this subscription'),
+          'optional' => TRUE,
+          'default value' => 'rules',
+        ],
+        'language' => [
+          'type' => 'token',
+          'label' => t('Language'),
+          'description' => t('If specified, the language to use for the subscription. Defaults to the default language.'),
+          'options list' => 'entity_metadata_language_list',
+          'optional' => TRUE,
+          'default value' => LANGUAGE_NONE,
+        ],
+      ],
+    ],
+    'simplenews_rules_action_unsubscribe' => [
+      'label' => t('Unsubscribe an e-mail adress from a newsletter'),
+      'group' => t('Simplenews'),
+      'named parameter' => TRUE,
+      'parameter' => [
+        'mail' => [
+          'type' => 'text',
+          'label' => t('E-mail'),
+          'description' => t('The e-mail address that should be unsubscribed.'),
+        ],
+        'newsletter' => [
+          'type' => 'simplenews_newsletter',
+          'label' => t('Simplenews newsletter'),
+          'descrption' => t('For which newsletter the subscription should happen.'),
+          'options list' => 'simplenews_newsletter_list',
+        ],
+        'confirmation' => [
+          'type' => 'integer',
+          'label' => t('Confirmation required'),
+          'description' => t('Select if a confirmation is required. Default uses the default setting from the chosen newsletter.'),
+          'options list' => 'simplenews_rules_confirmation_list',
+          'default value' => SIMPLENEWS_RULES_CONFIRMATION_DEFAULT,
+        ],
+        'source' => [
+          'type' => 'text',
+          'label' => t('Source'),
+          'description' => t('A string to identify the source of this subscription'),
+          'optional' => TRUE,
+          'default value' => 'rules',
+        ],
+        'language' => [
+          'type' => 'token',
+          'label' => t('Language'),
+          'description' => t('If specified, the language to use for the subscription. Defaults to the default language.'),
+          'options list' => 'entity_metadata_language_list',
+          'optional' => TRUE,
+          'default value' => LANGUAGE_NONE,
+        ],
+      ],
+    ],
+    'simplenews_rules_action_subscription_delete' => [
+      'label' => t('Delete an e-mail address from a newsletter'),
+      'group' => t('Simplenews'),
+      'named parameter' => TRUE,
+      'parameter' => [
+        'mail' => [
+          'type' => 'text',
+          'label' => t('E-mail'),
+          'description' => t('The e-mail address that should be permanently deleted from the newsletter. Note, use the unsubscribe action to temporarily unsubscribe an email address.'),
+        ],
+        'newsletter' => [
+          'type' => 'simplenews_newsletter',
+          'label' => t('Simplenews newsletter'),
+          'descrption' => t('For which newsletter the subscription should happen.'),
+        ],
+      ],
+    ],
+    'simplenews_rules_action_subscriber_delete' => [
+      'label' => t('Delete an e-mail address from all newsletters'),
+      'group' => t('Simplenews'),
+      'named parameter' => TRUE,
+      'parameter' => [
+        'mail' => [
+          'type' => 'text',
+          'label' => t('E-mail'),
+          'description' => t('The e-mail address that should be permanently deleted from all newsletters. Note, use the unsubscribe action to temporarily unsubscribe an email address.'),
+        ],
+      ],
+    ],
+  ];
 }
 
 /**
  * Implements hook_event_info().
  */
-function simplenews_rules_rules_event_info ()
-{
-  return ['simplenews_rules_event_subscribe' => ['label' => t('A user has been subscribed'), 'group' => t('Simplenews'), 'variables' => ['mail' => ['type' => 'text', 'label' => t('E-Mail'), 'description' => t('The e-mail address that has been subscribed.'),], 'newsletter' => ['type' => 'simplenews_newsletter', 'label' => t('Simplenews newsletter'), 'descrption' => t('For which newsletter the subscription should happen.'),],],], 'simplenews_rules_event_unsubscribe' => ['label' => t('A user has been unsubscribed'), 'group' => t('Simplenews'), 'variables' => ['mail' => ['type' => 'text', 'label' => t('E-mail'), 'description' => t('The e-mail address that has been subscribed.'),], 'newsletter' => ['type' => 'simplenews_newsletter', 'label' => t('Simplenews newsletter'), 'descrption' => t('For which newsletter the subscription should happen.'),],],],];
+function simplenews_rules_rules_event_info() {
+  return [
+    'simplenews_rules_event_subscribe' => [
+      'label' => t('A user has been subscribed'),
+      'group' => t('Simplenews'),
+      'variables' => [
+        'mail' => [
+          'type' => 'text',
+          'label' => t('E-Mail'),
+          'description' => t('The e-mail address that has been subscribed.'),
+        ],
+        'newsletter' => [
+          'type' => 'simplenews_newsletter',
+          'label' => t('Simplenews newsletter'),
+          'descrption' => t('For which newsletter the subscription should happen.'),
+        ],
+      ],
+    ],
+    'simplenews_rules_event_unsubscribe' => [
+      'label' => t('A user has been unsubscribed'),
+      'group' => t('Simplenews'),
+      'variables' => [
+        'mail' => [
+          'type' => 'text',
+          'label' => t('E-mail'),
+          'description' => t('The e-mail address that has been subscribed.'),
+        ],
+        'newsletter' => [
+          'type' => 'simplenews_newsletter',
+          'label' => t('Simplenews newsletter'),
+          'descrption' => t('For which newsletter the subscription should happen.'),
+        ],
+      ],
+    ],
+  ];
 }
 
 /**
  * Action implementation, send a newsletter node.
  */
-function simplenews_rules_action_send ($node)
-{
+function simplenews_rules_action_send($node) {
   $newsletter = simplenews_newsletter_load($node->nid);
   if ($newsletter && ($newsletter->status != SIMPLENEWS_STATUS_SEND_PENDING || $newsletter->status != SIMPLENEWS_STATUS_SEND_PENDING)) {
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
@@ -37,8 +194,7 @@ function simplenews_rules_action_send ($node)
 /**
  * Action Implementation: Subscribe an e-mail adress to a Simplenews newsletter.
  */
-function simplenews_rules_action_subscribe ($args, $settings)
-{
+function simplenews_rules_action_subscribe($args, $settings) {
   if ($args['language'] == LANGUAGE_NONE) {
     $args['language'] = NULL;
   }
@@ -46,14 +202,15 @@ function simplenews_rules_action_subscribe ($args, $settings)
   $confirmation = simplenews_rules_map_confirmation($args);
 
   // Pass the call forward.
-  \Drupal::service('simplenews.subscription_manager')->subscribe($args['mail'], $args['tid'], $confirmation, $args['source'], $args['language']);
+  \Drupal::service('simplenews.subscription_manager')
+    ->subscribe($args['mail'], $args['tid'], $confirmation, $args['source'], $args['language']);
 }
 
 /**
- * Action Implementation: Unsubscribe an e-mail adress to a Simplenews newsletter.
+ * Action Implementation: Unsubscribe an e-mail adress to a Simplenews
+ * newsletter.
  */
-function simplenews_rules_action_unsubscribe ($args, $settings)
-{
+function simplenews_rules_action_unsubscribe($args, $settings) {
   if ($args['language'] == LANGUAGE_NONE) {
     $args['language'] = NULL;
   }
@@ -61,24 +218,27 @@ function simplenews_rules_action_unsubscribe ($args, $settings)
   $confirmation = simplenews_rules_map_confirmation($args);
 
   // Pass the call forward.
-  \Drupal::service('simplenews.subscription_manager')->unsubscribe($args['mail'], $args['tid'], $confirmation, $args['source'], $args['language']);
+  \Drupal::service('simplenews.subscription_manager')
+    ->unsubscribe($args['mail'], $args['tid'], $confirmation, $args['source'], $args['language']);
 }
 
 /**
- * Action Implementation: Delete an email address from a specific Simplenews newsletter
+ * Action Implementation: Delete an email address from a specific Simplenews
+ * newsletter
  */
-function simplenews_rules_action_subscription_delete ($args, $settings)
-{
+function simplenews_rules_action_subscription_delete($args, $settings) {
   if (!empty($args['mail']) && !empty($args['tid'])) {
-    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->deleteSubscriptions(['mail' => $args['mail'], 'tid' => $args['tid']]);
+    \Drupal::entityTypeManager()
+      ->getStorage('simplenews_subscriber')
+      ->deleteSubscriptions(['mail' => $args['mail'], 'tid' => $args['tid']]);
   }
 }
 
 /**
- * Action Implementation: Delete an email address from all Simplenews newsletters
+ * Action Implementation: Delete an email address from all Simplenews
+ * newsletters
  */
-function simplenews_rules_action_subscriber_delete ($args, $settings)
-{
+function simplenews_rules_action_subscriber_delete($args, $settings) {
   $subscriber = simplenews_subscriber_load_by_mail($args['mail']);
   if ($subscriber) {
     $subscriber->delete();
@@ -88,8 +248,7 @@ function simplenews_rules_action_subscriber_delete ($args, $settings)
 /**
  * Map args to the confrmation argument for subscribing/unsubscribing.
  */
-function simplenews_rules_map_confirmation ($args)
-{
+function simplenews_rules_map_confirmation($args) {
   switch ($args['confirmation']) {
     case SIMPLENEWS_RULES_CONFIRMATION_YES:
       $confirmation = TRUE;

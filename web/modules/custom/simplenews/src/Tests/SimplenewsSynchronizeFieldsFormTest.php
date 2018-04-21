@@ -7,13 +7,14 @@ use Drupal\user\Entity\User;
 
 /**
  * Tests that shared fields are synchronized when using forms.
+ *
  * @group simplenews
  */
-class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase
-{
+class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
 
   /**
    * Modules to enable.
+   *
    * @var array
    */
   public static $modules = ['field', 'simplenews'];
@@ -26,8 +27,7 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase
   /**
    * {@inheritdoc}
    */
-  public function setUp ()
-  {
+  public function setUp() {
     parent::setUp();
 
     // Add a field to both entities.
@@ -35,7 +35,10 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase
     $this->addField('string', 'field_shared', 'simplenews_subscriber');
 
     // Create a user.
-    $this->user = $this->drupalCreateUser(['administer simplenews subscriptions', 'administer simplenews settings',]);
+    $this->user = $this->drupalCreateUser([
+      'administer simplenews subscriptions',
+      'administer simplenews settings',
+    ]);
     $this->user->setEmail('user@example.com');
     $this->user->set('field_shared', $this->randomMachineName());
     $this->user->save();
@@ -44,11 +47,12 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase
   /**
    * Tests that fields are synchronized using the Subscriber form.
    */
-  public function testSubscriberFormFieldSync ()
-  {
+  public function testSubscriberFormFieldSync() {
     // Create a subscriber for the user.
     $subscriber = Subscriber::create([// Subscribers are linked to users by the uid field.
-      'uid' => $this->user->id(), 'mail' => 'anything@example.com',]);
+      'uid' => $this->user->id(),
+      'mail' => 'anything@example.com',
+    ]);
     $subscriber->save();
 
     // Edit subscriber field and assert user field is changed accordingly.

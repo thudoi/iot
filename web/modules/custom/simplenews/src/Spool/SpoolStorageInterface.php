@@ -7,8 +7,7 @@ use Drupal\node\NodeInterface;
 /**
  * The spool storage manages a queue of mails that need to be sent.
  */
-interface SpoolStorageInterface
-{
+interface SpoolStorageInterface {
 
   /**
    * On Hold.
@@ -46,6 +45,7 @@ interface SpoolStorageInterface
    * If the message status is SpoolStorageInterface::STATUS_IN_PROGRESS but the
    * maximum send time has expired, the mail id will be returned as a mail which
    * is not allocated to another process.
+   *
    * @param int $limit
    *   (Optional) The maximum number of mails to load from the spool. Defaults
    *   to unlimited.
@@ -53,14 +53,16 @@ interface SpoolStorageInterface
    *   (Optional) Array of conditions which are applied to the query. If not
    *   set, status defaults to SpoolStorageInterface::STATUS_PENDING,
    *   SpoolStorageInterface::STATUS_IN_PROGRESS.
+   *
    * @return \Drupal\simplenews\Spool\SpoolListInterface
    *   A mail spool list.
    */
-  function getMails ($limit = self::UNLIMITED, $conditions = []);
+  function getMails($limit = self::UNLIMITED, $conditions = []);
 
   /**
    * Update status of mail data in spool table.
    * Time stamp is set to current time.
+   *
    * @param array $msids
    *   Array of Mail spool ids to be updated
    * @param array $data
@@ -68,43 +70,49 @@ interface SpoolStorageInterface
    *   - status: Any of the status constants.
    *   - error: (optional) The error id.  Defaults to 0 (no error).
    */
-  function updateMails ($msids, array $data);
+  function updateMails($msids, array $data);
 
   /**
    * Count data in mail spool table.
+   *
    * @param array $conditions
    *   (Optional) Array of conditions which are applied to the query. Defaults
+   *
    * @return int
    *   Count of mail spool elements of the passed in arguments.
    */
-  function countMails (array $conditions = []);
+  function countMails(array $conditions = []);
 
   /**
    * Remove old records from mail spool table.
    * All records with status 'send' and time stamp before the expiration date
    * are removed from the spool.
+   *
    * @return int
    *   Number of deleted spool rows.
    */
-  function clear ();
+  function clear();
 
   /**
    * Remove records from mail spool table according to the conditions.
+   *
    * @return int
    *   Count deleted
    */
-  function deleteMails (array $conditions);
+  function deleteMails(array $conditions);
 
   /**
    * Add the newsletter node to the mail spool.
    * The caller is responsible for saving the changed node entity.
+   *
    * @param \Drupal\node\NodeInterface $node
    *   The newsletter node to be sent.
    */
-  function addFromEntity (NodeInterface $node);
+  function addFromEntity(NodeInterface $node);
 
   /**
    * Save mail message in mail cache table.
+   *
    * @param array $spool
    *   The message to be stored in the spool table, as an array containing the
    *   following keys:
@@ -114,6 +122,6 @@ interface SpoolStorageInterface
    *   - status: (optional) Defaults to SpoolStorageInterface::STATUS_PENDING
    *   - time: (optional) Defaults to REQUEST_TIME.
    */
-  function addMail (array $spool);
+  function addMail(array $spool);
 
 }

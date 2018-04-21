@@ -11,21 +11,20 @@ use Drupal\simplenews\Spool\SpoolStorageInterface;
  * @SensorPlugin(
  *   id = "simplenews_pending",
  *   label = @Translation("Simplenews Pending"),
- *   description = @Translation("Monitors pending items in the simplenews mail spool."),
- *   provider = "simplenews",
- *   addable = FALSE
+ *   description = @Translation("Monitors pending items in the simplenews mail
+ *   spool."), provider = "simplenews", addable = FALSE
  * )
  * Once all is processed, the value should be 0.
+ *
  * @see simplenews_count_spool()
  */
-class PendingSensorPlugin extends SensorPluginBase
-{
+class PendingSensorPlugin extends SensorPluginBase {
 
   /**
    * {@inheritdoc}
    */
-  public function runSensor (SensorResultInterface $result)
-  {
-    $result->setValue(\Drupal::service('simplenews.spool_storage')->countMails(['status' => SpoolStorageInterface::STATUS_PENDING]));
+  public function runSensor(SensorResultInterface $result) {
+    $result->setValue(\Drupal::service('simplenews.spool_storage')
+      ->countMails(['status' => SpoolStorageInterface::STATUS_PENDING]));
   }
 }

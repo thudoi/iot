@@ -10,10 +10,10 @@ use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Redirect entity and redirect API test coverage.
+ *
  * @group redirect
  */
-class RedirectAPITest extends KernelTestBase
-{
+class RedirectAPITest extends KernelTestBase {
 
   /**
    * @var \Drupal\Core\Entity\EntityStorageInterface
@@ -22,15 +22,23 @@ class RedirectAPITest extends KernelTestBase
 
   /**
    * Modules to enable.
+   *
    * @var array
    */
-  public static $modules = ['redirect', 'link', 'field', 'system', 'user', 'language', 'views'];
+  public static $modules = [
+    'redirect',
+    'link',
+    'field',
+    'system',
+    'user',
+    'language',
+    'views',
+  ];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp ()
-  {
+  public function setUp() {
     parent::setUp();
 
     $this->installEntitySchema('redirect');
@@ -41,14 +49,14 @@ class RedirectAPITest extends KernelTestBase
     $language = ConfigurableLanguage::createFromLangcode('de');
     $language->save();
 
-    $this->controller = $this->container->get('entity.manager')->getStorage('redirect');
+    $this->controller = $this->container->get('entity.manager')
+      ->getStorage('redirect');
   }
 
   /**
    * Test redirect entity logic.
    */
-  public function testRedirectEntity ()
-  {
+  public function testRedirectEntity() {
     // Create a redirect and test if hash has been generated correctly.
     /** @var \Drupal\redirect\Entity\Redirect $redirect */
     $redirect = $this->controller->create();
@@ -83,7 +91,8 @@ class RedirectAPITest extends KernelTestBase
     $redirect = $repository->findMatchingRedirect('another-url', ['key1' => 'val1'], 'de');
     if (!empty($redirect)) {
       $this->assertEqual($redirect->getSourceUrl(), '/another-url?key1=val1');
-    } else {
+    }
+    else {
       $this->fail(t('Failed to find matching redirect.'));
     }
 
@@ -92,7 +101,8 @@ class RedirectAPITest extends KernelTestBase
     $redirect = array_shift($redirects);
     if (!empty($redirect)) {
       $this->assertEqual($redirect->getSourceUrl(), '/another-url?key1=val1');
-    } else {
+    }
+    else {
       $this->fail(t('Failed to find redirect by source path.'));
     }
 
@@ -104,7 +114,8 @@ class RedirectAPITest extends KernelTestBase
     $redirect = $repository->findMatchingRedirect('a-different-url', ['key1' => 'val1'], 'de');
     if (!empty($redirect)) {
       $this->assertEqual($redirect->getSourceUrl(), '/a-different-url');
-    } else {
+    }
+    else {
       $this->fail('Failed to find redirect by source path with query string.');
     }
 
@@ -118,7 +129,8 @@ class RedirectAPITest extends KernelTestBase
     $found = $repository->findMatchingRedirect('a-different-url', ['foo' => 'bar'], 'de');
     if (!empty($found)) {
       $this->assertEqual($found->getSourceUrl(), '/a-different-url?foo=bar');
-    } else {
+    }
+    else {
       $this->fail('Failed to find a redirect by source path with query string.');
     }
 
@@ -132,13 +144,15 @@ class RedirectAPITest extends KernelTestBase
     if (!empty($found)) {
       $found = reset($found);
       $this->assertEqual($found->getSourceUrl(), '/Case-Sensitive-Path');
-    } else {
+    }
+    else {
       $this->fail('findBySourcePath is case sensitive');
     }
     $found = $repository->findMatchingRedirect('case-sensitive-path');
     if (!empty($found)) {
       $this->assertEqual($found->getSourceUrl(), '/Case-Sensitive-Path');
-    } else {
+    }
+    else {
       $this->fail('findMatchingRedirect is case sensitive.');
     }
   }
@@ -146,9 +160,22 @@ class RedirectAPITest extends KernelTestBase
   /**
    * Test redirect_sort_recursive().
    */
-  public function testSortRecursive ()
-  {
-    $test_cases = [['input' => ['b' => 'aa', 'c' => ['c2' => 'aa', 'c1' => 'aa'], 'a' => 'aa'], 'expected' => ['a' => 'aa', 'b' => 'aa', 'c' => ['c1' => 'aa', 'c2' => 'aa']], 'callback' => 'ksort',],];
+  public function testSortRecursive() {
+    $test_cases = [
+      [
+        'input' => [
+          'b' => 'aa',
+          'c' => ['c2' => 'aa', 'c1' => 'aa'],
+          'a' => 'aa',
+        ],
+        'expected' => [
+          'a' => 'aa',
+          'b' => 'aa',
+          'c' => ['c1' => 'aa', 'c2' => 'aa'],
+        ],
+        'callback' => 'ksort',
+      ],
+    ];
     foreach ($test_cases as $index => $test_case) {
       $output = $test_case['input'];
       redirect_sort_recursive($output, $test_case['callback']);
@@ -159,8 +186,7 @@ class RedirectAPITest extends KernelTestBase
   /**
    * Test loop detection.
    */
-  public function testLoopDetection ()
-  {
+  public function testLoopDetection() {
     // Add a chained redirect that isn't a loop.
     /** @var \Drupal\redirect\Entity\Redirect $one */
     $one = $this->controller->create();
@@ -182,8 +208,10 @@ class RedirectAPITest extends KernelTestBase
     $repository = \Drupal::service('redirect.repository');
     $found = $repository->findMatchingRedirect('third-path');
     if (!empty($found)) {
-      $this->assertEqual($found->getRedirectUrl()->toString(), '/node', 'Chained redirects properly resolved in findMatchingRedirect.');
-    } else {
+      $this->assertEqual($found->getRedirectUrl()
+        ->toString(), '/node', 'Chained redirects properly resolved in findMatchingRedirect.');
+    }
+    else {
       $this->fail('Failed to resolve a chained redirect.');
     }
 
@@ -201,8 +229,7 @@ class RedirectAPITest extends KernelTestBase
   /**
    * Test redirect_parse_url().
    */
-  public function testParseURL ()
-  {
+  public function testParseURL() {
     //$test_cases = array(
     //  array(
     //    'input' => array('b' => 'aa', 'c' => array('c2' => 'aa', 'c1' => 'aa'), 'a' => 'aa'),
@@ -218,8 +245,7 @@ class RedirectAPITest extends KernelTestBase
   /**
    * Test multilingual redirects.
    */
-  public function testMultilanguageCases ()
-  {
+  public function testMultilanguageCases() {
     // Add a redirect for english.
     /** @var \Drupal\redirect\Entity\Redirect $en_redirect */
     $en_redirect = $this->controller->create();
@@ -242,21 +268,28 @@ class RedirectAPITest extends KernelTestBase
 
     $found = $repository->findBySourcePath('langpath');
     if (!empty($found)) {
-      $this->assertEqual($found[1]->getRedirectUrl()->toString(), '/about', 'Multilingual redirect resolved properly.');
+      $this->assertEqual($found[1]->getRedirectUrl()
+        ->toString(), '/about', 'Multilingual redirect resolved properly.');
       $this->assertEqual($found[1]->get('language')[0]->value, 'en', 'Multilingual redirect resolved properly.');
-    } else {
+    }
+    else {
       $this->fail('Failed to resolve the multilingual redirect.');
     }
 
     // Check redirect for germany.
-    \Drupal::configFactory()->getEditable('system.site')->set('default_langcode', 'de')->save();
+    \Drupal::configFactory()
+      ->getEditable('system.site')
+      ->set('default_langcode', 'de')
+      ->save();
     /** @var \Drupal\redirect\RedirectRepository $repository */
     $repository = \Drupal::service('redirect.repository');
     $found = $repository->findBySourcePath('langpath');
     if (!empty($found)) {
-      $this->assertEqual($found[2]->getRedirectUrl()->toString(), '/node', 'Multilingual redirect resolved properly.');
+      $this->assertEqual($found[2]->getRedirectUrl()
+        ->toString(), '/node', 'Multilingual redirect resolved properly.');
       $this->assertEqual($found[2]->get('language')[0]->value, 'de', 'Multilingual redirect resolved properly.');
-    } else {
+    }
+    else {
       $this->fail('Failed to resolve the multilingual redirect.');
     }
   }

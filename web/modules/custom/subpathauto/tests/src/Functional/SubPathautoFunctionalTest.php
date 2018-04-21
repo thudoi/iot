@@ -9,21 +9,27 @@ use Drupal\Tests\BrowserTestBase;
 
 /**
  * Class SubPathautoFunctionalTest
+ *
  * @group subpathauto
  */
-class SubPathautoFunctionalTest extends BrowserTestBase
-{
+class SubPathautoFunctionalTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['subpathauto', 'node', 'user', 'block', 'text', 'language'];
+  public static $modules = [
+    'subpathauto',
+    'node',
+    'user',
+    'block',
+    'text',
+    'language',
+  ];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp ()
-  {
+  public function setUp() {
     parent::setUp();
 
     $this->drupalPlaceBlock('local_tasks_block');
@@ -49,36 +55,39 @@ class SubPathautoFunctionalTest extends BrowserTestBase
   /**
    * Ensures that inbound and outbound paths are converted correctly.
    */
-  public function testBasicIntegration ()
-  {
+  public function testBasicIntegration() {
     $this->drupalGet('/kittens');
-    $this->assertSession()->linkByHrefExists('/kittens/edit', 0, 'Local task link path that is subpath for an alias lead to correct URL.');
+    $this->assertSession()
+      ->linkByHrefExists('/kittens/edit', 0, 'Local task link path that is subpath for an alias lead to correct URL.');
 
     $this->clickLink('Edit');
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->linkByHrefExists('/kittens', 0, 'Local task link with alias lead to correct URL.');
-    $this->assertSession()->linkByHrefExists('/kittens/delete', 0, 'Local task link path that is subpath for an alias lead to correct URL.');
+    $this->assertSession()
+      ->linkByHrefExists('/kittens', 0, 'Local task link with alias lead to correct URL.');
+    $this->assertSession()
+      ->linkByHrefExists('/kittens/delete', 0, 'Local task link path that is subpath for an alias lead to correct URL.');
   }
 
   /**
    * Ensures that language prefix is handled correctly.
    */
-  public function testWithLanguagePrefix ()
-  {
+  public function testWithLanguagePrefix() {
     $this->drupalGet('/fi/kittens');
-    $this->assertSession()->linkByHrefExists('/fi/kittens/edit', 0, 'Local task link path that is subpath for an alias lead to correct URL when language prefix exists.');
+    $this->assertSession()
+      ->linkByHrefExists('/fi/kittens/edit', 0, 'Local task link path that is subpath for an alias lead to correct URL when language prefix exists.');
 
     $this->clickLink('Edit');
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->linkByHrefExists('/fi/kittens', 0, 'Local task link with alias lead to correct URL when language prefix exists..');
-    $this->assertSession()->linkByHrefExists('/fi/kittens/delete', 0, 'Local task link path that is subpath for an alias lead to correct URL when language prefix exists..');
+    $this->assertSession()
+      ->linkByHrefExists('/fi/kittens', 0, 'Local task link with alias lead to correct URL when language prefix exists..');
+    $this->assertSession()
+      ->linkByHrefExists('/fi/kittens/delete', 0, 'Local task link path that is subpath for an alias lead to correct URL when language prefix exists..');
   }
 
   /**
    * Ensures that non-existing paths are returning 404 page.
    */
-  public function testNonExistingPath ()
-  {
+  public function testNonExistingPath() {
     $this->drupalGet('/kittens/are-faken');
     $this->assertSession()->statusCodeEquals(404);
   }

@@ -11,21 +11,20 @@ use Drupal\migrate\Row;
  *   id = "d6_path_redirect"
  * )
  */
-class PathRedirect extends ProcessPluginBase
-{
+class PathRedirect extends ProcessPluginBase {
 
   /**
    * {@inheritdoc}
    * Transform the field as required for an iFrame field.
    */
-  public function transform ($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property)
-  {
+  public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
 
     // Check if the url begins with http.
     if (preg_match('#^http#', $value[0])) {
       // Use it as is.
       $uri = $value[0];
-    } else {
+    }
+    else {
       // Make the link internal.
       $uri = 'internal:/' . $value[0];
     }

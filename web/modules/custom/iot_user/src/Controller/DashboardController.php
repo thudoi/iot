@@ -13,16 +13,15 @@ use Drupal\taxonomy\Entity\Term;
 /**
  * Class DashboardController.
  */
-class DashboardController extends ControllerBase
-{
+class DashboardController extends ControllerBase {
 
   /**
    * Dashboard.
+   *
    * @return string
    *   Return Hello string.
    */
-  public function profile ()
-  {
+  public function profile() {
     $user = \Drupal::currentUser();
     if ($user->id() <= 0) {
       $response = new RedirectResponse('/account/login?destination=/account/profile');
@@ -36,8 +35,7 @@ class DashboardController extends ControllerBase
     return ['#theme' => 'iot_user_profile', '#user' => $data,];
   }
 
-  public function profileCallback ()
-  {
+  public function profileCallback() {
     $request = Request::createFromGlobals();
     $service = \Drupal::service('user.auth');
     $user = \Drupal::currentUser();
@@ -74,7 +72,8 @@ class DashboardController extends ControllerBase
     if (isset($_POST['current_pass']) && !empty($_POST['current_pass'])) {
       if ($uid = $service->authenticate($account->getAccountName(), $_POST['current_pass'])) {
         /** @var \Drupal\user\UserInterface $user */
-      } else {
+      }
+      else {
         drupal_set_message('Current password does not match.', 'error');
         $response = new RedirectResponse('/account/profile');
         $response->send();
@@ -83,7 +82,8 @@ class DashboardController extends ControllerBase
     if (isset($_POST['password']) && !empty($_POST['password'])) {
       if ($_POST['password'] == $_POST['confirm_pass']) {
         $account->setPassword($_POST['password']);
-      } else {
+      }
+      else {
         drupal_set_message('The password does not match.', 'error');
         $response = new RedirectResponse('/account/profile');
         $response->send();
@@ -94,7 +94,11 @@ class DashboardController extends ControllerBase
       $data = file_get_contents($_FILES["picture"]["tmp_name"]);
       $file = file_save_data($data, "public://pictures/" . date('Y-m') . "/" . $_FILES["picture"]["name"], FILE_EXISTS_REPLACE);
       if ($file) {
-        $account->set('user_picture', ['target_id' => $file->id(), 'alt' => $_FILES["picture"]["name"], 'title' => $_FILES["picture"]["name"]]);
+        $account->set('user_picture', [
+          'target_id' => $file->id(),
+          'alt' => $_FILES["picture"]["name"],
+          'title' => $_FILES["picture"]["name"],
+        ]);
       }
 
     }
@@ -106,11 +110,11 @@ class DashboardController extends ControllerBase
 
   /**
    * Dashboard.
+   *
    * @return string
    *   Return Hello string.
    */
-  public function history ()
-  {
+  public function history() {
     $service = \Drupal::service('iot_quiz.userservice');
     $user = \Drupal::currentUser();
     if ($user->id() <= 0) {
@@ -133,7 +137,19 @@ class DashboardController extends ControllerBase
       $status = 0;
     }
     $header = [// We make it sortable by name.
-      ['data' => $this->t('Date taken'), 'field' => 'created', 'sort' => 'desc'], ['data' => $this->t('Type')], ['data' => $this->t('Series')], ['data' => $this->t('Test name'), 'field' => 'title', 'sort' => 'asc'], ['data' => $this->t('Score')], ['data' => $this->t('Accuracy')], ['data' => $this->t('Tme spent')], ['data' => $this->t('Progress')], ['data' => $this->t('Action')],
+      [
+        'data' => $this->t('Date taken'),
+        'field' => 'created',
+        'sort' => 'desc',
+      ],
+      ['data' => $this->t('Type')],
+      ['data' => $this->t('Series')],
+      ['data' => $this->t('Test name'), 'field' => 'title', 'sort' => 'asc'],
+      ['data' => $this->t('Score')],
+      ['data' => $this->t('Accuracy')],
+      ['data' => $this->t('Tme spent')],
+      ['data' => $this->t('Progress')],
+      ['data' => $this->t('Action')],
 
     ];
 
@@ -151,10 +167,12 @@ class DashboardController extends ControllerBase
 
     if ($status == 0) {
       $query->condition('n.status', $status, '=');
-    } elseif ($status == 1) {
+    }
+    elseif ($status == 1) {
       $query->condition('n.status', $status, '=');
       $query->condition('sc.field_score_value', '0/%', 'NOT LIKE');
-    } else {
+    }
+    else {
       $or->condition('sc.field_score_value', '0/%', 'NOT LIKE');
       $or->condition('n.status', 0, '=');
       $query->condition($or);
@@ -162,9 +180,11 @@ class DashboardController extends ControllerBase
 
 
     // The actual action of sorting the rows is here.
-    $table_sort = $query->extend('Drupal\Core\Database\Query\TableSortExtender')->orderByHeader($header);
+    $table_sort = $query->extend('Drupal\Core\Database\Query\TableSortExtender')
+      ->orderByHeader($header);
     // Limit the rows to 20 for each page.
-    $pager = $table_sort->extend('Drupal\Core\Database\Query\PagerSelectExtender')->limit(10);
+    $pager = $table_sort->extend('Drupal\Core\Database\Query\PagerSelectExtender')
+      ->limit(10);
     $result = $pager->execute();
 
     // Populate the rows.
@@ -180,18 +200,22 @@ class DashboardController extends ControllerBase
       $timeArr = explode(':', $time);
       if ($durationSecond > 0 && $timeArr[0] > 0 && $timeArr[1] > 0) {
         $left = $durationSecond - (($timeArr[0] * 60) + $timeArr[1]);
-      } else {
+      }
+      else {
         $left = 0;
       }
 
       $timeSpend = gmdate("i:s", $left);
       $collection = $this->getCollectionByQuiz($quiz);
-      $alias_node = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $node->Id());
-      $alias_quiz = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $quiz->Id());
+      $alias_node = \Drupal::service('path.alias_manager')
+        ->getAliasByPath('/node/' . $node->Id());
+      $alias_quiz = \Drupal::service('path.alias_manager')
+        ->getAliasByPath('/node/' . $quiz->Id());
       if ($node->get('status')->value == 1) {
         $progress = '<div class="progress"><div data="100%" class="progress-state" style="width: 100%"></div></div>';
-      } else {
-        $progress = '<div class="progress"><div data="' . intval($scoreArr[0] * 100 / $scoreArr[1]) . '%" class="progress-state" style="width: ' . $service->formatNumber($scoreArr[0] * 100 / $scoreArr[1], true) . '%"></div></div>';
+      }
+      else {
+        $progress = '<div class="progress"><div data="' . intval($scoreArr[0] * 100 / $scoreArr[1]) . '%" class="progress-state" style="width: ' . $service->formatNumber($scoreArr[0] * 100 / $scoreArr[1], TRUE) . '%"></div></div>';
       }
       $progress = ['#markup' => $progress,];
       $action = ['#markup' => $node->get('status')->value == 1 ? '<a href="' . $alias_node . '" class="btn-table"><span></span> Review</a>' : '<a href="' . $alias_quiz . '" class="btn-table"><span class="icon-resume"></span> Resume </a>',];
@@ -199,22 +223,43 @@ class DashboardController extends ControllerBase
       $time = '-';
       $score = '-';
       if ($node->get('status')->value == 1) {
-        $accu = $scoreArr[0] > 0 ? intval($service->formatNumber($scoreArr[0] * 100 / $scoreArr[1], true)) . '%' : '0%';
+        $accu = $scoreArr[0] > 0 ? intval($service->formatNumber($scoreArr[0] * 100 / $scoreArr[1], TRUE)) . '%' : '0%';
         $time = $timeSpend;
         $score = $service->getScore($node);
       }
 
-      $rows[] = ['data' => ['created' => date('d/m/Y', $node->get('created')->value), 'type' => $collection['category'], 'series' => $collection['series'], 'title' => $node->get('title')->value, 'score' => $score, 'accuracy' => $accu, 'time' => $time, 'progress' => render($progress), 'action' => render($action),]];
+      $rows[] = [
+        'data' => [
+          'created' => date('d/m/Y', $node->get('created')->value),
+          'type' => $collection['category'],
+          'series' => $collection['series'],
+          'title' => $node->get('title')->value,
+          'score' => $score,
+          'accuracy' => $accu,
+          'time' => $time,
+          'progress' => render($progress),
+          'action' => render($action),
+        ],
+      ];
     }
 
     // The table description.
     $build = ['#markup' => t('<h2 class="page-caption">Tests History</h2><div class="table-history">')];
 
-    $filter = ['#theme' => 'iot_user_history_filter', '#collections' => $this->getAllCollections(), '#st' => $st, '#col' => $col];
+    $filter = [
+      '#theme' => 'iot_user_history_filter',
+      '#collections' => $this->getAllCollections(),
+      '#st' => $st,
+      '#col' => $col,
+    ];
     $build['filter'] = ['#markup' => render($filter),];
 
     // Generate the table.
-    $build['my_table'] = ['#theme' => 'table', '#header' => $header, '#rows' => $rows,];
+    $build['my_table'] = [
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows,
+    ];
 
     // Finally add the pager.
     $build['pager'] = ['#type' => 'pager'];
@@ -225,23 +270,29 @@ class DashboardController extends ControllerBase
 
   /**
    * @param $quiz
+   *
    * @return array
    */
-  public function getCollectionByQuiz ($quiz)
-  {
+  public function getCollectionByQuiz($quiz) {
     $set = Node::load($quiz->get('field_set')->target_id);
     $collection = Node::load($set->get('field_collection')->target_id);
     $category = Term::load($collection->get('field_category')->target_id);
     $series = Term::load($collection->get('field_series')->target_id);
-    return ['category' => $category->getName(), 'series' => $collection->getTitle()];
+    return [
+      'category' => $category->getName(),
+      'series' => $collection->getTitle(),
+    ];
   }
 
   /*
    * Implement get All Collection
    */
-  public function getAllCollections ()
-  {
-    $nids = \Drupal::entityQuery('node')->condition('type', 'collection')->condition('status', 1)->sort('field_collection_order', 'ASC')->execute();
+  public function getAllCollections() {
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'collection')
+      ->condition('status', 1)
+      ->sort('field_collection_order', 'ASC')
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $secs = [];
     foreach ($nodes as $sec) {
@@ -253,13 +304,20 @@ class DashboardController extends ControllerBase
   /**
    * Get all quiz id by collection
    */
-  public function getQuizByCollection ($col)
-  {
+  public function getQuizByCollection($col) {
     $quiz = [];
-    $sets = \Drupal::entityQuery('node')->condition('type', 'set')->condition('status', 1)->condition('field_collection', $col)->execute();
+    $sets = \Drupal::entityQuery('node')
+      ->condition('type', 'set')
+      ->condition('status', 1)
+      ->condition('field_collection', $col)
+      ->execute();
     $sets = \Drupal\node\Entity\Node::loadMultiple($sets);
     foreach ($sets as $set) {
-      $qs = \Drupal::entityQuery('node')->condition('type', 'quiz')->condition('status', 1)->condition('field_set', $set->id())->execute();
+      $qs = \Drupal::entityQuery('node')
+        ->condition('type', 'quiz')
+        ->condition('status', 1)
+        ->condition('field_set', $set->id())
+        ->execute();
       $qzs = \Drupal\node\Entity\Node::loadMultiple($qs);
       foreach ($qzs as $quz) {
         $quiz[] = $quz->id();

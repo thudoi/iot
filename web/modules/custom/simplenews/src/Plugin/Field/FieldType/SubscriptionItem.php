@@ -20,28 +20,30 @@ use Drupal\Core\TypedData\DataDefinition;
  * @FieldType(
  *   id = "simplenews_subscription",
  *   label = @Translation("Simplenews subscription"),
- *   description = @Translation("An entity field containing an extended entityreference."),
- *   no_ui = TRUE,
- *   default_widget = "simplenews_subscription_select",
- *   list_class = "\Drupal\Core\Field\EntityReferenceFieldItemList"
+ *   description = @Translation("An entity field containing an extended
+ *   entityreference."), no_ui = TRUE, default_widget =
+ *   "simplenews_subscription_select", list_class =
+ *   "\Drupal\Core\Field\EntityReferenceFieldItemList"
  * )
  */
-class SubscriptionItem extends EntityReferenceItem
-{
+class SubscriptionItem extends EntityReferenceItem {
 
   /**
    * {@inheritdoc}
    */
-  public static function propertyDefinitions (FieldStorageDefinitionInterface $field_definition)
-  {
+  public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     // Call the parent to define the target_id and entity properties.
     $properties = parent::propertyDefinitions($field_definition);
 
-    $properties['status'] = DataDefinition::create('integer')->setLabel(t('Status'))->setSetting('unsigned', TRUE);
+    $properties['status'] = DataDefinition::create('integer')
+      ->setLabel(t('Status'))
+      ->setSetting('unsigned', TRUE);
 
-    $properties['timestamp'] = DataDefinition::create('timestamp')->setLabel(t('Timestamp'));
+    $properties['timestamp'] = DataDefinition::create('timestamp')
+      ->setLabel(t('Timestamp'));
 
-    $properties['source'] = DataDefinition::create('string')->setLabel(t('Source'));
+    $properties['source'] = DataDefinition::create('string')
+      ->setLabel(t('Source'));
 
     return $properties;
   }
@@ -49,13 +51,27 @@ class SubscriptionItem extends EntityReferenceItem
   /**
    * {@inheritdoc}
    */
-  public static function schema (FieldStorageDefinitionInterface $field_definition)
-  {
+  public static function schema(FieldStorageDefinitionInterface $field_definition) {
     $schema = parent::schema($field_definition);
 
-    $schema['columns']['status'] = ['description' => 'A flag indicating whether the user is subscribed (1) or unsubscribed (0).', 'type' => 'int', 'size' => 'tiny', 'not null' => FALSE,];
-    $schema['columns']['timestamp'] = ['description' => 'UNIX timestamp of when the user is (un)subscribed.', 'type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE,];
-    $schema['columns']['source'] = ['description' => 'The source via which the user is (un)subscription.', 'type' => 'varchar', 'length' => 24, 'not null' => FALSE,];
+    $schema['columns']['status'] = [
+      'description' => 'A flag indicating whether the user is subscribed (1) or unsubscribed (0).',
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => FALSE,
+    ];
+    $schema['columns']['timestamp'] = [
+      'description' => 'UNIX timestamp of when the user is (un)subscribed.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => FALSE,
+    ];
+    $schema['columns']['source'] = [
+      'description' => 'The source via which the user is (un)subscription.',
+      'type' => 'varchar',
+      'length' => 24,
+      'not null' => FALSE,
+    ];
     return $schema;
   }
 }

@@ -20,16 +20,20 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Latest Collection"),
  * )
  */
-class LatestCollection extends BlockBase
-{
+class LatestCollection extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
-    $nids = \Drupal::entityQuery('node')->condition('type', 'collection')->condition('status', 1)->condition('promote', 1)->sort('field_collection_order', 'ASC')->range(0, 4)->execute();
+  public function build() {
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'collection')
+      ->condition('status', 1)
+      ->condition('promote', 1)
+      ->sort('field_collection_order', 'ASC')
+      ->range(0, 4)
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $services = [];
     foreach ($nodes as $node) {

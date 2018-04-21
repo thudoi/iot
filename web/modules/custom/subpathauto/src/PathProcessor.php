@@ -14,41 +14,46 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Processes the inbound path using path alias lookups.
  */
-class PathProcessor implements InboundPathProcessorInterface, OutboundPathProcessorInterface
-{
+class PathProcessor implements InboundPathProcessorInterface, OutboundPathProcessorInterface {
 
   /**
    * The path processor.
+   *
    * @var \Drupal\Core\PathProcessor\InboundPathProcessorInterface
    */
   protected $pathProcessor;
 
   /**
    * The language manager.
+   *
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */
   protected $languageManager;
 
   /**
    * The config factory.
+   *
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
   /**
    * The path validator.
+   *
    * @var \Drupal\Core\Path\PathValidatorInterface
    */
   protected $pathValidator;
 
   /**
    * Whether it is recursive call or not.
+   *
    * @var bool
    */
   protected $recursiveCall;
 
   /**
    * Builds PathProcessor object.
+   *
    * @param \Drupal\Core\PathProcessor\InboundPathProcessorInterface $path_processor
    *   The path processor.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
@@ -56,8 +61,7 @@ class PathProcessor implements InboundPathProcessorInterface, OutboundPathProces
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    */
-  public function __construct (InboundPathProcessorInterface $path_processor, LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory)
-  {
+  public function __construct(InboundPathProcessorInterface $path_processor, LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory) {
     $this->pathProcessor = $path_processor;
     $this->languageManager = $language_manager;
     $this->configFactory = $config_factory;
@@ -66,8 +70,7 @@ class PathProcessor implements InboundPathProcessorInterface, OutboundPathProces
   /**
    * {@inheritdoc}
    */
-  public function processInbound ($path, Request $request)
-  {
+  public function processInbound($path, Request $request) {
     $request_path = $this->getPath($request->getPathInfo());
     // The path won't be processed if the path has been already modified by
     // a path processor (including this one), or if this is a recursive call
@@ -113,8 +116,7 @@ class PathProcessor implements InboundPathProcessorInterface, OutboundPathProces
   /**
    * {@inheritdoc}
    */
-  public function processOutbound ($path, &$options = [], Request $request = NULL, BubbleableMetadata $bubbleableMetadata = NULL)
-  {
+  public function processOutbound($path, &$options = [], Request $request = NULL, BubbleableMetadata $bubbleableMetadata = NULL) {
     $original_path = $path;
     $subpath = [];
     $max_depth = $this->getMaxDepth();
@@ -138,14 +140,16 @@ class PathProcessor implements InboundPathProcessorInterface, OutboundPathProces
 
   /**
    * Helper function to handle multilingual paths.
+   *
    * @param string $path_info
    *   Path that might contain language prefix.
+   *
    * @return string $path info
    *   Path without language prefix.
    */
-  protected function getPath ($path_info)
-  {
-    $language_prefix = '/' . $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_URL)->getId() . '/';
+  protected function getPath($path_info) {
+    $language_prefix = '/' . $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_URL)
+        ->getId() . '/';
 
     if (substr($path_info, 0, strlen($language_prefix)) == $language_prefix) {
       $path_info = '/' . substr($path_info, strlen($language_prefix));
@@ -158,15 +162,17 @@ class PathProcessor implements InboundPathProcessorInterface, OutboundPathProces
    * Tests if path is valid.
    * This method will call all of the path processors (including this one).
    * Sufficient protection against recursive calls is needed.
+   *
    * @param string $path
    *   The path to be checked.
+   *
    * @return bool
    *   Whether path is valid or not.
    */
-  protected function isValidPath ($path)
-  {
+  protected function isValidPath($path) {
     $this->recursiveCall = TRUE;
-    $is_valid = (bool)$this->getPathValidator()->getUrlIfValidWithoutAccessCheck($path);
+    $is_valid = (bool) $this->getPathValidator()
+      ->getUrlIfValidWithoutAccessCheck($path);
     $this->recursiveCall = FALSE;
 
     return $is_valid;
@@ -174,10 +180,10 @@ class PathProcessor implements InboundPathProcessorInterface, OutboundPathProces
 
   /**
    * Gets the path validator.
+   *
    * @return \Drupal\Core\Path\PathValidatorInterface
    */
-  protected function getPathValidator ()
-  {
+  protected function getPathValidator() {
     if (!$this->pathValidator) {
       $this->setPathValidator(\Drupal::service('path.validator'));
     }
@@ -189,12 +195,13 @@ class PathProcessor implements InboundPathProcessorInterface, OutboundPathProces
    * Sets the path validator.
    * The path validator couldn't be injected to this class properly since it
    * would cause circular dependency.
+   *
    * @param \Drupal\Core\Path\PathValidatorInterface $path_validator
    *   The path validator.
+   *
    * @return $this
    */
-  public function setPathValidator (PathValidatorInterface $path_validator)
-  {
+  public function setPathValidator(PathValidatorInterface $path_validator) {
     $this->pathValidator = $path_validator;
 
     return $this;
@@ -202,10 +209,10 @@ class PathProcessor implements InboundPathProcessorInterface, OutboundPathProces
 
   /**
    * Gets the max depth that subpaths should be scanned through.
+   *
    * @return int
    */
-  protected function getMaxDepth ()
-  {
+  protected function getMaxDepth() {
     return $this->configFactory->get('subpathauto.settings')->get('depth');
   }
 

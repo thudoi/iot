@@ -12,16 +12,15 @@ use Drupal\simplenews\SubscriberInterface;
 /**
  * Class SetController.
  */
-class ContactController extends ControllerBase
-{
+class ContactController extends ControllerBase {
 
   /**
    * Section Manager.
+   *
    * @return array
    *   Return template.
    */
-  public function Contact ()
-  {
+  public function Contact() {
     $mailManager = \Drupal::service('plugin.manager.mail');
     $params = [];
     if (isset($_POST['name'])) {
@@ -38,16 +37,18 @@ class ContactController extends ControllerBase
     }
 
     $to = 'hi@ieltsonlinetests.com';
-    $sendEmail = false;
+    $sendEmail = FALSE;
     if ($params) {
       $body = "<p>" . $params['message'] . "</p><p>Name: " . $params['name'] . "</p><p> Email: " . $params['email'] . "</p>";
       $params['body'] = [\Drupal\Core\Mail\MailFormatHelper::htmlToText($body)];
-      $sendEmail = \Drupal::service('plugin.manager.mail')->mail('smtp', 'smtp-test', $to, 'en', $params, $params['email']);
+      $sendEmail = \Drupal::service('plugin.manager.mail')
+        ->mail('smtp', 'smtp-test', $to, 'en', $params, $params['email']);
     }
     if ($sendEmail) {
       print 'ok';
       exit();
-    } else {
+    }
+    else {
       print $sendEmail;
       exit();
     }
@@ -57,16 +58,17 @@ class ContactController extends ControllerBase
   /**
    * @return array
    */
-  public function ContactUs ()
-  {
-    return ['#theme' => ['iot_contact_page'], '#attached' => ['library' => ['iot_ielts/contact_form',],]];
+  public function ContactUs() {
+    return [
+      '#theme' => ['iot_contact_page'],
+      '#attached' => ['library' => ['iot_ielts/contact_form',],],
+    ];
   }
 
   /**
    * @return array
    */
-  public function subscriberCallback ()
-  {
+  public function subscriberCallback() {
     if (isset($_POST['email'])) {
       $email = $_POST['email'];
       $subscriber = simplenews_subscriber_load_by_mail($email);

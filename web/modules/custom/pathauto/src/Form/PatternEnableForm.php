@@ -9,46 +9,40 @@ use Drupal\Core\Url;
 /**
  * Provides the pathauto pattern disable disable form.
  */
-class PatternEnableForm extends EntityConfirmFormBase
-{
+class PatternEnableForm extends EntityConfirmFormBase {
 
   /**
    * {@inheritdoc}
    */
-  public function getQuestion ()
-  {
+  public function getQuestion() {
     return $this->t('Are you sure you want to enable the pattern %label?', ['%label' => $this->entity->label()]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCancelUrl ()
-  {
+  public function getCancelUrl() {
     return new Url('entity.pathauto_pattern.collection');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getConfirmText ()
-  {
+  public function getConfirmText() {
     return $this->t('Enable');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDescription ()
-  {
+  public function getDescription() {
     return '';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm (array &$form, FormStateInterface $form_state)
-  {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->enable()->save();
     drupal_set_message($this->t('Enabled pattern %label.', ['%label' => $this->entity->label()]));
 

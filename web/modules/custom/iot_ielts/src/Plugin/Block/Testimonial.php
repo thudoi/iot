@@ -20,24 +20,31 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Testimonial"),
  * )
  */
-class Testimonial extends BlockBase
-{
+class Testimonial extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
-    $nids = \Drupal::entityQuery('node')->condition('type', 'testimonial')->condition('status', 1)->sort('created', 'ASC')->execute();
+  public function build() {
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'testimonial')
+      ->condition('status', 1)
+      ->sort('created', 'ASC')
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $services = [];
     $times = [];
     foreach ($nodes as $node) {
       $services[] = $node;
-      $times[$node->id()] = \Drupal::service('date.formatter')->formatTimeDiffSince($node->getCreatedTime());
+      $times[$node->id()] = \Drupal::service('date.formatter')
+        ->formatTimeDiffSince($node->getCreatedTime());
     }
-    return ['#theme' => ['iot_testimonial'], '#nodes' => $services, '#times' => $times];
+    return [
+      '#theme' => ['iot_testimonial'],
+      '#nodes' => $services,
+      '#times' => $times,
+    ];
   }
 
 }

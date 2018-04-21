@@ -21,14 +21,12 @@ use Drupal\Core\Url;
  *   no_ui = TRUE
  * )
  */
-class RedirectSourceItem extends FieldItemBase
-{
+class RedirectSourceItem extends FieldItemBase {
 
   /**
    * {@inheritdoc}
    */
-  public static function propertyDefinitions (FieldStorageDefinitionInterface $field_definition)
-  {
+  public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     $properties['path'] = DataDefinition::create('string')->setLabel(t('Path'));
 
     $properties['query'] = MapDataDefinition::create()->setLabel(t('Query'));
@@ -39,16 +37,29 @@ class RedirectSourceItem extends FieldItemBase
   /**
    * {@inheritdoc}
    */
-  public static function schema (FieldStorageDefinitionInterface $field_definition)
-  {
-    return ['columns' => ['path' => ['description' => 'The source path', 'type' => 'varchar', 'length' => 2048,], 'query' => ['description' => 'Serialized array of path queries', 'type' => 'blob', 'size' => 'big', 'serialize' => TRUE,],], 'indexes' => ['path' => [['path', 50]],],];
+  public static function schema(FieldStorageDefinitionInterface $field_definition) {
+    return [
+      'columns' => [
+        'path' => [
+          'description' => 'The source path',
+          'type' => 'varchar',
+          'length' => 2048,
+        ],
+        'query' => [
+          'description' => 'Serialized array of path queries',
+          'type' => 'blob',
+          'size' => 'big',
+          'serialize' => TRUE,
+        ],
+      ],
+      'indexes' => ['path' => [['path', 50]],],
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function generateSampleValue (FieldDefinitionInterface $field_definition)
-  {
+  public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
     // Set random length for the path.
     $domain_length = mt_rand(7, 15);
     $random = new Random();
@@ -61,24 +72,21 @@ class RedirectSourceItem extends FieldItemBase
   /**
    * {@inheritdoc}
    */
-  public function isEmpty ()
-  {
+  public function isEmpty() {
     return $this->path === NULL || $this->path === '';
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function mainPropertyName ()
-  {
+  public static function mainPropertyName() {
     return 'path';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setValue ($values, $notify = TRUE)
-  {
+  public function setValue($values, $notify = TRUE) {
     // Unserialize the values.
     // @todo The storage controller should take care of this, see
     //   SqlContentEntityStorage::loadFieldItems, see
@@ -92,8 +100,7 @@ class RedirectSourceItem extends FieldItemBase
   /**
    * {@inheritdoc}
    */
-  public function getUrl ()
-  {
+  public function getUrl() {
     return Url::fromUri('base:' . $this->path, ['query' => $this->query]);
   }
 

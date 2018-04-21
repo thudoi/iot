@@ -11,16 +11,15 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * Class SetController.
  */
-class TipsController extends ControllerBase
-{
+class TipsController extends ControllerBase {
 
   /**
    * Section Manager.
+   *
    * @return array
    *   Return template.
    */
-  public function import ()
-  {
+  public function import() {
     $connection = \Drupal::database();
     $query = $connection->select('articles', 'a');
     $query->fields('a');
@@ -69,10 +68,11 @@ class TipsController extends ControllerBase
 
   }
 
-  public function getTagId ($tagid)
-  {
+  public function getTagId($tagid) {
     $vid = 'tags';
-    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
+    $terms = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadTree($vid);
     $tid = NULL;
     foreach ($terms as $t) {
       $term = Term::load($t->tid);
@@ -83,10 +83,11 @@ class TipsController extends ControllerBase
     return $tid;
   }
 
-  public function getCatId ($catid)
-  {
+  public function getCatId($catid) {
     $vid = 'tips';
-    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
+    $terms = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadTree($vid);
     $tid = NULL;
     foreach ($terms as $t) {
       $term = Term::load($t->tid);
@@ -97,8 +98,7 @@ class TipsController extends ControllerBase
     return $tid;
   }
 
-  public function getTags ($articleId)
-  {
+  public function getTags($articleId) {
     $connection = \Drupal::database();
     $query = $connection->select('articletags', 'a');
     $query->fields('a');
@@ -111,10 +111,12 @@ class TipsController extends ControllerBase
     return $tagids;
   }
 
-  public function updateCount ()
-  {
+  public function updateCount() {
     $connection = \Drupal::database();
-    $nids = \Drupal::entityQuery('node')->condition('type', 'tips')->condition('status', 1)->execute();
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'tips')
+      ->condition('status', 1)
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     foreach ($nodes as $node) {
       $query = $connection->select('node_counter', 'a');
@@ -122,10 +124,21 @@ class TipsController extends ControllerBase
       $query->condition('nid', $node->id());
       $result = $query->execute()->fetchObject();
       if ($result) {
-        $connection->update('node_counter')->condition('nid', $node->id())->fields(['totalcount' => counterTips(),  // FIELD_1 NEW value./ FIELD_3 NEW value.
-          ])->execute();
-      } else {
-        $connection->insert('node_counter')->fields(['nid', 'totalcount', 'daycount', 'timestamp',])->values([$node->id(), counterTips(), 0, time(),])->execute();
+        $connection->update('node_counter')
+          ->condition('nid', $node->id())
+          ->fields([
+            'totalcount' => counterTips(),
+            // FIELD_1 NEW value./ FIELD_3 NEW value.
+          ])
+          ->execute();
+      }
+      else {
+        $connection->insert('node_counter')->fields([
+          'nid',
+          'totalcount',
+          'daycount',
+          'timestamp',
+        ])->values([$node->id(), counterTips(), 0, time(),])->execute();
       }
 
     }

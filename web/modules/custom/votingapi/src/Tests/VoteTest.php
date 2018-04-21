@@ -11,10 +11,10 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests the Voting API basics.
+ *
  * @group VotingAPI
  */
-class VoteTest extends WebTestBase
-{
+class VoteTest extends WebTestBase {
 
   /**
    * {@inheritdoc}
@@ -24,21 +24,27 @@ class VoteTest extends WebTestBase
   /**
    * Tests casting a vote on an entity.
    */
-  public function testVotes ()
-  {
+  public function testVotes() {
     $vote_query = $this->container->get('entity.query')->get('vote');
     $vote_storage = $this->container->get('entity.manager')->getStorage('vote');
     $node = $this->drupalCreateNode(['type' => 'article']);
     $user = $this->drupalCreateUser();
 
     // There are no votes on this entity yet
-    $query = $vote_query->condition('entity_type', 'node')->condition('entity_id', $node->id());
+    $query = $vote_query->condition('entity_type', 'node')
+      ->condition('entity_id', $node->id());
     $votes = $query->execute();
     $this->assertEqual(count($votes), 0, 'Vote count for a node is initially zero.');
 
     // Add a vote to a node.
     /** @var \Drupal\votingapi\VoteInterface $vote */
-    $vote = $vote_storage->create(['type' => 'type', 'entity_id' => $node->id(), 'entity_type' => 'node', 'user_id' => $user->id(), 'value' => -1,]);
+    $vote = $vote_storage->create([
+      'type' => 'type',
+      'entity_id' => $node->id(),
+      'entity_type' => 'node',
+      'user_id' => $user->id(),
+      'value' => -1,
+    ]);
     $vote->save();
     $votes = $query->execute();
     $this->assertEqual(count($votes), 1, 'After a vote is cast on a node, it can be retrieved.');
@@ -49,11 +55,16 @@ class VoteTest extends WebTestBase
     $this->assertNotEqual($vote->getSource(), '', 'A vote with no explicit source received the default value.');
 
     // Add a vote to a user
-    $vote = $vote_storage->create(['type' => 'vote', 'entity_id' => $user->id(), 'entity_type' => 'user',]);
+    $vote = $vote_storage->create([
+      'type' => 'vote',
+      'entity_id' => $user->id(),
+      'entity_type' => 'user',
+    ]);
     $vote->save();
 
     $vote_query = $this->container->get('entity.query')->get('vote');
-    $query = $vote_query->condition('entity_type', 'user')->condition('entity_id', $user->id());
+    $query = $vote_query->condition('entity_type', 'user')
+      ->condition('entity_id', $user->id());
     $votes = $query->execute();
     $this->assertEqual(count($votes), 1, 'After a vote is cast on a user, it can be retrieved.');
     $vote = $vote_storage->load(reset($votes));
@@ -70,8 +81,7 @@ class VoteTest extends WebTestBase
   /**
    * Test vote results.
    */
-  public function testVoteResults ()
-  {
+  public function testVoteResults() {
     $vote_storage = $this->container->get('entity.manager')->getStorage('vote');
     $node = $this->drupalCreateNode();
     $user = $this->drupalCreateUser();
@@ -80,7 +90,13 @@ class VoteTest extends WebTestBase
     // Save a few votes so that we have data.
     $values = [10, 20, 60];
     foreach ($values as $value) {
-      $vote_storage->create(['type' => 'vote', 'entity_id' => $node->id(), 'entity_type' => 'node', 'user_id' => $user->id(), 'value' => $value,])->save();
+      $vote_storage->create([
+        'type' => 'vote',
+        'entity_id' => $node->id(),
+        'entity_type' => 'node',
+        'user_id' => $user->id(),
+        'value' => $value,
+      ])->save();
     }
 
     $results = $manager->getResults('node', $node->id());

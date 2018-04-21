@@ -17,14 +17,12 @@ use Drupal\votingapi\VoteResultFunctionBase;
  *   description = @Translation("The number of votes cast.")
  * )
  */
-class Count extends VoteResultFunctionBase
-{
+class Count extends VoteResultFunctionBase {
 
   /**
    * {@inheritdoc}
    */
-  public function calculateResult ($votes)
-  {
+  public function calculateResult($votes) {
     return count($votes);
   }
 }

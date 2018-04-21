@@ -4,12 +4,11 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit19c8db9e3a5c3d6c18d3fd1585ccf65c
-{
-    public static function getInitializer(ClassLoader $loader)
-    {
-        return \Closure::bind(function () use ($loader) {
+class ComposerStaticInit19c8db9e3a5c3d6c18d3fd1585ccf65c {
 
-        }, null, ClassLoader::class);
-    }
+  public static function getInitializer(ClassLoader $loader) {
+    return \Closure::bind(function () use ($loader) {
+
+    }, NULL, ClassLoader::class);
+  }
 }

@@ -8,17 +8,16 @@ use Drupal\user\Entity\User;
 
 /**
  * Field handler to display username as a link.
+ *
  * @ingroup views_field_handlers
  * @ViewsField("simplenews_user_name")
  */
-class UserName extends FieldPluginBase
-{
+class UserName extends FieldPluginBase {
 
   /**
    * {@inheritdoc}
    */
-  protected function renderLink ($data, ResultRow $values)
-  {
+  protected function renderLink($data, ResultRow $values) {
     $uid = $this->getValue($values);
     if (!empty($uid)) {
       $account = User::load($uid);
@@ -31,8 +30,7 @@ class UserName extends FieldPluginBase
   /**
    * {@inheritdoc}
    */
-  public function render (ResultRow $values)
-  {
+  public function render(ResultRow $values) {
     $value = $this->getValue($values);
     return $this->renderLink($this->sanitizeValue($value), $values);
   }

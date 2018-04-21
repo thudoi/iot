@@ -10,38 +10,47 @@ use Drupal\Core\Url;
 /**
  * Class SetController.
  */
-class SetController extends ControllerBase
-{
+class SetController extends ControllerBase {
 
   /**
    * Section Manager.
+   *
    * @return array
    *   Return template.
    */
-  public function Set ($nid)
-  {
+  public function Set($nid) {
     $node = Node::load($nid);
 
-    $nids = \Drupal::entityQuery('node')->condition('type', 'quiz')->condition('field_set', $node->id())->execute();
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'quiz')
+      ->condition('field_set', $node->id())
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $secs = [];
     foreach ($nodes as $sec) {
       $secs[] = $sec;
     }
-    return ['#theme' => ['iot_manage_set'], '#node' => $node, '#secs' => $secs,];
+    return [
+      '#theme' => ['iot_manage_set'],
+      '#node' => $node,
+      '#secs' => $secs,
+    ];
 
 
   }
 
   /**
    * Question Manager.
+   *
    * @return array
    *   Return template.
    */
-  public function Question ($nid)
-  {
+  public function Question($nid) {
     $node = Node::load($nid);
-    $nids = \Drupal::entityQuery('node')->condition('type', 'question')->condition('field_section', $node->id())->execute();
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'question')
+      ->condition('field_section', $node->id())
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $questions = [];
     $term = [];
@@ -53,7 +62,13 @@ class SetController extends ControllerBase
       $count[$sec->id()] = $this->_count_question($sec);
     }
     // kint($questions[0]);
-    return ['#theme' => ['iot_manage_question'], '#node' => $node, '#questions' => $questions, '#term' => $term, '#count' => $count];
+    return [
+      '#theme' => ['iot_manage_question'],
+      '#node' => $node,
+      '#questions' => $questions,
+      '#term' => $term,
+      '#count' => $count,
+    ];
 
 
   }
@@ -61,41 +76,54 @@ class SetController extends ControllerBase
 
   /**
    * Question Manager.
+   *
    * @return array
    *   Return template.
    */
-  public function Quiz ($nid)
-  {
+  public function Quiz($nid) {
     $node = Node::load($nid);
     $type = $node->get('field_quiz_type')->value;
     $questions = [];
     if ($type == 'listening' || $type == 'reading') {
-      $section_ids = \Drupal::entityQuery('node')->condition('type', 'section')->condition('field_quiz', $node->id())->execute();
+      $section_ids = \Drupal::entityQuery('node')
+        ->condition('type', 'section')
+        ->condition('field_quiz', $node->id())
+        ->execute();
       $sections = \Drupal\node\Entity\Node::loadMultiple($section_ids);
       foreach ($sections as $section) {
         $questions[] = $section;
       }
     }
 
-    return ['#theme' => ['iot_manage_quiz'], '#node' => $node, '#questions' => $questions,];
+    return [
+      '#theme' => ['iot_manage_quiz'],
+      '#node' => $node,
+      '#questions' => $questions,
+    ];
   }
 
   /**
    * collection Manager.
+   *
    * @return array
    *   Return template.
    */
-  public function Collection ()
-  {
+  public function Collection() {
     $node = $this->getNode();
-    $nids = \Drupal::entityQuery('node')->condition('type', 'set')->condition('field_collection', $node->id())->execute();
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'set')
+      ->condition('field_collection', $node->id())
+      ->execute();
     $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
     $sets = [];
 
     foreach ($nodes as $set) {
       $sets[] = $set;
     }
-    return ['#theme' => ['iot_manage_collections'], '#node' => $node, '#sets' => $sets,
+    return [
+      '#theme' => ['iot_manage_collections'],
+      '#node' => $node,
+      '#sets' => $sets,
 
     ];
   }
@@ -105,8 +133,7 @@ class SetController extends ControllerBase
    * @return \Drupal\Core\Entity\EntityInterface|null|static
    * Implement getNode
    */
-  public function getNode ()
-  {
+  public function getNode() {
     $nid = \Drupal::request()->get('nid');
     $node = Node::load($nid);
     return $node;
@@ -115,17 +142,17 @@ class SetController extends ControllerBase
   /**
    * Get term name
    */
-  public function _iot_get_term_name ($tid)
-  {
-    $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+  public function _iot_get_term_name($tid) {
+    $term = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->load($tid);
     return $term->name->value;
   }
 
   /**
    * get count question
    */
-  public function _count_question ($node)
-  {
+  public function _count_question($node) {
     $type = $node->get('field_question_type')->value;
     $count_question = 0;
     $count_answer = 0;
@@ -161,7 +188,7 @@ class SetController extends ControllerBase
         }
       }
     }
-//checkbox
+    //checkbox
     if ($type == 'checkbox') {
       $questions = $node->get('field_question')->getValue();
       foreach ($questions as $q) {
@@ -217,7 +244,11 @@ class SetController extends ControllerBase
       }
     }
     ///////////
-    $result = ['count_question' => $count_question, 'count_answer' => $count_answer, 'count_explain' => $count_explain];
+    $result = [
+      'count_question' => $count_question,
+      'count_answer' => $count_answer,
+      'count_explain' => $count_explain,
+    ];
     return $result;
   }
 

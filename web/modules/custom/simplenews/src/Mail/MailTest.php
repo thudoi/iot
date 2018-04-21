@@ -4,96 +4,86 @@ namespace Drupal\simplenews\Mail;
 
 /**
  * Example mail implementation used for tests.
+ *
  * @ingroup mail
  */
-class MailTest implements MailInterface
-{
+class MailTest implements MailInterface {
 
   protected $format;
 
-  public function __construct ($format)
-  {
+  public function __construct($format) {
     $this->format = $format;
   }
 
-  public function getAttachments ()
-  {
-    return [['uri' => 'example://test.png', 'filemime' => 'x-example', 'filename' => 'test.png',],];
+  public function getAttachments() {
+    return [
+      [
+        'uri' => 'example://test.png',
+        'filemime' => 'x-example',
+        'filename' => 'test.png',
+      ],
+    ];
   }
 
-  public function getBody ()
-  {
+  public function getBody() {
     return $this->getFormat() == 'plain' ? $this->getPlainBody() : 'the body';
   }
 
-  public function getFormat ()
-  {
+  public function getFormat() {
     return $this->format;
   }
 
-  public function getFromAddress ()
-  {
+  public function getFromAddress() {
     return 'simpletest@example.com';
   }
 
-  public function getFromFormatted ()
-  {
+  public function getFromFormatted() {
     return 'Test <simpletest@example.com>';
   }
 
-  public function getHeaders (array $headers)
-  {
+  public function getHeaders(array $headers) {
     $headers['X-Simplenews-Test'] = 'OK';
     return $headers;
   }
 
-  public function getKey ()
-  {
+  public function getKey() {
     return 'node';
   }
 
-  public function setKey ($key)
-  {
+  public function setKey($key) {
   }
 
-  public function getLanguage ()
-  {
+  public function getLanguage() {
     return 'en';
   }
 
-  public function getPlainBody ()
-  {
+  public function getPlainBody() {
     return 'the plain body';
   }
 
-  public function getRecipient ()
-  {
+  public function getRecipient() {
     return 'recipient@example.org';
   }
 
-  public function getSubject ()
-  {
+  public function getSubject() {
     return 'the subject';
   }
 
-  public function getTokenContext ()
-  {
+  public function getTokenContext() {
     return [];
   }
 
   /**
    * @inheritDoc
    */
-  function getEntity ()
-  {
+  function getEntity() {
     return NULL;
   }
 
   /**
    * @inheritDoc
    */
-  function getSubscriber ()
-  {
+  function getSubscriber() {
     return NULL;
   }
 

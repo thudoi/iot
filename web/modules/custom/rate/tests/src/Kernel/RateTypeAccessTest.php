@@ -9,10 +9,10 @@ use Drupal\user\RoleInterface;
 
 /**
  * Tests access control for vote_types defined in the Rate module.
+ *
  * @group rate
  */
-class RateTypeAccessTest extends KernelTestBase
-{
+class RateTypeAccessTest extends KernelTestBase {
 
   use UserCreationTrait {
     createUser as drupalCreateUser;
@@ -26,28 +26,34 @@ class RateTypeAccessTest extends KernelTestBase
    * {@inheritdoc}
    */
   public static $modules = ['user', 'system', 'votingapi', 'rate',];
+
   /**
    * An array of config object names that are excluded from schema checking.
+   *
    * @var string[]
    */
   protected static $configSchemaCheckerExclusions = [// Following are used to test lack of or partial schema. Where partial
     // schema is provided, that is explicitly tested in specific tests.
-    'views.view.rate_results',];
+    'views.view.rate_results',
+  ];
 
   /**
    * Access handler.
+   *
    * @var \Drupal\Core\Entity\EntityAccessControlHandlerInterface
    */
   protected $accessHandler;
 
   /**
    * A simple user with basic node and vote permissions
+   *
    * @var \Drupal\user\Entity\User
    */
   protected $logged_in_user;
 
   /**
    * A simple user vote permission
+   *
    * @var \Drupal\user\Entity\User
    */
   protected $anonymous_user;
@@ -55,15 +61,17 @@ class RateTypeAccessTest extends KernelTestBase
   /**
    * {@inheritdoc}
    */
-  protected function setUp ()
-  {
+  protected function setUp() {
     parent::setUp();
     $this->installSchema('system', 'sequences');
     $this->installEntitySchema('user');
     $this->installConfig('rate');
-    $this->accessHandler = $this->container->get('entity_type.manager')->getAccessControlHandler('vote_type');
+    $this->accessHandler = $this->container->get('entity_type.manager')
+      ->getAccessControlHandler('vote_type');
     // Clear permissions for authenticated users.
-    $this->config('user.role.' . RoleInterface::AUTHENTICATED_ID)->set('permissions', [])->save();
+    $this->config('user.role.' . RoleInterface::AUTHENTICATED_ID)
+      ->set('permissions', [])
+      ->save();
 
 
     // Create user 1 who has special permissions.
@@ -74,18 +82,23 @@ class RateTypeAccessTest extends KernelTestBase
 
   }
 
-  public function testRateTypeAccess ()
-  {
+  public function testRateTypeAccess() {
 
     // The following rate types are defined by the Rate module.
     // In rate_vote_type_access(), permission to view vote types with these
     // IDs is granted for users with the 'view rate results page' permission.
     $rate_types = ['down', 'up', 'star1', 'star2', 'star3', 'star4', 'star5',];
 
-    $vote_type_storage = $this->container->get('entity_type.manager')->getStorage('vote_type');
+    $vote_type_storage = $this->container->get('entity_type.manager')
+      ->getStorage('vote_type');
 
     // Create fake vote type.
-    $vote_type_storage->create(['id' => 'fake', 'label' => 'Fake vote type', 'value_type' => 'points', 'description' => 'A fake vote type for testing purposes.',])->save();
+    $vote_type_storage->create([
+      'id' => 'fake',
+      'label' => 'Fake vote type',
+      'value_type' => 'points',
+      'description' => 'A fake vote type for testing purposes.',
+    ])->save();
 
     // Test each of the vote types that are defined by the Rate module.
     foreach ($rate_types as $rate_type) {

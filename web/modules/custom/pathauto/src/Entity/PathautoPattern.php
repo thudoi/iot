@@ -53,23 +53,27 @@ use Drupal\pathauto\PathautoPatternInterface;
  *   links = {
  *     "collection" = "/admin/config/search/path/patterns",
  *     "edit-form" = "/admin/config/search/path/patterns/{pathauto_pattern}",
- *     "delete-form" = "/admin/config/search/path/patterns/{pathauto_pattern}/delete",
- *     "enable" = "/admin/config/search/path/patterns/{pathauto_pattern}/enable",
- *     "disable" = "/admin/config/search/path/patterns/{pathauto_pattern}/disable"
+ *     "delete-form" =
+ *   "/admin/config/search/path/patterns/{pathauto_pattern}/delete",
+ *     "enable" =
+ *   "/admin/config/search/path/patterns/{pathauto_pattern}/enable",
+ *     "disable" =
+ *   "/admin/config/search/path/patterns/{pathauto_pattern}/disable"
  *   }
  * )
  */
-class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterface
-{
+class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterface {
 
   /**
    * The Pathauto pattern ID.
+   *
    * @var string
    */
   protected $id;
 
   /**
    * The Pathauto pattern label.
+   *
    * @var string
    */
   protected $label;
@@ -79,6 +83,7 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
    * A string denoting the type of pathauto pattern this is. For a node path
    * this would be 'node', for users it would be 'user', and so on. This allows
    * for arbitrary non-entity patterns to be possible if applicable.
+   *
    * @var string
    */
   protected $type;
@@ -90,18 +95,21 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
 
   /**
    * A tokenized string for alias generation.
+   *
    * @var string
    */
   protected $pattern;
 
   /**
    * The plugin configuration for the selection criteria condition plugins.
+   *
    * @var array
    */
   protected $selection_criteria = [];
 
   /**
    * The selection logic for this pattern entity (either 'and' or 'or').
+   *
    * @var string
    */
   protected $selection_logic = 'and';
@@ -121,6 +129,7 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
 
   /**
    * The plugin collection that holds the selection criteria condition plugins.
+   *
    * @var \Drupal\Component\Plugin\LazyPluginCollection
    */
   protected $selectionConditionCollection;
@@ -130,8 +139,7 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
    * Not using core's default logic around ConditionPluginCollection since it
    * incorrectly assumes no condition will ever be applied twice.
    */
-  public function preSave (EntityStorageInterface $storage)
-  {
+  public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
     $criteria = [];
     foreach ($this->getSelectionConditions() as $id => $condition) {
@@ -146,8 +154,7 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public static function postDelete (EntityStorageInterface $storage, array $entities)
-  {
+  public static function postDelete(EntityStorageInterface $storage, array $entities) {
     parent::postDelete($storage, $entities);
     // Invalidate the static caches.
     \Drupal::service('pathauto.generator')->resetCaches();
@@ -156,8 +163,7 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function calculateDependencies ()
-  {
+  public function calculateDependencies() {
     parent::calculateDependencies();
 
     $this->calculatePluginDependencies($this->getAliasType());
@@ -172,16 +178,14 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function getPattern ()
-  {
+  public function getPattern() {
     return $this->pattern;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setPattern ($pattern)
-  {
+  public function setPattern($pattern) {
     $this->pattern = $pattern;
     return $this;
   }
@@ -189,16 +193,14 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function getType ()
-  {
+  public function getType() {
     return $this->type;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getAliasType ()
-  {
+  public function getAliasType() {
     if (!$this->aliasTypeCollection) {
       $this->aliasTypeCollection = new DefaultSingleLazyPluginCollection(\Drupal::service('plugin.manager.alias_type'), $this->getType(), ['default' => $this->getPattern()]);
     }
@@ -208,16 +210,14 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function getWeight ()
-  {
+  public function getWeight() {
     return $this->weight;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setWeight ($weight)
-  {
+  public function setWeight($weight) {
     $this->weight = $weight;
     return $this;
   }
@@ -225,8 +225,7 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function getContexts ()
-  {
+  public function getContexts() {
     $contexts = $this->getAliasType()->getContexts();
     foreach ($this->getRelationships() as $token => $definition) {
       /** @var \Drupal\ctools\TypedDataResolver $resolver */
@@ -244,16 +243,14 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function hasRelationship ($token)
-  {
+  public function hasRelationship($token) {
     return isset($this->relationships[$token]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function addRelationship ($token, $label = NULL)
-  {
+  public function addRelationship($token, $label = NULL) {
     if (!$this->hasRelationship($token)) {
       $this->relationships[$token] = ['label' => $label,];
     }
@@ -263,8 +260,7 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function replaceRelationship ($token, $label)
-  {
+  public function replaceRelationship($token, $label) {
     if ($this->hasRelationship($token)) {
       $this->relationships[$token] = ['label' => $label,];
     }
@@ -274,8 +270,7 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function removeRelationship ($token)
-  {
+  public function removeRelationship($token) {
     unset($this->relationships[$token]);
     return $this;
   }
@@ -283,16 +278,14 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function getRelationships ()
-  {
+  public function getRelationships() {
     return $this->relationships;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getSelectionConditions ()
-  {
+  public function getSelectionConditions() {
     if (!$this->selectionConditionCollection) {
       $this->selectionConditionCollection = new ConditionPluginCollection(\Drupal::service('plugin.manager.condition'), $this->get('selection_criteria'));
     }
@@ -302,26 +295,24 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function addSelectionCondition (array $configuration)
-  {
+  public function addSelectionCondition(array $configuration) {
     $configuration['uuid'] = $this->uuidGenerator()->generate();
-    $this->getSelectionConditions()->addInstanceId($configuration['uuid'], $configuration);
+    $this->getSelectionConditions()
+      ->addInstanceId($configuration['uuid'], $configuration);
     return $configuration['uuid'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getSelectionCondition ($condition_id)
-  {
+  public function getSelectionCondition($condition_id) {
     return $this->getSelectionConditions()->get($condition_id);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function removeSelectionCondition ($condition_id)
-  {
+  public function removeSelectionCondition($condition_id) {
     $this->getSelectionConditions()->removeInstanceId($condition_id);
     return $this;
   }
@@ -329,16 +320,14 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
   /**
    * {@inheritdoc}
    */
-  public function getSelectionLogic ()
-  {
+  public function getSelectionLogic() {
     return $this->selection_logic;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function applies ($object)
-  {
+  public function applies($object) {
     if ($this->getAliasType()->applies($object)) {
       $definitions = $this->getAliasType()->getContextDefinitions();
       if (count($definitions) > 1) {
@@ -364,7 +353,8 @@ class PathautoPattern extends ConfigEntityBase implements PathautoPatternInterfa
         $result = $condition->execute();
         if ($this->getSelectionLogic() == 'and' && !$result) {
           return FALSE;
-        } elseif ($this->getSelectionLogic() == 'or' && $result) {
+        }
+        elseif ($this->getSelectionLogic() == 'or' && $result) {
           return TRUE;
         }
       }

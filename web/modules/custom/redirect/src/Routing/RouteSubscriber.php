@@ -8,14 +8,12 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * Modify core routes to support redirect.
  */
-class RouteSubscriber extends RouteSubscriberBase
-{
+class RouteSubscriber extends RouteSubscriberBase {
 
   /**
    * {@inheritdoc}
    */
-  protected function alterRoutes (RouteCollection $collection)
-  {
+  protected function alterRoutes(RouteCollection $collection) {
     if ($route = $collection->get('image.style_public')) {
       $route->setDefault('_disable_route_normalizer', TRUE);
     }

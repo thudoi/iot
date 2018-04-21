@@ -7,21 +7,23 @@ use Drupal\pathauto\Entity\PathautoPattern;
 
 /**
  * Test basic pathauto functionality.
+ *
  * @group pathauto
  */
-class PathautoUiTest extends WebTestBase
-{
+class PathautoUiTest extends WebTestBase {
 
   use PathautoTestHelperTrait;
 
   /**
    * Modules to enable.
+   *
    * @var array
    */
   public static $modules = ['pathauto', 'node'];
 
   /**
    * Admin user.
+   *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
@@ -29,21 +31,26 @@ class PathautoUiTest extends WebTestBase
   /**
    * {inheritdoc}
    */
-  function setUp ()
-  {
+  function setUp() {
     parent::setUp();
 
     $this->drupalCreateContentType(['type' => 'page', 'name' => 'Basic page']);
     $this->drupalCreateContentType(['type' => 'article']);
 
     // Allow other modules to add additional permissions for the admin user.
-    $permissions = ['administer pathauto', 'administer url aliases', 'create url aliases', 'administer nodes', 'bypass node access', 'access content overview',];
+    $permissions = [
+      'administer pathauto',
+      'administer url aliases',
+      'create url aliases',
+      'administer nodes',
+      'bypass node access',
+      'access content overview',
+    ];
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
   }
 
-  function testSettingsValidation ()
-  {
+  function testSettingsValidation() {
     $edit = [];
     $edit['max_length'] = 'abc';
     $edit['max_component_length'] = 'abc';
@@ -72,13 +79,16 @@ class PathautoUiTest extends WebTestBase
     $this->assertText('The configuration options have been saved.');
   }
 
-  function testPatternsWorkflow ()
-  {
+  function testPatternsWorkflow() {
     // Try to save an empty pattern, should not be allowed.
     $this->drupalGet('admin/config/search/path/patterns/add');
     $edit = ['type' => 'canonical_entities:node',];
     $this->drupalPostAjaxForm(NULL, $edit, 'type');
-    $edit += ['bundles[page]' => TRUE, 'label' => 'Page pattern', 'id' => 'page_pattern',];
+    $edit += [
+      'bundles[page]' => TRUE,
+      'label' => 'Page pattern',
+      'id' => 'page_pattern',
+    ];
     $this->drupalPostForm(NULL, $edit, 'Save');
     $this->assertText('Path pattern field is required.');
     $this->assertNoText('The configuration options have been saved.');

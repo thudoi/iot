@@ -11,25 +11,29 @@ namespace Drupal\tcpdf;
 use TCPDF;
 
 /**
- * Do not create a new instance of this class manually. Use tcpdf_get_instance().
+ * Do not create a new instance of this class manually. Use
+ * tcpdf_get_instance().
+ *
  * @see tcpdf_get_instance()
  */
-class TCPDFDrupal extends TCPDF
-{
+class TCPDFDrupal extends TCPDF {
 
-  function __construct ($orientation = 'P', $unit = 'mm', $format = 'A4', $unicode = true, $encoding = 'UTF-8', $diskcache = false, $pdfa = false)
-  {
+  function __construct($orientation = 'P', $unit = 'mm', $format = 'A4', $unicode = TRUE, $encoding = 'UTF-8', $diskcache = FALSE, $pdfa = FALSE) {
     parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache, $pdfa);
   }
 
   protected $drupalHeader = ['html' => NULL, 'callback' => NULL,];
+
   protected $drupalFooter = ['html' => NULL, 'callback' => NULL,];
 
   /**
    * Sets a bunch of commonly used propeties in the TCPDF object. The propeties
-   *   set by this function can be safely changed after calling the method. This
-   *   method also let's the developer to change the header or footer of the pdf
+   *   set by this function can be safely changed after calling the method.
+   * This
+   *   method also let's the developer to change the header or footer of the
+   * pdf
    *   document without making his/her own class.
+   *
    * @param array $options
    *   Associative array containing basic settings.
    *     'title' => Title of the document
@@ -39,13 +43,14 @@ class TCPDFDrupal extends TCPDF
    *     'keywords' => Comma separated list of keywords
    *     'header' => Array
    *        'html' => Html code of the header.
-   *        'callback' => Function that generates the header. If 'html' is set, it's ignored. Note: Not working.
+   *        'callback' => Function that generates the header. If 'html' is set,
+   *   it's ignored. Note: Not working.
    *     'footer' => Array
    *        'html' => Html code of the footer.
-   *        'callback' => Function that generates the footer. If 'html' is set, it's ignored. Note: Not working.
+   *        'callback' => Function that generates the footer. If 'html' is set,
+   *   it's ignored. Note: Not working.
    */
-  function DrupalInitialize ($options)
-  {
+  function DrupalInitialize($options) {
     $site_name = \Drupal::config('system.site')->get('name');
     $title = isset($options['title']) ? $options['title'] : $site_name;
     $author = isset($options['author']) ? $options['author'] : $site_name;
@@ -86,10 +91,10 @@ class TCPDFDrupal extends TCPDF
 
   /**
    * Sets the header of the document.
+   *
    * @return NULL
    */
-  public function Header ()
-  {
+  public function Header() {
     if (!$this->DrupalGenRunningSection($this->drupalHeader)) {
       return parent::Header();
     }
@@ -97,10 +102,10 @@ class TCPDFDrupal extends TCPDF
 
   /**
    * Sets the footer of the document.
+   *
    * @return NULL
    */
-  public function Footer ()
-  {
+  public function Footer() {
     if (!$this->DrupalGenRunningSection($this->drupalFooter)) {
       return parent::Footer();
     }
@@ -108,23 +113,26 @@ class TCPDFDrupal extends TCPDF
 
   /**
    * Generates a header or footer for the pdf document.
+   *
    * @param array $container
+   *
    * @see DrupalInitialize()
-   * @return FALSE if the container did not store any useful information to generate
-   *   the document.
+   * @return FALSE if the container did not store any useful information to
+   *   generate the document.
    */
-  private function DrupalGenRunningSection ($container)
-  {
+  private function DrupalGenRunningSection($container) {
     if (!empty($container['html'])) {
       $this->writeHTML($container['html']);
       return TRUE;
-    } elseif (!empty($container['callback'])) {
+    }
+    elseif (!empty($container['callback'])) {
       $that = &$this;
       if (is_array($container['callback'])) {
         if (function_exists($container['callback']['function'])) {
           call_user_func($container['callback']['function'], $that, $container['callback']['context']);
         }
-      } elseif (function_exists($container['callback'])) {
+      }
+      elseif (function_exists($container['callback'])) {
         call_user_func($container['callback'], $that);
       }
       return TRUE;

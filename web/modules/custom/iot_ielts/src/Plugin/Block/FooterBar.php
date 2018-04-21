@@ -20,15 +20,13 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Footer Bar"),
  * )
  */
-class FooterBar extends BlockBase
-{
+class FooterBar extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
+  public function build() {
     return ['#theme' => ['iot_footer_bar'],];
   }
 

@@ -9,26 +9,26 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * Configure simplenews subscriptions of the logged user.
  */
-class SubscriptionsPageForm extends SubscriptionsFormBase
-{
+class SubscriptionsPageForm extends SubscriptionsFormBase {
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm (array $form, FormStateInterface $form_state, $snid = NULL, $timestamp = NULL, $hash = NULL)
-  {
+  public function buildForm(array $form, FormStateInterface $form_state, $snid = NULL, $timestamp = NULL, $hash = NULL) {
     $user = \Drupal::currentUser();
 
     if ($subscriber = simplenews_subscriber_load_by_uid($user->id())) {
       $this->setEntity($subscriber);
-    } elseif ($mail = $user->getEmail()) {
+    }
+    elseif ($mail = $user->getEmail()) {
       $this->setEntity(Subscriber::create(['mail' => $mail]));
     } // If a hash is provided, try to load the corresponding subscriber.
     elseif ($snid && $timestamp && $hash) {
       $subscriber = simplenews_subscriber_load($snid);
       if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), 'manage', $timestamp)) {
         $this->setEntity($subscriber);
-      } else {
+      }
+      else {
         throw new NotFoundHttpException();
       }
     }
@@ -39,8 +39,7 @@ class SubscriptionsPageForm extends SubscriptionsFormBase
   /**
    * {@inheritdoc}
    */
-  protected function getSubmitMessage (FormStateInterface $form_state, $op, $confirm)
-  {
+  protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
     if ($confirm) {
       switch ($op) {
         case static::SUBMIT_SUBSCRIBE:

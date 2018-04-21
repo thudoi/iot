@@ -17,14 +17,12 @@ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
  *   source_provider = "redirect"
  * )
  */
-class PathRedirect extends DrupalSqlBase
-{
+class PathRedirect extends DrupalSqlBase {
 
   /**
    * {@inheritdoc}
    */
-  public function query ()
-  {
+  public function query() {
     // Select path redirects.
     $query = $this->select('redirect', 'p')->fields('p');
 
@@ -34,11 +32,15 @@ class PathRedirect extends DrupalSqlBase
   /**
    * {@inheritdoc}
    */
-  public function prepareRow (Row $row)
-  {
+  public function prepareRow(Row $row) {
     static $default_status_code;
     if (!isset($default_status_code)) {
-      $default_status_code = unserialize($this->getDatabase()->select('variable', 'v')->fields('v', ['value'])->condition('name', 'redirect_default_status_code')->execute()->fetchField());
+      $default_status_code = unserialize($this->getDatabase()
+        ->select('variable', 'v')
+        ->fields('v', ['value'])
+        ->condition('name', 'redirect_default_status_code')
+        ->execute()
+        ->fetchField());
     }
     $current_status_code = $row->getSourceProperty('status_code');
     $status_code = $current_status_code != 0 ? $current_status_code : $default_status_code;
@@ -49,17 +51,28 @@ class PathRedirect extends DrupalSqlBase
   /**
    * {@inheritdoc}
    */
-  public function fields ()
-  {
-    $fields = ['rid' => $this->t('Redirect ID'), 'hash' => $this->t('Hash'), 'type' => $this->t('Type'), 'uid' => $this->t('UID'), 'source' => $this->t('Source'), 'source_options' => $this->t('Source Options'), 'redirect' => $this->t('Redirect'), 'redirect_options' => $this->t('Redirect Options'), 'language' => $this->t('Language'), 'status_code' => $this->t('Status Code'), 'count' => $this->t('Count'), 'access' => $this->t('Access'),];
+  public function fields() {
+    $fields = [
+      'rid' => $this->t('Redirect ID'),
+      'hash' => $this->t('Hash'),
+      'type' => $this->t('Type'),
+      'uid' => $this->t('UID'),
+      'source' => $this->t('Source'),
+      'source_options' => $this->t('Source Options'),
+      'redirect' => $this->t('Redirect'),
+      'redirect_options' => $this->t('Redirect Options'),
+      'language' => $this->t('Language'),
+      'status_code' => $this->t('Status Code'),
+      'count' => $this->t('Count'),
+      'access' => $this->t('Access'),
+    ];
     return $fields;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getIds ()
-  {
+  public function getIds() {
     $ids['rid']['type'] = 'integer';
     return $ids;
   }

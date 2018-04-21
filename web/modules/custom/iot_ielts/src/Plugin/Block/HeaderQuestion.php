@@ -20,15 +20,13 @@ use Drupal\taxonomy\Entity\Term;
  *   category = @Translation("Header Question"),
  * )
  */
-class HeaderQuestion extends BlockBase
-{
+class HeaderQuestion extends BlockBase {
 
   /**
    * {@inheritdoc}
    * @return array
    */
-  public function build ()
-  {
+  public function build() {
     $node = \Drupal::request()->get('node');
     $set = Node::load($node->get('field_set')->target_id);
     $collection = Node::load($set->get('field_collection')->target_id);
@@ -40,7 +38,15 @@ class HeaderQuestion extends BlockBase
     $views = $statistic['views'];
     $take_test = $statistic['take_test'];
     $star_rate = $vote_widget['votingapi_links'];
-    return ['#theme' => ['iot_header_question'], '#node' => $node, '#collection' => $collection, '#views' => $views, '#take_test' => $take_test, '#star_rate' => $star_rate, '#collection_date' => $collection_date,];
+    return [
+      '#theme' => ['iot_header_question'],
+      '#node' => $node,
+      '#collection' => $collection,
+      '#views' => $views,
+      '#take_test' => $take_test,
+      '#star_rate' => $star_rate,
+      '#collection_date' => $collection_date,
+    ];
   }
 
 }

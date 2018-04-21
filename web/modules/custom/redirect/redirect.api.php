@@ -22,7 +22,8 @@
  *   - Redirect written to the database
  *   - hook_redirect_insert() (all)
  *   - hook_entity_insert() (all)
- * - Updating an existing redirect (calling redirect_save() on an existing redirect):
+ * - Updating an existing redirect (calling redirect_save() on an existing
+ *   redirect):
  *   - hook_redirect_presave() (all)
  *   - Redirect written to the database
  *   - hook_redirect_update() (all)
@@ -32,7 +33,8 @@
  *   - Redirect information is read from database.
  *   - hook_entity_load() (all)
  *   - hook_redirect_load() (all)
- * - Deleting a redirect (calling redirect_delete() or redirect_delete_multiple()):
+ * - Deleting a redirect (calling redirect_delete() or
+ *   redirect_delete_multiple()):
  *   - Redirect is loaded (see Loading section above)
  *   - Redirect information is deleted from database
  *   - hook_redirect_delete() (all)
@@ -66,19 +68,21 @@
  * all available redirects should be loaded in a single query where possible.
  * The $types parameter allows for your module to have an early return (for
  * efficiency) if your module only supports certain redirect types.
+ *
  * @param $redirects
  *   An array of the redirects being loaded, keyed by rid.
  * @param $types
  *   An array containing the types of the redirects.
+ *
  * @ingroup redirect_api_hooks
  */
-function hook_redirect_load (array &$redirects, $types)
-{
+function hook_redirect_load(array &$redirects, $types) {
 
 }
 
 /**
  * Alter the list of redirects matching a certain source.
+ *
  * @param $redirects
  *   An array of redirect objects.
  * @param $source
@@ -87,11 +91,11 @@ function hook_redirect_load (array &$redirects, $types)
  *   An array with the following key/value pairs:
  *   - language: The language code of the source request.
  *   - query: An array of the source request query string.
+ *
  * @see redirect_load_by_source()
  * @ingroup redirect_api_hooks
  */
-function hook_redirect_load_by_source_alter (array &$redirects, $source, array $context)
-{
+function hook_redirect_load_by_source_alter(array &$redirects, $source, array $context) {
   foreach ($redirects as $rid => $redirect) {
     if ($redirect->source !== $source) {
       // If the redirects to do not exactly match $source (e.g. case
@@ -104,12 +108,13 @@ function hook_redirect_load_by_source_alter (array &$redirects, $source, array $
 /**
  * Act on a redirect object about to be shown on the add/edit form.
  * This hook is invoked from redirect_create().
+ *
  * @param $redirect
  *   The redirect that is about to be shown on the add/edit form.
+ *
  * @ingroup redirect_api_hooks
  */
-function hook_redirect_prepare ($redirect)
-{
+function hook_redirect_prepare($redirect) {
 
 }
 
@@ -117,14 +122,15 @@ function hook_redirect_prepare ($redirect)
  * Act on a redirect being redirected.
  * This hook is invoked from redirect_redirect() before the redirect callback
  * is invoked.
+ *
  * @param $redirect
  *   The redirect that is being used for the redirect.
+ *
  * @see redirect_redirect()
  * @see drupal_page_is_cacheable()
  * @ingroup redirect_api_hooks
  */
-function hook_redirect_alter ($redirect)
-{
+function hook_redirect_alter($redirect) {
 }
 
 /**

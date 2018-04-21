@@ -21,14 +21,12 @@ use Drupal\Core\Form\FormStateInterface;
  *   module = "wysiwyg_template"
  * )
  */
-class Templates extends CKEditorPluginBase implements CKEditorPluginConfigurableInterface
-{
+class Templates extends CKEditorPluginBase implements CKEditorPluginConfigurableInterface {
 
   /**
    * Get path to library folder.
    */
-  public function getLibraryPath ()
-  {
+  public function getLibraryPath() {
     $path = '/libraries/templates';
     if (\Drupal::moduleHandler()->moduleExists('libraries')) {
       $path = libraries_get_path('templates');
@@ -40,41 +38,41 @@ class Templates extends CKEditorPluginBase implements CKEditorPluginConfigurable
   /**
    * {@inheritdoc}
    */
-  public function isInternal ()
-  {
+  public function isInternal() {
     return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDependencies (Editor $editor)
-  {
+  public function getDependencies(Editor $editor) {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLibraries (Editor $editor)
-  {
+  public function getLibraries(Editor $editor) {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getButtons ()
-  {
+  public function getButtons() {
     $path = $this->getLibraryPath();
-    return ['Templates' => ['label' => $this->t('Templates'), 'image' => $path . '/icons/templates.png',],];
+    return [
+      'Templates' => [
+        'label' => $this->t('Templates'),
+        'image' => $path . '/icons/templates.png',
+      ],
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFile ()
-  {
+  public function getFile() {
     // @todo This location is hard-coded and should be more flexible.
     // @see https://www.drupal.org/node/2693151
     return $this->getLibraryPath() . '/plugin.js';
@@ -83,16 +81,14 @@ class Templates extends CKEditorPluginBase implements CKEditorPluginConfigurable
   /**
    * {@inheritdoc}
    */
-  public function getConfig (Editor $editor)
-  {
+  public function getConfig(Editor $editor) {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function settingsForm (array $form, FormStateInterface $form_state, Editor $editor)
-  {
+  public function settingsForm(array $form, FormStateInterface $form_state, Editor $editor) {
     return [];
   }
 

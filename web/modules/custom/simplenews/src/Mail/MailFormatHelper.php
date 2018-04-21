@@ -6,25 +6,26 @@ use Drupal\Component\Utility\Unicode;
 
 /**
  * Extended mail formatter helpers.
+ *
  * @see \Drupal\Core\Mail\MailFormatHelper
  */
-class MailFormatHelper
-{
+class MailFormatHelper {
 
   /**
    * HTML to text conversion for HTML and special characters.
    * Converts some special HTML characters in addition to
    * \Drupal\Core\Mail\MailFormatHelper\MailFormatHelper::htmlToText().
+   *
    * @param string $text
    *   The mail text with HTML and special characters.
    * @param bool $inline_hyperlinks
    *   TRUE: URLs will be placed inline.
    *   FALSE: URLs will be converted to numbered reference list.
+   *
    * @return string
    *   The target text with HTML and special characters replaced.
    */
-  public static function htmlToText ($text, $inline_hyperlinks = TRUE)
-  {
+  public static function htmlToText($text, $inline_hyperlinks = TRUE) {
     // By replacing <a> tag by only its URL the URLs will be placed inline
     // in the email body and are not converted to a numbered reference list
     // by MailFormatHelper::htmlToText().
@@ -41,8 +42,7 @@ class MailFormatHelper
   /**
    * Replaces URLs with absolute URLs.
    */
-  public static function absoluteMailUrls ($match)
-  {
+  public static function absoluteMailUrls($match) {
     global $base_url, $base_path;
     $regexp = &drupal_static(__FUNCTION__);
     $url = $label = '';

@@ -16,14 +16,13 @@ use mikehaertl\wkhtmlto\Pdf;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class PrintController extends ControllerBase
-{
+class PrintController extends ControllerBase {
 
-  public function printDownload (NodeInterface $node)
-  {
+  public function printDownload(NodeInterface $node) {
 
     $host = \Drupal::request()->getSchemeAndHttpHost();
-    $alias = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $node->id());
+    $alias = \Drupal::service('path.alias_manager')
+      ->getAliasByPath('/node/' . $node->id());
     $url = $host . $alias;
     $short_url = $this->send($url);
     $type = $node->get('field_quiz_type')->value;
@@ -43,26 +42,63 @@ class PrintController extends ControllerBase
         foreach ($content['answers']['answers'] as $key => $answer) {
           switch ($answer['type']) {
             case 'blank':
-              $data[$key] = ['num' => $answer['number'], 'correct_ans' => $answer['prefix']];
+              $data[$key] = [
+                'num' => $answer['number'],
+                'correct_ans' => $answer['prefix'],
+              ];
               break;
             case 'radio':
-              $data[$key] = ['num' => $answer['number'], 'correct_ans' => $answer['answer']];
+              $data[$key] = [
+                'num' => $answer['number'],
+                'correct_ans' => $answer['answer'],
+              ];
               break;
             case 'drop_down':
-              $data[$key] = ['num' => $answer['number'], 'correct_ans' => $answer['answer']];
+              $data[$key] = [
+                'num' => $answer['number'],
+                'correct_ans' => $answer['answer'],
+              ];
               break;
             case 'checkbox':
-              $data[$key] = ['num' => $answer['number'], 'correct_ans' => implode(',', $answer['answer'])];
+              $data[$key] = [
+                'num' => $answer['number'],
+                'correct_ans' => implode(',', $answer['answer']),
+              ];
               break;
           }
         }
-        $collection_theme = ['#theme' => 'iot_collection_header', '#collection' => $collection, '#type' => 'listening', '#title' => $title,];
+        $collection_theme = [
+          '#theme' => 'iot_collection_header',
+          '#collection' => $collection,
+          '#type' => 'listening',
+          '#title' => $title,
+        ];
         $collection_header = render($collection_theme);
-        $score_table_theme = ['#theme' => 'iot_result_question', '#result' => $data,];
+        $score_table_theme = [
+          '#theme' => 'iot_result_question',
+          '#result' => $data,
+        ];
 
 
         $score_table = render($score_table_theme);
-        $return = ['#theme' => ['iot_print_listening'], '#node' => $node, '#result' => $data, '#secs' => $content['secs'], '#audio' => $content['audio'], '#collection_header' => $collection_header, '#answers' => $content['answers'], '#score_table' => $score_table, '#url' => $short_url, '#attached' => ['library' => ['iot_quiz/iot_printpdf', 'iot_quiz/iot_result', 'iot_quiz/iot_frontend',],]];
+        $return = [
+          '#theme' => ['iot_print_listening'],
+          '#node' => $node,
+          '#result' => $data,
+          '#secs' => $content['secs'],
+          '#audio' => $content['audio'],
+          '#collection_header' => $collection_header,
+          '#answers' => $content['answers'],
+          '#score_table' => $score_table,
+          '#url' => $short_url,
+          '#attached' => [
+            'library' => [
+              'iot_quiz/iot_printpdf',
+              'iot_quiz/iot_result',
+              'iot_quiz/iot_frontend',
+            ],
+          ],
+        ];
         // return $this->downloadPdf($return,'listening');
         break;
       case 'reading':
@@ -74,24 +110,61 @@ class PrintController extends ControllerBase
         foreach ($content['answers']['answers'] as $key => $answer) {
           switch ($answer['type']) {
             case 'blank':
-              $data[$key] = ['num' => $answer['number'], 'correct_ans' => $answer['prefix']];
+              $data[$key] = [
+                'num' => $answer['number'],
+                'correct_ans' => $answer['prefix'],
+              ];
               break;
             case 'radio':
-              $data[$key] = ['num' => $answer['number'], 'correct_ans' => $answer['answer']];
+              $data[$key] = [
+                'num' => $answer['number'],
+                'correct_ans' => $answer['answer'],
+              ];
               break;
             case 'drop_down':
-              $data[$key] = ['num' => $answer['number'], 'correct_ans' => $answer['answer']];
+              $data[$key] = [
+                'num' => $answer['number'],
+                'correct_ans' => $answer['answer'],
+              ];
               break;
             case 'checkbox':
-              $data[$key] = ['num' => $answer['number'], 'correct_ans' => implode(',', $answer['answer'])];
+              $data[$key] = [
+                'num' => $answer['number'],
+                'correct_ans' => implode(',', $answer['answer']),
+              ];
               break;
           }
         }
-        $collection_theme = ['#theme' => 'iot_collection_header', '#collection' => $collection, '#type' => 'reading', '#title' => $title,];
+        $collection_theme = [
+          '#theme' => 'iot_collection_header',
+          '#collection' => $collection,
+          '#type' => 'reading',
+          '#title' => $title,
+        ];
         $collection_header = render($collection_theme);
-        $score_table_theme = ['#theme' => 'iot_result_question', '#result' => $data, '#class' => 'green',];
+        $score_table_theme = [
+          '#theme' => 'iot_result_question',
+          '#result' => $data,
+          '#class' => 'green',
+        ];
         $score_table = render($score_table_theme);
-        $return = ['#theme' => ['iot_print_reading'], '#node' => $node, '#result' => $data, '#collection_header' => $collection_header, '#secs' => $content['secs'], '#answers' => $content['answers'], '#score_table' => $score_table, '#url' => $short_url, '#attached' => ['library' => ['iot_quiz/iot_printpdf', 'iot_quiz/iot_result', 'iot_quiz/iot_frontend',],]];
+        $return = [
+          '#theme' => ['iot_print_reading'],
+          '#node' => $node,
+          '#result' => $data,
+          '#collection_header' => $collection_header,
+          '#secs' => $content['secs'],
+          '#answers' => $content['answers'],
+          '#score_table' => $score_table,
+          '#url' => $short_url,
+          '#attached' => [
+            'library' => [
+              'iot_quiz/iot_printpdf',
+              'iot_quiz/iot_result',
+              'iot_quiz/iot_frontend',
+            ],
+          ],
+        ];
         //  return $this->downloadPdf($return);
         break;
     }
@@ -99,8 +172,7 @@ class PrintController extends ControllerBase
   }
 
 
-  public function downloadPdf ($html, $name = 'mytest')
-  {
+  public function downloadPdf($html, $name = 'mytest') {
     $pdf = $this->generateSimplePdf($html);
     // Tell the browser that this is not an HTML file to show, but a pdf file to
     // download.
@@ -114,10 +186,10 @@ class PrintController extends ControllerBase
 
   /**
    * Generates a pdf file using TCPDF module.
+   *
    * @return string Binary string of the generated pdf.
    */
-  protected function generateSimplePdf ($htmlData)
-  {
+  protected function generateSimplePdf($htmlData) {
     // Get the content we want to convert into pdf.
     $html = '';
     $host = \Drupal::request()->getSchemeAndHttpHost();
@@ -150,15 +222,14 @@ class PrintController extends ControllerBase
   /**
    * @param $node
    */
-  public function printDownloadAction ($node)
-  {
+  public function printDownloadAction($node) {
     $host = \Drupal::request()->getSchemeAndHttpHost();
     $filepath = getcwd() . '/sites/default/files/';
     $filename = str_replace(' ', '', $node->get('field_title_ui')->value) . '-' . $node->id() . '.pdf';
     $url = $host . '/sites/default/files/' . $filename;
     $command = "xvfb-run -a --server-args=\"-screen 0, 1024x768x24\" /var/wkhtmltopdf --use-xserver --no-outline --margin-top '20' --margin-right '20' --margin-bottom '20' --margin-left '20' --disable-smart-shrinking --footer-html 'http://localhost:8000/themes/iot/templates/footer.html' --footer-right 'page [page]' 'http://localhost:8000/node/" . $node->id() . "/print/action' '" . $filepath . $filename . "' 
 ";
-//var_dump($command);die;
+    //var_dump($command);die;
     if (!file_exists($filepath . $filename)) {
       shell_exec($command);
     }
@@ -178,33 +249,29 @@ class PrintController extends ControllerBase
     return [];
   }
 
-  function GoogleURLAPI ()
-  {
+  function GoogleURLAPI() {
     // Keep the API Url
     return 'https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyDoIJQFwOnZjJHIIlTI1G_ll8li8Y_08P0';
   }
 
   // Shorten a URL
-  function shorten ($url)
-  {
+  function shorten($url) {
     // Send information along
     $response = $this->send($url);
     // Return the result
-    return isset($response['id']) ? $response['id'] : false;
+    return isset($response['id']) ? $response['id'] : FALSE;
   }
 
   // Expand a URL
-  function expand ($url)
-  {
+  function expand($url) {
     // Send information along
-    $response = $this->send($url, false);
+    $response = $this->send($url, FALSE);
     // Return the result
-    return isset($response['longUrl']) ? $response['longUrl'] : false;
+    return isset($response['longUrl']) ? $response['longUrl'] : FALSE;
   }
 
   // Send information to Google
-  function send ($url, $shorten = true)
-  {
+  function send($url, $shorten = TRUE) {
     // Create cURL
     $ch = curl_init();
     // If we're shortening a URL...
@@ -213,7 +280,8 @@ class PrintController extends ControllerBase
       curl_setopt($ch, CURLOPT_POST, 1);
       curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(["longUrl" => $url]));
       curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
-    } else {
+    }
+    else {
       curl_setopt($ch, CURLOPT_URL, $this->GoogleURLAPI() . '&shortUrl=' . $url);
     }
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -222,7 +290,7 @@ class PrintController extends ControllerBase
     // Close the connection
     curl_close($ch);
     // Return the result
-    $data = json_decode($result, true);
+    $data = json_decode($result, TRUE);
     return $data['id'];
   }
 

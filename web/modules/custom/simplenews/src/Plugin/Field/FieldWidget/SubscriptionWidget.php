@@ -20,11 +20,11 @@ use Drupal\simplenews\SubscriptionWidgetInterface;
  *   multiple_values = TRUE
  * )
  */
-class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWidgetInterface
-{
+class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWidgetInterface {
 
   /**
    * IDs of the newsletters available for selection.
+   *
    * @var string[]
    */
   protected $newsletterIds;
@@ -37,32 +37,28 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   /**
    * {@inheritdoc}
    */
-  public function setAvailableNewsletterIds (array $newsletter_ids)
-  {
+  public function setAvailableNewsletterIds(array $newsletter_ids) {
     $this->newsletterIds = $newsletter_ids;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setHidden ($set = TRUE)
-  {
-    $this->hidden = (bool)$set;
+  public function setHidden($set = TRUE) {
+    $this->hidden = (bool) $set;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function isHidden ()
-  {
+  public function isHidden() {
     return $this->hidden;
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function getOptions (FieldableEntityInterface $entity)
-  {
+  protected function getOptions(FieldableEntityInterface $entity) {
     $options = parent::getOptions($entity);
     if (isset($this->newsletterIds)) {
       $options = array_intersect_key($options, array_flip($this->newsletterIds));
@@ -73,8 +69,7 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   /**
    * {@inheritdoc}
    */
-  protected function getSelectedOptions (FieldItemListInterface $items, $delta = 0)
-  {
+  protected function getSelectedOptions(FieldItemListInterface $items, $delta = 0) {
     // Copy parent behavior but also check the status property.
     $flat_options = OptGroup::flattenOptions($this->getOptions($items->getEntity()));
     $selected_options = [];
@@ -92,15 +87,20 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   /**
    * {@inheritdoc}
    */
-  public function formElement (FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state)
-  {
+  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     if ($this->isHidden()) {
       // "Hide" the element with #type => 'value' and a structure like a normal
       // element.
       foreach ($this->newsletterIds as $newsletter_id) {
-        $element[] = ['target_id' => ['#type' => 'value', '#value' => $newsletter_id,],];
+        $element[] = [
+          'target_id' => [
+            '#type' => 'value',
+            '#value' => $newsletter_id,
+          ],
+        ];
       }
-    } else {
+    }
+    else {
       $element = parent::formElement($items, $delta, $element, $form, $form_state);
     }
     return $element;
@@ -109,8 +109,7 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   /**
    * {@inheritdoc}
    */
-  public function extractNewsletterIds ($form_state_value, $selected = TRUE)
-  {
+  public function extractNewsletterIds($form_state_value, $selected = TRUE) {
     $selected_ids = array_map(function ($item) {
       return $item['target_id'];
     }, $form_state_value);

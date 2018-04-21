@@ -6,17 +6,16 @@
 
 use Drupal\Core\Url;
 
-function iot_quiz_form_alter (&$form, &$form_state, $form_id)
-{
-//    drupal_set_message($form_id);
+function iot_quiz_form_alter(&$form, &$form_state, $form_id) {
+  //    drupal_set_message($form_id);
   switch ($form_id) {
-//    case 'node_collection_form':
-//      unset($form['field_collection_set']);
-//      break;
-//    case 'node_collection_edit_form':
-//      unset($form['field_collection_set']);
-//      $form['#theme'] = ['custom_edit_node_collection'];
-//      break;
+    //    case 'node_collection_form':
+    //      unset($form['field_collection_set']);
+    //      break;
+    //    case 'node_collection_edit_form':
+    //      unset($form['field_collection_set']);
+    //      $form['#theme'] = ['custom_edit_node_collection'];
+    //      break;
     case 'node_section_listening_form':
       unset($form['field_listening_questions']);
       $form['#theme'] = ['custom_edit_node_listening_questions'];
@@ -110,14 +109,12 @@ function iot_quiz_form_alter (&$form, &$form_state, $form_id)
   }
 }
 
-function iot_alter_quiz_form_submit ()
-{
+function iot_alter_quiz_form_submit() {
 
 }
 
-function iot_quiz_inline_entity_form_entity_form_alter (&$entity_form, &$form_state)
-{
-//  drupal_set_message($entity_form['#ief_labels']);
+function iot_quiz_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+  //  drupal_set_message($entity_form['#ief_labels']);
   if ($entity_form['#entity_type'] == 'node' && $entity_form['#bundle'] == 'quiz') {
     unset($entity_form['field_reading_sections']);
     unset($entity_form['field_listening_sections']);
@@ -126,7 +123,6 @@ function iot_quiz_inline_entity_form_entity_form_alter (&$entity_form, &$form_st
   }
 }
 
-function iot_quiz_inline_entity_form_reference_form_alter (&$reference_form, &$form_state)
-{
+function iot_quiz_inline_entity_form_reference_form_alter(&$reference_form, &$form_state) {
   $reference_form['entity_id']['#description'] = t('New autocomplete description');
 }
