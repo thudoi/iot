@@ -38,9 +38,9 @@ More information please visit links blow:
 
 ## Recommended collaboration workflow
 
-Creat your own fork, keep your local fork in sync with this [repo](https://github.com/UKuni/iot), creat PR for your updates.
+Creat your own fork, keep your local fork in sync with this [repo](https://github.com/thudoi/iot), creat PR for your updates.
 
-- Fork this repo. Please visit [https://github.com/UKuni/iot](https://github.com/UKuni/iot) and click `Fork` button on the top right.
+- Fork this repo. Please visit [https://github.com/thudoi/iot](https://github.com/thudoi/iot) and click `Fork` button on the top right.
 - [Create a local clone of your fork](https://help.github.com/articles/fork-a-repo/#step-2-create-a-local-clone-of-your-fork)
 - [Syncing a fork](https://help.github.com/articles/syncing-a-fork/)
 - [Creating a pull request](https://help.github.com/articles/creating-a-pull-request/)
