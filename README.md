@@ -11,7 +11,7 @@ Welcome to the IOT project
 Assuming `$HOME/iot` is used for this project
 
 ```
-git clone https://github.com/UKuni/iot.git $HOME/iot
+git clone https://github.com/thudoi/iot.git $HOME/iot
 ```
 
 2. Run `composer install`
