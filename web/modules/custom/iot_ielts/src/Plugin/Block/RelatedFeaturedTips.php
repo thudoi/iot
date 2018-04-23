@@ -38,12 +38,7 @@ class RelatedFeaturedTips extends BlockBase {
         ->condition('status', 1)
         ->sort('created', 'DESC')
         ->execute();
-      $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
-      $node = FALSE;
-      $views = 0;
-      $vote_widget = FALSE;
-      $cate = FALSE;
-      $term_uri = FALSE;
+      $nodes = Node::loadMultiple($nids);
       $tips = [];
       $views = [];
       $rate = [];

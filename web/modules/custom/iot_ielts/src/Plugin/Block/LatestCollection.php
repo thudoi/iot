@@ -10,7 +10,6 @@ namespace Drupal\iot_ielts\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\node\Entity\Node;
-use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'LatestCollection' Block.
@@ -34,7 +33,7 @@ class LatestCollection extends BlockBase {
       ->sort('field_collection_order', 'ASC')
       ->range(0, 4)
       ->execute();
-    $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+    $nodes = Node::loadMultiple($nids);
     $services = [];
     foreach ($nodes as $node) {
       $vote_widget_service = \Drupal::service('rate.entity.vote_widget');

@@ -10,7 +10,6 @@ namespace Drupal\iot_ielts\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\node\Entity\Node;
-use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Support' Block.
@@ -33,7 +32,7 @@ class Support extends BlockBase {
       ->condition('field_service_type', 'support')
       ->sort('created', 'ASC')
       ->execute();
-    $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+    $nodes = Node::loadMultiple($nids);
     $services = [];
     foreach ($nodes as $node) {
       $services[] = $node;

@@ -39,7 +39,7 @@ class Tips extends BlockBase {
         ->sort('created', 'DESC')
         ->range(0, 1)
         ->execute();
-      $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+      $nodes = Node::loadMultiple($nids);
       $node = FALSE;
       if ($nodes) {
         $node = reset($nodes);

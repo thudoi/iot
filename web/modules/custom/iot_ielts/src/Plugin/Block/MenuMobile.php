@@ -9,8 +9,6 @@
 namespace Drupal\iot_ielts\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\node\Entity\Node;
-use Drupal\taxonomy\Entity\Term;
 
 /**
  * Provides a 'Facts' Block.
