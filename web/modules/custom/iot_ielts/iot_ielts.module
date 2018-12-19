@@ -349,7 +349,7 @@ function CollectionConter($collection) {
     ->condition('field_collection', $collection->id())
     ->condition('status', 1)
     ->execute();
-  $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+  $nodes = Node::loadMultiple($nids);
   $total = 0;
   foreach ($nodes as $node) {
     $quizIds = \Drupal::entityQuery('node')
@@ -357,7 +357,7 @@ function CollectionConter($collection) {
       ->condition('field_set', $node->id())
       ->condition('status', 1)
       ->execute();
-    $quizs = \Drupal\node\Entity\Node::loadMultiple($quizIds);
+    $quizs = Node::loadMultiple($quizIds);
     foreach ($quizs as $quiz) {
       $total += counterNode($quiz);
     }
@@ -367,7 +367,6 @@ function CollectionConter($collection) {
 
 
 /**
- * @param $node
  *
  * @return int
  */

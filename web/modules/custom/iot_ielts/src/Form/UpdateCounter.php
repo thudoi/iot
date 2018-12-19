@@ -12,6 +12,7 @@ class UpdateCounter extends FormBase {
   /**
    * {@inheritdoc}
    */
+  
   public function getFormId() {
     return 'update_counter';
   }

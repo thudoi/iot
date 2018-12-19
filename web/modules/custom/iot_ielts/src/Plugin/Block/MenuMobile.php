@@ -11,7 +11,7 @@ namespace Drupal\iot_ielts\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 
 /**
- * Provides a 'Facts' Block.
+ * Provides a 'Menu obile' Block.
  * @Block(
  *   id = "menu_mobile",
  *   admin_label = @Translation("Menu Mobile"),
@@ -89,7 +89,6 @@ class MenuMobile extends BlockBase {
       $menu[$i]['belows'] = $this->_get_child($item['below']);
       $i++;
     }
-    // kint($menu);
     return $menu;
   }
 

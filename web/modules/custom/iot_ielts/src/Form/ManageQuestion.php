@@ -5,6 +5,7 @@ namespace Drupal\iot_ielts\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
+use Drupal\paragraphs\Entity\Paragraph;
 
 class ManageQuestion extends FormBase {
 
@@ -25,7 +26,7 @@ class ManageQuestion extends FormBase {
       ->condition('field_section', $node->id())
       ->sort('field_order', 'ASC')
       ->execute();
-    $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+    $nodes = Node::loadMultiple($nids);
     $form['mytable'] = [
       '#type' => 'table',
       '#caption' => '<a class="btn btn-success" href="/node/add/question?bid=' . $node->id() . '&type=' . $node->get('field_section_type')->value . '&destination=question/' . $node->id() . '/manage">Add Question</a><a class="btn btn-success" href="/quiz/' . $node->get('field_quiz')->target_id . '/manage">Back To Quiz Manager</a>',
@@ -137,7 +138,7 @@ class ManageQuestion extends FormBase {
     if ($type == 'radio') {
       $questions = $node->get('field_question')->getValue();
       foreach ($questions as $q) {
-        $para = \Drupal\paragraphs\Entity\Paragraph::load($q['target_id']);
+        $para = Paragraph::load($q['target_id']);
         $explain = $para->get('field_explanation')->value;
         if (!empty($explain)) {
           $count_explain += 1;
@@ -149,7 +150,7 @@ class ManageQuestion extends FormBase {
         }
 
         foreach ($para_child as $pachild) {
-          $para_an = \Drupal\paragraphs\Entity\Paragraph::load($pachild['target_id']);
+          $para_an = Paragraph::load($pachild['target_id']);
           $correct = $para_an->get('field_correct');
           if (isset($correct)) {
             $correct_an = $correct->getValue();
@@ -167,11 +168,11 @@ class ManageQuestion extends FormBase {
     if ($type == 'checkbox') {
       $questions = $node->get('field_question')->getValue();
       foreach ($questions as $q) {
-        $para = \Drupal\paragraphs\Entity\Paragraph::load($q['target_id']);
+        $para = Paragraph::load($q['target_id']);
         $para_child = $para->get('field_checkbox')->getValue();
         $expain_child = $para->get('field_explain')->getValue();
         foreach ($expain_child as $ex) {
-          $ex_c = \Drupal\paragraphs\Entity\Paragraph::load($ex['target_id']);
+          $ex_c = Paragraph::load($ex['target_id']);
           $expl = $ex_c->get('field_explanation')->value;
           if (isset($expl) && !empty($expl)) {
             $count_explain += 1;
@@ -184,7 +185,7 @@ class ManageQuestion extends FormBase {
         }
         $count_question = $total;
         foreach ($para_child as $pachild) {
-          $para_an = \Drupal\paragraphs\Entity\Paragraph::load($pachild['target_id']);
+          $para_an = Paragraph::load($pachild['target_id']);
           if (isset($para_an)) {
             $correct = $para_an->get('field_correct_checkbox')->value;
             if (isset($correct) && $correct == 1) {
@@ -199,7 +200,7 @@ class ManageQuestion extends FormBase {
     if ($type == 'drop_down' || $type == 'blank' || $type == 'drag_drop') {
       $questions = $node->get('field_question')->getValue();
       foreach ($questions as $q) {
-        $para = \Drupal\paragraphs\Entity\Paragraph::load($q['target_id']);
+        $para = Paragraph::load($q['target_id']);
         $question = $para->get('field_question')->value;
         if (preg_match_all('/(\[*\:.*?\])/i', $question, $regs)) {
           $count_answer += count($regs[0]);
@@ -210,7 +211,7 @@ class ManageQuestion extends FormBase {
 
         $expain = $para->get('field_explain')->getValue();
         foreach ($expain as $ex) {
-          $ex_c = \Drupal\paragraphs\Entity\Paragraph::load($ex['target_id']);
+          $ex_c = Paragraph::load($ex['target_id']);
           $expl = $ex_c->get('field_explanation')->value;
           if (isset($expl) && !empty($expl)) {
             $count_explain += 1;

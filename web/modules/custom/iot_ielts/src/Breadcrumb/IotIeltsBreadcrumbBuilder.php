@@ -31,9 +31,6 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
    * {@inheritdoc}
    */
   public function build(RouteMatchInterface $route_match) {
-    $breadcrumb = new Breadcrumb();
-
-    $breadcrumb->addLink(Link::fromTextAndUrl('Home', Url::fromUserInput('/')));
     $current_path = \Drupal::service('path.current')->getPath();
     $path_args = explode('/', $current_path);
     $nid = $route_match->getParameter('nid');
@@ -150,7 +147,7 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
         $col = Node::load($id[0]['target_id']);
         $breadcrumb->addLink(Link::fromTextAndUrl('Collection', Url::fromUserInput('/collections')));
         $breadcrumb->addLink(Link::fromTextAndUrl($col->getTitle(), Url::fromUserInput('/node/' . $col->id())));
-        $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute($node->get('field_title_ui')->value, '<none>'));
+        $breadcrumb->addLink(Link::createFromRoute($node->get('field_title_ui')->value, '<none>'));
       }
     }
     if (isset($node) && $node->getType() == 'tips') {
@@ -162,7 +159,6 @@ class IotIeltsBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       if ($term) {
         $breadcrumb->addLink(Link::fromTextAndUrl($term->getName(), Url::fromUserInput('/taxonomy/term/' . $term->id())));
       }
-      // $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute($node->getTitle(), '<none>'));
     }
     return $breadcrumb;
 
