@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains jera_table_ce_plugin.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function jera_table_ce_plugin_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the jera_table_ce_plugin module.
+    case 'help.page.jera_table_ce_plugin':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Add custom plugin to ckeditor') . '</p>';
+      return $output;
+
+    default:
+  }
+}

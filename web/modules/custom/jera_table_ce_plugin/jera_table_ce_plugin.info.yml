@@ -1,0 +1,7 @@
+name: 'Jera table ce plugin'
+type: module
+description: 'Add custom plugin to ckeditor'
+core: 8.x
+package: 'Jera'
+dependencies:
+  - ckeditor
